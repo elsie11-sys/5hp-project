@@ -1,0 +1,49 @@
+{
+  "auth": {
+    "login": "登录",
+    "register": "注册",
+    "codeLogin": "验证码登录",
+    "qrcodeLogin": "二维码登录",
+    "forgetPassword": "忘记密码",
+    "profile": "个人中心"
+  },
+  "dashboard": {
+    "title": "概览",
+    "analytics": "分析页",
+    "workspace": "工作台"
+  },
+  "vision": {
+    "title": "可视化管理",
+    "national": "全国总览大屏",
+    "province": "省级看板",
+    "city": "市级看板",
+    "county":"县区级看板",
+    "school": "学校看板",
+    "charts": "核心图表",
+    "overview": {
+      "totalStudents": "累计建档",
+      "totalScreenings": "累计筛查",
+      "totalAbnormal": "异常总数",
+      "avgBadRate": "平均不良率",
+      "todayNew": "今日新增",
+      "monthScreenings": "本月筛查"
+    },
+    "system": {
+      "user": "用户管理",
+      "permission": "权限管理",
+      "org": "组织管理",
+      "dict": "字典管理",
+      "log": "操作日志"
+    }
+  },
+  "studentManage": {
+    "title": "学生综合管理",
+    "profile": "学生电子档案",
+    "collect": "数据采集与审核",
+    "statisticsReport": "统计分析与报表"
+  },
+  "warningManage": {
+    "title": "预警管理",
+    "earlyWarning": "预警与干预管理"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "codeLogin": "Code Login",
+    "qrcodeLogin": "QR Code Login",
+    "forgetPassword": "Forget Password",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "analytics": "Analytics",
+    "workspace": "Workspace"
+  },
+  "vision": {
+    "title": "Vision Archive",
+    "national": "National Overview",
+    "province": "Province Dashboard",
+    "city": "City Dashboard",
+    "county": "County Dashboard",
+    "school": "School Dashboard",
+    "student": "Student Archives",
+    "collect": "Data Collection",
+    "analysis": "Statistical Analysis",
+    "report": "Report Generation",
+    "overview": {
+      "totalStudents": "Total Archives",
+      "totalScreenings": "Total Screenings",
+      "totalAbnormal": "Total Abnormal",
+      "avgBadRate": "Avg Bad Rate",
+      "todayNew": "Today New",
+      "monthScreenings": "Month Screenings"
+    },
+    "system": {
+      "user": "User Management",
+      "role": "Role Management",
+      "permission": "Permission Management",
+      "org": "Organization Management",
+      "dict": "Dictionary Management",
+      "log": "Operation Log"
+    }
+  }
+}
