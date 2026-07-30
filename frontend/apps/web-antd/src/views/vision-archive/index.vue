@@ -259,9 +259,9 @@
             <div class="map-corner mc-bl"></div>
             <div class="map-corner mc-br"></div>
             <div class="map-data-strip">
-              <span>经度：<b>104.0°E</b></span>
-              <span>纬度：<b>36.0°N</b></span>
-              <span>缩放：<b>1.25x</b></span>
+              <span>经度：<b>{{ mapCenter[0].toFixed(1) }}°E</b></span>
+              <span>纬度：<b>{{ mapCenter[1].toFixed(1) }}°N</b></span>
+              <span>缩放：<b>{{ mapZoom.toFixed(2) }}x</b></span>
               <span v-if="mapLoaded" class="map-drill-tip">点击省份下钻 ›</span>
               <span v-else>加载中…</span>
             </div>
@@ -355,8 +355,8 @@ const DARK_COLOR = {
   splitLine: 'rgba(11, 196, 233, 0.12)',
   gaugeTrack: 'rgba(11, 196, 233, 0.12)',
   initialBar: '#475569',
-  mapColors: ['#1a5490', '#2e8bcf', '#5fc7c7', '#7dd87d', '#c5e04a', '#f5c542', '#f08a3c', '#e8554f', '#c23a4a'],
-  mapGradient: ['#1a5490', '#2e8bcf', '#5fc7c7', '#7dd87d', '#c5e04a', '#f5c542', '#f08a3c', '#e8554f', '#c23a4a'],
+  mapColors: ['#0bc4e9', '#7dd87d', '#f5c542', '#e8554f'],
+  mapGradient: ['#0bc4e9', '#7dd87d', '#f5c542', '#e8554f'],
 };
 
 const LIGHT_COLOR = {
@@ -377,8 +377,8 @@ const LIGHT_COLOR = {
   splitLine: 'rgba(8, 145, 178, 0.1)',
   gaugeTrack: 'rgba(8, 145, 178, 0.08)',
   initialBar: '#cbd5e1',
-  mapColors: ['#6aa7d9', '#7eb8da', '#9dd3d3', '#a8e0a8', '#d4e77c', '#f7d462', '#f5a062', '#ef8780', '#d4605d'],
-  mapGradient: ['#6aa7d9', '#7eb8da', '#9dd3d3', '#a8e0a8', '#d4e77c', '#f7d462', '#f5a062', '#ef8780', '#d4605d'],
+  mapColors: ['#4dd4f5', '#a8e8a8', '#f7d56e', '#ed807d'],
+  mapGradient: ['#4dd4f5', '#a8e8a8', '#f7d56e', '#ed807d'],
 };
 
 const PROVINCE_CODES = {
@@ -1265,6 +1265,8 @@ const mapLoaded = ref(false);
 const currentDate = ref('');
 const currentTime = ref('');
 const isLight = ref(false);
+const mapCenter = ref([104, 36]);
+const mapZoom = ref(1.25);
 
 const cityRankRef = ref(null);
 const ageGenderRef = ref(null);
@@ -1606,7 +1608,12 @@ const getMapOption = () => {
   if (!mapLoaded.value) return {};
   const c = getColors();
   const data = provinceDataMap[activeTab.value] || {};
-  const mapData = Object.keys(data).map((name) => ({ name, value: data[name] }));
+  // 包含全部省份；无数据省份默认 0%，由 visualMap 映射为 #0bc4e9，与图例保持一致
+  const mapData = Object.keys(PROVINCE_CODES).map((name) => {
+    const val = data[name];
+    const hasData = val !== undefined && val !== null;
+    return { name, value: hasData ? val : 0 };
+  });
 
   // Major city coordinates for effectScatter
   const majorCities = [
@@ -1636,115 +1643,71 @@ const getMapOption = () => {
     },
     visualMap: {
       show: false,
+      type: 'piecewise',
       min: 0,
       max: 100,
-      inRange: {
-        color: [
-          '#1a5490',
-          '#2e8bcf',
-          '#5fc7c7',
-          '#7dd87d',
-          '#c5e04a',
-          '#f5c542',
-          '#f08a3c',
-          '#e8554f',
-          '#c23a4a',
-        ],
-      },
       pieces: [
-        { min: 0, max: 48, color: '#2e8bcf' },
+        { min: 0, max: 48, color: '#0bc4e9' },
         { min: 48, max: 55, color: '#7dd87d' },
         { min: 55, max: 60, color: '#f5c542' },
         { min: 60, max: 100, color: '#e8554f' },
       ],
+      outOfRange: {
+        color: 'rgba(15, 30, 65, 0.4)',
+      },
     },
     geo: {
       map: 'china',
-      roam: false,
-      zoom: 1.25,
-      center: [104, 36],
+      roam: true,
+      zoom: mapZoom.value,
+      center: mapCenter.value,
+      scaleLimit: { min: 0.8, max: 5 },
       nameMap: PROVINCE_NAME_MAP,
-      label: { show: false },
-      itemStyle: {
-        borderColor: 'rgba(11, 196, 233, 0.4)',
-        borderWidth: 1.5,
-        areaColor: 'rgba(15, 30, 65, 0.3)',
-        shadowBlur: 40,
-        shadowColor: 'rgba(0, 212, 255, 0.5)',
-        shadowOffsetX: 6,
-        shadowOffsetY: 8,
+      label: {
+        show: true,
+        color: '#ffffff',
+        fontSize: 10,
+        fontWeight: '600',
+        textShadowColor: 'rgba(0, 0, 0, 0.9)',
+        textShadowBlur: 6,
+        textShadowOffsetX: 0,
+        textShadowOffsetY: 1,
       },
-      emphasis: { disabled: true },
-      silent: true,
+      itemStyle: {
+        borderColor: 'rgba(11, 196, 233, 0.6)',
+        borderWidth: 1.5,
+        shadowBlur: 30,
+        shadowColor: 'rgba(0, 212, 255, 0.35)',
+      },
+      emphasis: {
+        label: {
+          show: true,
+          color: '#ffffff',
+          fontSize: 12,
+          fontWeight: 700,
+          textShadowColor: 'rgba(0, 0, 0, 0.9)',
+          textShadowBlur: 8,
+        },
+        itemStyle: {
+          areaColor: '#f5c542',
+          borderColor: '#ffffff',
+          borderWidth: 2,
+          shadowBlur: 40,
+          shadowColor: 'rgba(245, 197, 66, 0.6)',
+        },
+      },
+      select: {
+        label: { show: true, color: '#ffffff' },
+        itemStyle: { areaColor: 'rgba(11, 196, 233, 0.5)' },
+      },
+      zlevel: 1,
     },
     series: [
       {
         type: 'map',
-        map: 'china',
-        roam: false,
+        geoIndex: 0,
         selectedMode: false,
-        zoom: 1.25,
-        center: [104, 36],
-        nameMap: PROVINCE_NAME_MAP,
-        label: {
-          show: true,
-          color: '#ffffff',
-          fontSize: 10,
-          fontWeight: '600',
-          textShadowColor: 'rgba(0, 0, 0, 0.9)',
-          textShadowBlur: 6,
-          textShadowOffsetX: 0,
-          textShadowOffsetY: 1,
-        },
-        itemStyle: {
-          borderColor: 'rgba(11, 196, 233, 0.6)',
-          borderWidth: 1.2,
-          areaColor: 'rgba(15, 30, 65, 0.4)',
-          shadowBlur: 25,
-          shadowColor: 'rgba(0, 212, 255, 0.3)',
-          shadowOffsetX: 0,
-          shadowOffsetY: 0,
-        },
-        emphasis: {
-          label: {
-            show: true,
-            color: '#ffffff',
-            fontSize: 12,
-            fontWeight: 700,
-            textShadowColor: 'rgba(0, 0, 0, 0.9)',
-            textShadowBlur: 8,
-          },
-          itemStyle: {
-            areaColor: '#f5c542',
-            borderColor: '#ffffff',
-            borderWidth: 2,
-            shadowBlur: 40,
-            shadowColor: 'rgba(245, 197, 66, 0.6)',
-          },
-        },
         data: mapData,
-      },
-      {
-        type: 'map',
-        map: 'china',
-        roam: false,
-        selectedMode: false,
-        zoom: 1.25,
-        center: [104, 36],
-        nameMap: PROVINCE_NAME_MAP,
-        silent: true,
-        label: { show: false },
-        itemStyle: {
-          borderColor: 'rgba(11, 196, 233, 0.15)',
-          borderWidth: 6,
-          areaColor: 'transparent',
-          shadowBlur: 60,
-          shadowColor: 'rgba(11, 196, 233, 0.12)',
-          shadowOffsetX: 0,
-          shadowOffsetY: 0,
-        },
-        zlevel: 1,
-        data: [],
       },
       {
         type: 'effectScatter',
@@ -1835,6 +1798,17 @@ const renderAllCharts = () => {
         initChart(mapRef, 'map', getMapOption(), (params) => {
           if (params?.name) drillToProvince(params.name);
         });
+        // Update display values when map roams
+        const mapChart = chartInstances['map'];
+        if (mapChart) {
+          mapChart.on('georoam', () => {
+            const option = mapChart.getOption();
+            if (option && option.geo && option.geo[0]) {
+              if (option.geo[0].center) mapCenter.value = option.geo[0].center;
+              if (option.geo[0].zoom != null) mapZoom.value = option.geo[0].zoom;
+            }
+          });
+        }
       }
     });
   });
@@ -2992,7 +2966,29 @@ defineExpose({ switchTab });
   z-index: 5;
 }
 .map-data-strip b { color: var(--primary); font-weight: 700; text-shadow: 0 0 10px var(--glow-soft); }
-.map-drill-tip { color: var(--accent); font-weight: 500; text-shadow: 0 0 10px var(--glow-soft); }
+.map-drill-tip {
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(11, 196, 233, 0.8), 0 0 20px rgba(11, 196, 233, 0.4);
+  background: linear-gradient(90deg, rgba(11, 196, 233, 0.3), rgba(0, 168, 215, 0.3));
+  border: 1px solid rgba(11, 196, 233, 0.6);
+  padding: 4px 12px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  animation: tip-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(11, 196, 233, 0.4), inset 0 0 10px rgba(11, 196, 233, 0.1);
+  cursor: pointer;
+}
+@keyframes tip-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 15px rgba(11, 196, 233, 0.4), inset 0 0 10px rgba(11, 196, 233, 0.1);
+    text-shadow: 0 0 10px rgba(11, 196, 233, 0.8), 0 0 20px rgba(11, 196, 233, 0.4);
+  }
+  50% { 
+    box-shadow: 0 0 25px rgba(11, 196, 233, 0.7), inset 0 0 15px rgba(11, 196, 233, 0.2);
+    text-shadow: 0 0 15px rgba(11, 196, 233, 1), 0 0 30px rgba(11, 196, 233, 0.6);
+  }
+}
 
 .map-legend {
   position: absolute;
@@ -3019,7 +3015,7 @@ defineExpose({ switchTab });
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #2e8bcf, #7dd87d, #f5c542, #e8554f);
+  background: linear-gradient(90deg, #0bc4e9, #7dd87d, #f5c542, #e8554f);
   box-shadow: 0 0 10px rgba(11, 196, 233, 0.5);
 }
 .legend-title { 
@@ -3037,15 +3033,10 @@ defineExpose({ switchTab });
   height: 12px;
   border-radius: 2px;
   background: linear-gradient(90deg, 
-    #1a5490 0%, 
-    #2e8bcf 15%, 
-    #5fc7c7 25%, 
-    #7dd87d 40%, 
-    #c5e04a 55%, 
-    #f5c542 65%, 
-    #f08a3c 75%, 
-    #e8554f 90%, 
-    #c23a4a 100%);
+    #0bc4e9 0%, #0bc4e9 48%, 
+    #7dd87d 48%, #7dd87d 55%, 
+    #f5c542 55%, #f5c542 60%, 
+    #e8554f 60%, #e8554f 100%);
   box-shadow: 0 0 10px rgba(11, 196, 233, 0.3), inset 0 0 5px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(11, 196, 233, 0.3);
 }
@@ -3072,7 +3063,8 @@ defineExpose({ switchTab });
   box-shadow: 0 0 8px currentColor;
   flex-shrink: 0;
 }
-.legend-bar.bar-1 { background: #2e8bcf; color: #2e8bcf; }
+.legend-bar.bar-0 { background: #0bc4e9; color: #0bc4e9; }
+.legend-bar.bar-1 { background: #0bc4e9; color: #0bc4e9; }
 .legend-bar.bar-2 { background: #7dd87d; color: #7dd87d; }
 .legend-bar.bar-3 { background: #f5c542; color: #f5c542; }
 .legend-bar.bar-4 { background: #e8554f; color: #e8554f; }
