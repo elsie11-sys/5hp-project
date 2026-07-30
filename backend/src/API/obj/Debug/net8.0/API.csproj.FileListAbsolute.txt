@@ -103,6 +103,7 @@ E:\5HP_Project\backend\src\API\obj\Debug\net8.0\API.AssemblyInfo.cs
 E:\5HP_Project\backend\src\API\obj\Debug\net8.0\API.csproj.CoreCompileInputs.cache
 E:\5HP_Project\backend\src\API\obj\Debug\net8.0\API.MvcApplicationPartsAssemblyInfo.cs
 E:\5HP_Project\backend\src\API\obj\Debug\net8.0\API.MvcApplicationPartsAssemblyInfo.cache
+E:\5HP_Project\backend\src\API\obj\Debug\net8.0\API.sourcelink.json
 E:\5HP_Project\backend\src\API\obj\Debug\net8.0\staticwebassets.build.json
 E:\5HP_Project\backend\src\API\obj\Debug\net8.0\staticwebassets.development.json
 E:\5HP_Project\backend\src\API\obj\Debug\net8.0\staticwebassets\msbuild.API.Microsoft.AspNetCore.StaticWebAssets.props

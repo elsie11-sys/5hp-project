@@ -45,6 +45,8 @@ builder.Services.AddScoped<IApplicationDbContext>(provider =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDictService, DictService>();
 builder.Services.AddScoped<IOrgService, OrgService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IMenuService, MenuService>();
 
 // 1.5 添加 Swagger/OpenAPI 支持 (强烈建议：方便脱离前端，直接在浏览器测试接口)
 builder.Services.AddEndpointsApiExplorer();

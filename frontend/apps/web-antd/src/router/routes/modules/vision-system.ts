@@ -41,6 +41,15 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        name: 'VisionMenu',
+        path: '/vision-system/menu',
+        component: () => import('#/views/vision-archive/system/menu/index.vue'),
+        meta: {
+          icon: 'lucide:menu',
+          title: '菜单管理',
+        },
+      },
+      {
         name: 'VisionDict',
         path: '/vision-system/dict',
         component: () => import('#/views/vision-archive/system/dict/index.vue'),

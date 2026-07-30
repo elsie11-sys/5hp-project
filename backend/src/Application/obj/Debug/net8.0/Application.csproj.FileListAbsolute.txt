@@ -8,6 +8,7 @@ E:\5HP_Project\backend\src\Application\obj\Debug\net8.0\Application.GeneratedMSB
 E:\5HP_Project\backend\src\Application\obj\Debug\net8.0\Application.AssemblyInfoInputs.cache
 E:\5HP_Project\backend\src\Application\obj\Debug\net8.0\Application.AssemblyInfo.cs
 E:\5HP_Project\backend\src\Application\obj\Debug\net8.0\Application.csproj.CoreCompileInputs.cache
+E:\5HP_Project\backend\src\Application\obj\Debug\net8.0\Application.sourcelink.json
 E:\5HP_Project\backend\src\Application\obj\Debug\net8.0\Applicat.44B5EDA2.Up2Date
 E:\5HP_Project\backend\src\Application\obj\Debug\net8.0\Application.dll
 E:\5HP_Project\backend\src\Application\obj\Debug\net8.0\refint\Application.dll

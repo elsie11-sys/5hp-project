@@ -21,11 +21,12 @@ public class GlobalExceptionFilter : IAsyncExceptionFilter
     {
         _logger.LogError(context.Exception, "[未捕获异常] {Path}", context.HttpContext.Request.Path);
 
+        var inner = context.Exception.InnerException?.Message;
         var message = context.Exception switch
         {
             KeyNotFoundException knf => knf.Message,
             ArgumentException ae     => ae.Message,
-            _                         => $"服务器内部错误: {context.Exception.Message}"
+            _                         => $"服务器内部错误: {context.Exception.Message}" + (string.IsNullOrEmpty(inner) ? "" : $" | 内部: {inner}")
         };
 
         context.Result = new ObjectResult(new

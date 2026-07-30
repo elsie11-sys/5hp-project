@@ -2,17 +2,17 @@
   <div class="permission-manage">
     <!-- 子Tab切换 -->
     <div class="sub-tab-bar">
-      <div 
-        class="sub-tab-item" 
+      <div
+        class="sub-tab-item"
         :class="{ active: subActiveTab === 'role' }"
         @click="subActiveTab = 'role'"
       >
         <span class="sub-tab-icon">👥</span>
         <span class="sub-tab-label">角色管理</span>
-        <span class="sub-tab-badge">{{ roles.length }}</span>
+        <span class="sub-tab-badge">{{ filteredRoles.length }}</span>
       </div>
-      <div 
-        class="sub-tab-item" 
+      <div
+        class="sub-tab-item"
         :class="{ active: subActiveTab === 'permission' }"
         @click="subActiveTab = 'permission'"
       >
@@ -21,49 +21,113 @@
       </div>
     </div>
 
-    <!-- 角色管理 -->
+    <!-- ==================== 角色管理 ==================== -->
     <div v-show="subActiveTab === 'role'" class="sub-tab-content">
       <!-- 操作栏 -->
       <div class="toolbar">
-        <button class="btn btn-primary" @click="handleAddRole">
-          <span class="icon">➕</span> 新增角色
-        </button>
-        <button class="btn btn-danger" @click="handleBatchDeleteRole">
-          <span class="icon">🗑️</span> 删除角色
-        </button>
-        <div class="search-box">
-          <input 
-            type="text" 
-            v-model="roleSearch" 
-            placeholder="搜索角色名称..." 
-            @keyup.enter="handleRoleSearch"
-          />
-          <button class="btn btn-sm btn-primary" @click="handleRoleSearch">搜索</button>
+        <div class="toolbar-left">
+          <button class="btn btn-primary" @click="handleAddRole">
+            <span class="icon">➕</span> 新增角色
+          </button>
+          <button class="btn btn-danger" @click="handleBatchDeleteRole">
+            <span class="icon">🗑️</span> 删除角色
+          </button>
+          <select v-model="levelFilter" class="btn btn-default btn-filter">
+            <option value="">全部级别</option>
+            <option :value="1">国家级</option>
+            <option :value="2">省级</option>
+            <option :value="3">市级</option>
+            <option :value="4">区县级</option>
+            <option :value="5">学校级</option>
+            <option :value="6">班级级</option>
+          </select>
+          <select v-model="statusFilter" class="btn btn-default btn-filter">
+            <option value="">全部状态</option>
+            <option :value="1">启用</option>
+            <option :value="0">禁用</option>
+          </select>
+          <button class="btn btn-default btn-sm" @click="handleResetFilter">重置</button>
+        </div>
+        <div class="toolbar-right">
+          <div class="search-box">
+            <input
+              type="text"
+              v-model="roleSearch"
+              placeholder="搜索角色名称..."
+              @keyup.enter="currentPage = 1"
+            />
+          </div>
         </div>
       </div>
 
-      <!-- 角色列表 -->
-      <div class="role-list">
-        <div class="role-card" v-for="role in filteredRoles" :key="role.id">
-          <div class="role-header">
-            <span class="role-icon">{{ role.icon }}</span>
-            <span class="role-name">{{ role.name }}</span>
-            <span class="role-level">{{ role.level }}</span>
-            <span class="role-user-count">👤 {{ role.userCount }}人</span>
-            <span class="role-status" :class="role.statusClass">{{ role.status }}</span>
-            <div class="role-actions">
-              <button class="btn btn-sm btn-primary" @click="handleAssignPermission(role)">分配权限</button>
-              <button class="btn btn-sm btn-info" @click="handleEditRole(role)">编辑</button>
-              <button class="btn btn-sm btn-danger" @click="handleDeleteRole(role)">删除</button>
+      <!-- 角色列表：按级别分组 -->
+      <div class="role-groups">
+        <div
+          class="role-group"
+          v-for="group in groupedRoles"
+          :key="group.levelKey"
+        >
+          <div class="role-group-header" @click="toggleLevelGroup(group.levelKey)">
+            <span class="group-toggle" :class="{ collapsed: collapsedLevelGroups[group.levelKey] }">▶</span>
+            <span class="group-icon">{{ group.icon }}</span>
+            <span class="group-name">{{ group.levelLabel }}</span>
+            <span class="group-count">{{ group.roles.length }} 个角色</span>
+          </div>
+          <div class="role-group-body" v-show="!collapsedLevelGroups[group.levelKey]">
+            <div class="role-list">
+              <div
+                class="role-card"
+                v-for="role in group.roles"
+                :key="role.id"
+              >
+                <div class="role-header">
+                  <span class="role-icon">{{ role.icon }}</span>
+                  <span class="role-name">{{ role.name }}</span>
+                  <span class="role-level">{{ role.levelLabel }}</span>
+                  <span class="role-user-count">👤 {{ role.userCount }}人</span>
+                  <span class="role-status" :class="role.statusClass">{{ role.statusText }}</span>
+                  <div class="role-actions">
+                    <button class="btn btn-sm btn-primary" @click="handleAssignPermission(role)">分配权限</button>
+                    <button class="btn btn-sm btn-info" @click="handleEditRole(role)">编辑</button>
+                    <button class="btn btn-sm btn-danger" @click="handleDeleteRole(role)">删除</button>
+                  </div>
+                </div>
+                <div class="role-permissions">
+                  <template v-for="(perm, idx) in getDisplayPerms(role)" :key="idx">
+                    <span class="permission-tag" v-if="idx < 4">{{ perm }}</span>
+                  </template>
+                  <span
+                    class="permission-tag more-tag"
+                    v-if="role.permissions.length > 4"
+                    @click="toggleExpandPerm(role.id)"
+                  >
+                    {{ expandPermMap[role.id] ? '收起' : `+${role.permissions.length - 4}更多` }}
+                  </span>
+                </div>
+                <div class="role-desc">{{ role.desc }}</div>
+              </div>
             </div>
           </div>
-          <div class="role-permissions">
-            <span class="permission-tag" v-for="perm in role.permissions" :key="perm">
-              {{ perm }}
-            </span>
-          </div>
-          <div class="role-desc">{{ role.desc }}</div>
         </div>
+
+        <!-- 空状态 -->
+        <div v-if="filteredRoles.length === 0" class="empty-state">
+          <div class="empty-icon">📭</div>
+          <div class="empty-text">暂无角色数据</div>
+          <div class="empty-desc">点击"新增角色"按钮创建第一个角色</div>
+        </div>
+      </div>
+
+      <!-- 分页 -->
+      <div class="pagination" v-if="filteredRoles.length > pageSize">
+        <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">上一页</button>
+        <span class="page-info">第 {{ currentPage }} / {{ totalPages }} 页</span>
+        <button class="page-btn" :disabled="currentPage === totalPages" @click="currentPage++">下一页</button>
+        <select v-model.number="pageSize" class="page-size-select">
+          <option :value="8">8 条/页</option>
+          <option :value="12">12 条/页</option>
+          <option :value="24">24 条/页</option>
+        </select>
       </div>
 
       <!-- 五级权限体系说明 -->
@@ -77,27 +141,52 @@
       </div>
     </div>
 
-    <!-- 权限分配 -->
+    <!-- ==================== 权限分配 ==================== -->
     <div v-show="subActiveTab === 'permission'" class="sub-tab-content">
       <div class="permission-assign">
-        <!-- 左侧：角色列表 -->
+        <!-- 左侧：角色列表（按级别分组） -->
         <div class="assign-left">
           <div class="assign-header-left">
             <h4>📋 选择角色</h4>
-            <span class="assign-hint">点击角色加载权限</span>
+            <span class="assign-hint">{{ filteredRolesForSelect.length }} 个角色</span>
+          </div>
+          <!-- 角色搜索 -->
+          <div class="role-search">
+            <input
+              type="text"
+              v-model="roleSelectSearch"
+              placeholder="搜索角色..."
+            />
           </div>
           <div class="role-select-list">
-            <div 
-              class="role-select-item" 
-              v-for="role in roles" 
-              :key="role.id"
-              :class="{ active: selectedRoleId === role.id }"
-              @click="selectRole(role)"
+            <div
+              class="role-select-group"
+              v-for="group in groupedRoleSelect"
+              :key="group.levelKey"
             >
-              <span class="role-icon">{{ role.icon }}</span>
-              <span class="role-name">{{ role.name }}</span>
-              <span class="role-level">{{ role.level }}</span>
-              <span class="role-status-dot" :class="role.statusClass"></span>
+              <div
+                class="role-select-group-header"
+                @click="toggleRoleSelectGroup(group.levelKey)"
+              >
+                <span class="group-toggle" :class="{ collapsed: collapsedRoleSelectGroups[group.levelKey] }">▶</span>
+                <span class="group-icon">{{ group.icon }}</span>
+                <span class="group-name">{{ group.levelLabel }}</span>
+                <span class="group-count">{{ group.roles.length }}</span>
+              </div>
+              <div v-show="!collapsedRoleSelectGroups[group.levelKey]">
+                <div
+                  class="role-select-item"
+                  v-for="role in group.roles"
+                  :key="role.id"
+                  :class="{ active: selectedRoleId === role.id }"
+                  @click="selectRole(role)"
+                >
+                  <span class="role-icon">{{ role.icon }}</span>
+                  <span class="role-name">{{ role.name }}</span>
+                  <span class="role-level">{{ role.levelLabel }}</span>
+                  <span class="role-status-dot" :class="role.statusClass"></span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -113,6 +202,16 @@
               <span class="assign-subtitle">- 权限配置</span>
             </h4>
             <div class="assign-actions">
+              <template v-if="selectedRole">
+                <button class="btn btn-default btn-sm" @click="toggleExpandAll">
+                  <span class="icon">{{ allExpanded ? '⤡' : '⤢' }}</span>
+                  {{ allExpanded ? '全部收起' : '全部展开' }}
+                </button>
+                <button class="btn btn-default btn-sm" @click="toggleAllPermissions">
+                  <span class="icon">{{ allPermissionsSelected ? '◯' : '☑' }}</span>
+                  {{ allPermissionsSelected ? '全不选' : '全选' }}
+                </button>
+              </template>
               <button class="btn btn-success btn-sm" @click="handleSavePermission" :disabled="!selectedRole">
                 <span class="icon">💾</span> 保存权限
               </button>
@@ -122,26 +221,45 @@
             </div>
           </div>
 
+          <!-- 权限搜索 -->
+          <div class="perm-search-bar" v-if="selectedRole">
+            <input
+              type="text"
+              v-model="permSearch"
+              placeholder="搜索权限项..."
+            />
+            <span class="perm-search-hint" v-if="permSearch">
+              匹配 {{ filteredPermItems.length }} 项
+            </span>
+          </div>
+
           <!-- 权限树 -->
           <div v-if="selectedRole" class="permission-tree">
-            <div class="perm-group" v-for="group in permissionGroups" :key="group.id">
-              <!-- 权限组头部 - 点击复选框全选/取消全选 -->
-              <div class="perm-group-header">
-                <input 
-                  type="checkbox" 
-                  v-model="group.checked" 
-                  @change="toggleGroup(group)" 
+            <div
+              class="perm-group"
+              v-for="group in permissionGroups"
+              :key="group.id"
+              v-show="!permSearch || groupHasMatch(group)"
+            >
+              <div class="perm-group-header" @click="togglePermGroup(group.id)">
+                <span class="group-toggle" :class="{ collapsed: collapsedPermGroups[group.id] }">▶</span>
+                <input
+                  type="checkbox"
+                  v-model="group.checked"
+                  @click.stop
+                  @change="toggleGroup(group)"
                   class="group-checkbox"
                 />
                 <span class="perm-group-icon">{{ group.icon }}</span>
                 <span class="perm-group-name">{{ group.name }}</span>
                 <span class="perm-group-count">{{ getCheckedCount(group) }}/{{ group.items.length }}</span>
               </div>
-              <div class="perm-items">
-                <div 
-                  class="perm-item" 
-                  v-for="item in group.items" 
+              <div class="perm-items" v-show="!collapsedPermGroups[group.id]">
+                <div
+                  class="perm-item"
+                  v-for="item in group.items"
                   :key="item.id"
+                  v-show="!permSearch || matchesSearch(item)"
                   @click="toggleItem(item)"
                 >
                   <input type="checkbox" v-model="item.checked" @click.stop @change="updateGroupCheck(group)" />
@@ -179,35 +297,24 @@
           <label class="form-label required">角色级别</label>
           <select v-model="addForm.level" class="form-select">
             <option value="">请选择角色级别</option>
-            <option value="国家级">国家级</option>
-            <option value="省级">省级</option>
-            <option value="市级">市级</option>
-            <option value="区县级">区县级</option>
-            <option value="学校级">学校级</option>
-            <option value="班级级">班级级</option>
+            <option value="1">国家级</option>
+            <option value="2">省级</option>
+            <option value="3">市级</option>
+            <option value="4">区县级</option>
+            <option value="5">学校级</option>
+            <option value="6">班级级</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label required">状态</label>
           <select v-model="addForm.status" class="form-select">
-            <option value="启用">启用</option>
-            <option value="禁用">禁用</option>
+            <option :value="1">启用</option>
+            <option :value="0">禁用</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">角色描述</label>
           <textarea v-model="addForm.desc" placeholder="请输入角色描述" class="form-textarea" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">权限列表</label>
-          <div class="permission-checkbox-group">
-            <div class="perm-check-item" v-for="perm in addForm.permissions" :key="perm.id">
-              <label>
-                <input type="checkbox" v-model="perm.checked" />
-                {{ perm.name }}
-              </label>
-            </div>
-          </div>
         </div>
         <div class="form-actions">
           <button class="btn btn-default" @click="closeAddModal">取消</button>
@@ -233,35 +340,24 @@
           <label class="form-label required">角色级别</label>
           <select v-model="editForm.level" class="form-select">
             <option value="">请选择角色级别</option>
-            <option value="国家级">国家级</option>
-            <option value="省级">省级</option>
-            <option value="市级">市级</option>
-            <option value="区县级">区县级</option>
-            <option value="学校级">学校级</option>
-            <option value="班级级">班级级</option>
+            <option value="1">国家级</option>
+            <option value="2">省级</option>
+            <option value="3">市级</option>
+            <option value="4">区县级</option>
+            <option value="5">学校级</option>
+            <option value="6">班级级</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label required">状态</label>
           <select v-model="editForm.status" class="form-select">
-            <option value="启用">启用</option>
-            <option value="禁用">禁用</option>
+            <option :value="1">启用</option>
+            <option :value="0">禁用</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">角色描述</label>
           <textarea v-model="editForm.desc" placeholder="请输入角色描述" class="form-textarea" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">权限列表</label>
-          <div class="permission-checkbox-group">
-            <div class="perm-check-item" v-for="perm in editForm.permissions" :key="perm.id">
-              <label>
-                <input type="checkbox" v-model="perm.checked" />
-                {{ perm.name }}
-              </label>
-            </div>
-          </div>
         </div>
         <div class="form-actions">
           <button class="btn btn-default" @click="closeEditModal">取消</button>
@@ -273,12 +369,173 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, watch } from 'vue';
+import { ref, computed, reactive, watch, onMounted } from 'vue';
 import { message, Modal } from 'ant-design-vue';
 
-const subActiveTab = ref('role');
+import { roleApi, menuApi } from '#/api/vision-archive/system';
+import type { RoleDto, MenuDto } from '#/api/vision-archive/system';
+
+// ================= 类型定义 =================
+interface RoleInfo {
+  id: number;
+  icon: string;
+  name: string;
+  level: number;
+  levelLabel: string;
+  userCount: number;
+  status: number;
+  statusText: string;
+  statusClass: string;
+  permissions: string[];
+  desc: string;
+  code?: string;
+  menuIds?: number[];
+}
+
+interface PermissionItem {
+  id: string;
+  name: string;
+  desc: string;
+  checked: boolean;
+  menuId?: number;
+}
+
+interface PermissionGroup {
+  id: string;
+  icon: string;
+  name: string;
+  checked: boolean;
+  items: PermissionItem[];
+  menuId?: number;
+}
+
+// ================= 常量配置 =================
+const LEVEL_MAP: Record<number, { label: string; icon: string }> = {
+  1: { label: '国家级', icon: '🏛️' },
+  2: { label: '省级', icon: '🏛️' },
+  3: { label: '市级', icon: '🏙️' },
+  4: { label: '区县级', icon: '🏘️' },
+  5: { label: '学校级', icon: '🏫' },
+  6: { label: '班级级', icon: '👨‍🏫' },
+};
+
+const LEVEL_ORDER = [1, 2, 3, 4, 5, 6];
+
+const STATUS_MAP: Record<number, { text: string; class: string }> = {
+  1: { text: '启用', class: 'status-active' },
+  0: { text: '禁用', class: 'status-inactive' },
+};
+
+// Mock 回退数据（后端不可用时使用）
+const MOCK_ROLES: RoleInfo[] = [
+  {
+    id: 1, icon: '🏛️', name: '国家管理员', level: 1, levelLabel: '国家级',
+    userCount: 1, status: 1, statusText: '启用', statusClass: 'status-active',
+    permissions: ['查看全国数据', '查看省级数据', '查看市级数据', '查看县级数据', '查看校级数据', '用户管理', '角色管理', '组织管理', '字典管理', '日志查看'],
+    desc: '查看全国所有数据，统一下发标准、生成全国报表，管理省级账号',
+    code: 'ROLE_NATIONAL', menuIds: [1, 2, 3, 4, 5, 7, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+  },
+  {
+    id: 2, icon: '🏛️', name: '省级管理员', level: 2, levelLabel: '省级',
+    userCount: 34, status: 1, statusText: '启用', statusClass: 'status-active',
+    permissions: ['查看省级数据', '查看市级数据', '查看县级数据', '查看校级数据', '生成报表', '查看预警', '发布预警', '组织管理', '字典管理'],
+    desc: '查看本省及各地市数据，生成省级报表、监控地市防控，管理市级账号',
+    code: 'ROLE_PROVINCE', menuIds: [1, 3, 4, 5, 7, 8, 9, 10, 13, 14, 16, 17, 19, 22, 23],
+  },
+  {
+    id: 3, icon: '🏙️', name: '市级管理员', level: 3, levelLabel: '市级',
+    userCount: 333, status: 1, statusText: '启用', statusClass: 'status-active',
+    permissions: ['查看市级数据', '查看县级数据', '查看校级数据', '生成报表', '查看预警', '发布预警', '干预管理', '组织管理'],
+    desc: '查看本市及各县区数据，监控数据质量、发布预警，管理县级账号',
+    code: 'ROLE_CITY', menuIds: [1, 4, 5, 7, 8, 9, 10, 13, 16, 17, 18, 22],
+  },
+  {
+    id: 4, icon: '🏘️', name: '县级管理员', level: 4, levelLabel: '区县级',
+    userCount: 2862, status: 1, statusText: '启用', statusClass: 'status-active',
+    permissions: ['查看县级数据', '查看校级数据', '新增数据', '编辑数据', '审核数据', '生成报表', '查看预警', '组织管理', '字典管理'],
+    desc: '查看本县所有学校数据，审核数据、督导防控工作，管理学校账号',
+    code: 'ROLE_DISTRICT', menuIds: [1, 5, 7, 8, 9, 10, 13, 16, 17, 22, 23],
+  },
+  {
+    id: 5, icon: '🏫', name: '学校管理员', level: 5, levelLabel: '学校级',
+    userCount: 216600, status: 1, statusText: '启用', statusClass: 'status-active',
+    permissions: ['查看校级数据', '新增数据', '编辑数据', '审核数据', '查看预警'],
+    desc: '仅管理本校数据，录入/审核视力档案，查看本校统计',
+    code: 'ROLE_SCHOOL', menuIds: [1, 6, 7, 8, 9, 10, 16],
+  },
+  {
+    id: 6, icon: '👨‍⚕️', name: '校医', level: 5, levelLabel: '学校级',
+    userCount: 185000, status: 1, statusText: '启用', statusClass: 'status-active',
+    permissions: ['查看校级数据', '新增数据', '编辑数据', '审核数据'],
+    desc: '录入/审核视力数据，查看本校统计分析',
+    code: 'ROLE_DOCTOR', menuIds: [1, 6, 7, 8, 9],
+  },
+  {
+    id: 7, icon: '👨‍🏫', name: '班主任', level: 6, levelLabel: '班级级',
+    userCount: 980000, status: 1, statusText: '启用', statusClass: 'status-active',
+    permissions: ['查看校级数据', '新增数据', '编辑数据'],
+    desc: '仅管理本班学生数据，录入视力档案，查看本班统计',
+    code: 'ROLE_TEACHER', menuIds: [1, 6, 7],
+  },
+];
+
+const MOCK_MENU_TREE: MenuDto[] = [
+  { id: 1, name: '数据查看权限', icon: '📊', type: 1, parentId: null, sort: 1, status: 1, children: [
+    { id: 2, name: '查看全国数据', type: 2, parentId: 1, sort: 1, status: 1 },
+    { id: 3, name: '查看省级数据', type: 2, parentId: 1, sort: 2, status: 1 },
+    { id: 4, name: '查看市级数据', type: 2, parentId: 1, sort: 3, status: 1 },
+    { id: 5, name: '查看县级数据', type: 2, parentId: 1, sort: 4, status: 1 },
+    { id: 6, name: '查看校级数据', type: 2, parentId: 1, sort: 5, status: 1 },
+  ]},
+  { id: 7, name: '数据操作权限', icon: '📝', type: 1, parentId: null, sort: 2, status: 1, children: [
+    { id: 8, name: '新增数据', type: 2, parentId: 7, sort: 1, status: 1 },
+    { id: 9, name: '编辑数据', type: 2, parentId: 7, sort: 2, status: 1 },
+    { id: 10, name: '删除数据', type: 2, parentId: 7, sort: 3, status: 1 },
+    { id: 11, name: '审核数据', type: 2, parentId: 7, sort: 4, status: 1 },
+    { id: 12, name: '导入导出', type: 2, parentId: 7, sort: 5, status: 1 },
+  ]},
+  { id: 13, name: '报表权限', icon: '📋', type: 1, parentId: null, sort: 3, status: 1, children: [
+    { id: 14, name: '生成报表', type: 2, parentId: 13, sort: 1, status: 1 },
+    { id: 15, name: '导出报表', type: 2, parentId: 13, sort: 2, status: 1 },
+  ]},
+  { id: 16, name: '预警权限', icon: '🔔', type: 1, parentId: null, sort: 4, status: 1, children: [
+    { id: 17, name: '查看预警', type: 2, parentId: 16, sort: 1, status: 1 },
+    { id: 18, name: '发布预警', type: 2, parentId: 16, sort: 2, status: 1 },
+  ]},
+  { id: 19, name: '系统管理权限', icon: '⚙️', type: 1, parentId: null, sort: 5, status: 1, children: [
+    { id: 20, name: '用户管理', type: 2, parentId: 19, sort: 1, status: 1 },
+    { id: 21, name: '角色管理', type: 2, parentId: 19, sort: 2, status: 1 },
+    { id: 22, name: '组织管理', type: 2, parentId: 19, sort: 3, status: 1 },
+    { id: 23, name: '字典管理', type: 2, parentId: 19, sort: 4, status: 1 },
+    { id: 24, name: '日志查看', type: 2, parentId: 19, sort: 5, status: 1 },
+  ]},
+];
+
+// ================= Tab 状态 =================
+const subActiveTab = ref<'role' | 'permission'>('role');
+
+// ================= 筛选状态 =================
 const roleSearch = ref('');
-const selectedRoleId = ref<number | null>(null);
+const levelFilter = ref<number | string>('');
+const statusFilter = ref<number | string>('');
+
+// ================= 分页状态 =================
+const currentPage = ref(1);
+const pageSize = ref(12);
+const totalCount = ref(0);
+const loading = ref(false);
+const submitting = ref(false);
+
+// ================= 折叠状态 =================
+const collapsedLevelGroups = reactive<Record<number, boolean>>({});
+const collapsedRoleSelectGroups = reactive<Record<number, boolean>>({});
+const collapsedPermGroups = reactive<Record<string, boolean>>({});
+const expandPermMap = reactive<Record<number, boolean>>({});
+
+LEVEL_ORDER.forEach(level => {
+  collapsedLevelGroups[level] = false;
+  collapsedRoleSelectGroups[level] = false;
+});
 
 // ================= 弹窗状态 =================
 const showAddModal = ref(false);
@@ -286,197 +543,19 @@ const showEditModal = ref(false);
 const editingRoleId = ref<number | null>(null);
 
 // ================= 角色数据 =================
-const roles = ref([
-  {
-    id: 1,
-    icon: '🏛️',
-    name: '国家管理员',
-    level: '国家级',
-    userCount: 1,
-    status: '启用',
-    statusClass: 'status-active',
-    permissions: ['查看全国数据', '下发标准', '生成全国报表', '管理省级账号'],
-    desc: '查看全国所有数据，统一下发标准、生成全国报表，管理省级账号'
-  },
-  {
-    id: 2,
-    icon: '🏛️',
-    name: '省级管理员',
-    level: '省级',
-    userCount: 34,
-    status: '启用',
-    statusClass: 'status-active',
-    permissions: ['查看本省数据', '生成省级报表', '监控地市防控', '管理市级账号'],
-    desc: '查看本省及各地市数据，生成省级报表、监控地市防控，管理市级账号'
-  },
-  {
-    id: 3,
-    icon: '🏙️',
-    name: '市级管理员',
-    level: '市级',
-    userCount: 333,
-    status: '启用',
-    statusClass: 'status-active',
-    permissions: ['查看本市数据', '监控数据质量', '发布预警', '管理县级账号'],
-    desc: '查看本市及各县区数据，监控数据质量、发布预警，管理县级账号'
-  },
-  {
-    id: 4,
-    icon: '🏘️',
-    name: '县级管理员',
-    level: '区县级',
-    userCount: 2862,
-    status: '启用',
-    statusClass: 'status-active',
-    permissions: ['查看本县数据', '审核数据', '督导防控', '管理学校账号'],
-    desc: '查看本县所有学校数据，审核数据、督导防控工作，管理学校账号'
-  },
-  {
-    id: 5,
-    icon: '🏫',
-    name: '学校管理员',
-    level: '学校级',
-    userCount: 216600,
-    status: '启用',
-    statusClass: 'status-active',
-    permissions: ['管理本校数据', '录入档案', '审核档案', '查看本校统计'],
-    desc: '仅管理本校数据，录入/审核视力档案，查看本校统计'
-  },
-  {
-    id: 6,
-    icon: '👨‍⚕️',
-    name: '校医',
-    level: '学校级',
-    userCount: 185000,
-    status: '启用',
-    statusClass: 'status-active',
-    permissions: ['录入数据', '审核数据', '查看本校统计'],
-    desc: '录入/审核视力数据，查看本校统计分析'
-  },
-  {
-    id: 7,
-    icon: '👨‍🏫',
-    name: '班主任',
-    level: '班级级',
-    userCount: 980000,
-    status: '启用',
-    statusClass: 'status-active',
-    permissions: ['管理本班数据', '录入档案', '查看本班统计'],
-    desc: '仅管理本班学生数据，录入视力档案，查看本班统计'
-  }
-]);
+const roles = ref<RoleInfo[]>([]);
 
-// ================= 可用权限列表 =================
-const availablePermissions = [
-  { id: 'P001', name: '查看全国数据' },
-  { id: 'P002', name: '查看省级数据' },
-  { id: 'P003', name: '查看市级数据' },
-  { id: 'P004', name: '查看县级数据' },
-  { id: 'P005', name: '查看校级数据' },
-  { id: 'P006', name: '新增数据' },
-  { id: 'P007', name: '编辑数据' },
-  { id: 'P008', name: '删除数据' },
-  { id: 'P009', name: '审核数据' },
-  { id: 'P010', name: '导入数据' },
-  { id: 'P011', name: '导出数据' },
-  { id: 'P012', name: '生成报表' },
-  { id: 'P013', name: '预览报表' },
-  { id: 'P014', name: '导出报表' },
-  { id: 'P015', name: '查看预警' },
-  { id: 'P016', name: '发布预警' },
-  { id: 'P017', name: '干预管理' },
-  { id: 'P018', name: '用户管理' },
-  { id: 'P019', name: '角色管理' },
-  { id: 'P020', name: '组织管理' },
-  { id: 'P021', name: '字典管理' },
-  { id: 'P022', name: '日志查看' }
-];
+// ================= 菜单 & 权限组数据 =================
+const menuTree = ref<MenuDto[]>([]);
+const permissionGroups = ref<PermissionGroup[]>([]);
 
-// ================= 权限组数据 =================
-const permissionGroups = ref([
-  {
-    id: 'G001',
-    icon: '📊',
-    name: '数据查看权限',
-    checked: false,
-    items: [
-      { id: 'P001', name: '查看全国数据', desc: '查看全国所有数据', checked: false },
-      { id: 'P002', name: '查看省级数据', desc: '查看本省数据', checked: false },
-      { id: 'P003', name: '查看市级数据', desc: '查看本市数据', checked: false },
-      { id: 'P004', name: '查看县级数据', desc: '查看本县数据', checked: false },
-      { id: 'P005', name: '查看校级数据', desc: '查看本校数据', checked: false },
-    ]
-  },
-  {
-    id: 'G002',
-    icon: '📝',
-    name: '数据操作权限',
-    checked: false,
-    items: [
-      { id: 'P006', name: '新增数据', desc: '新增学生档案/检测数据', checked: false },
-      { id: 'P007', name: '编辑数据', desc: '编辑已有数据', checked: false },
-      { id: 'P008', name: '删除数据', desc: '删除数据', checked: false },
-      { id: 'P009', name: '审核数据', desc: '审核数据', checked: false },
-      { id: 'P010', name: '导入数据', desc: '批量导入数据', checked: false },
-      { id: 'P011', name: '导出数据', desc: '导出报表/数据', checked: false },
-    ]
-  },
-  {
-    id: 'G003',
-    icon: '📋',
-    name: '报表权限',
-    checked: false,
-    items: [
-      { id: 'P012', name: '生成报表', desc: '生成统计报表', checked: false },
-      { id: 'P013', name: '预览报表', desc: '预览报表', checked: false },
-      { id: 'P014', name: '导出报表', desc: '导出Excel/PDF报表', checked: false },
-    ]
-  },
-  {
-    id: 'G004',
-    icon: '🔔',
-    name: '预警权限',
-    checked: false,
-    items: [
-      { id: 'P015', name: '查看预警', desc: '查看预警信息', checked: false },
-      { id: 'P016', name: '发布预警', desc: '发布预警通知', checked: false },
-      { id: 'P017', name: '干预管理', desc: '管理干预方案', checked: false },
-    ]
-  },
-  {
-    id: 'G005',
-    icon: '⚙️',
-    name: '系统管理权限',
-    checked: false,
-    items: [
-      { id: 'P018', name: '用户管理', desc: '管理用户账号', checked: false },
-      { id: 'P019', name: '角色管理', desc: '管理角色', checked: false },
-      { id: 'P020', name: '组织管理', desc: '管理组织架构', checked: false },
-      { id: 'P021', name: '字典管理', desc: '管理基础字典', checked: false },
-      { id: 'P022', name: '日志查看', desc: '查看操作日志', checked: false },
-    ]
-  }
-]);
+// ================= 权限搜索 =================
+const roleSelectSearch = ref('');
+const permSearch = ref('');
 
-// ================= 新增表单 =================
-const defaultAddForm = {
-  name: '',
-  level: '',
-  status: '启用',
-  desc: '',
-  permissions: availablePermissions.map(p => ({ ...p, checked: false }))
-};
-const addForm = reactive({ ...defaultAddForm });
-
-// ================= 编辑表单 =================
-const defaultEditForm = {
-  name: '',
-  level: '',
-  status: '启用',
-  desc: '',
-  permissions: availablePermissions.map(p => ({ ...p, checked: false }))
-};
-const editForm = reactive({ ...defaultEditForm });
+// ================= 新增/编辑表单 =================
+const addForm = reactive({ name: '', level: '' as number | string, status: 1, desc: '' });
+const editForm = reactive({ name: '', level: '' as number | string, status: 1, desc: '' });
 
 // ================= 权限说明数据 =================
 const legendData = [
@@ -484,97 +563,383 @@ const legendData = [
   { icon: '🏛️', level: 'province', name: '省级管理员', desc: '查看本省及各地市数据，生成省级报表、监控地市防控，管理市级账号' },
   { icon: '🏙️', level: 'city', name: '市级管理员', desc: '查看本市及各县区数据，监控数据质量、发布预警，管理县级账号' },
   { icon: '🏘️', level: 'district', name: '县级管理员', desc: '查看本县所有学校数据，审核数据、督导防控工作，管理学校账号' },
-  { icon: '🏫', level: 'school', name: '学校管理员/校医/班主任', desc: '仅管理本校/本班数据，录入/审核视力档案，查看本校/本班统计' }
+  { icon: '🏫', level: 'school', name: '学校管理员/校医/班主任', desc: '仅管理本校/本班数据，录入/审核视力档案，查看本校/本班统计' },
 ];
 
-// ================= 计算属性 =================
-const selectedRole = computed(() => roles.value.find(r => r.id === selectedRoleId.value));
+// ================= 数据映射辅助 =================
 
-const filteredRoles = computed(() => {
-  if (!roleSearch.value) return roles.value;
-  return roles.value.filter(r => r.name.includes(roleSearch.value));
+/** 扁平化菜单树 -> 权限组（保留后端 menuId 用于提交） */
+function menuTreeToPermissionGroups(tree: MenuDto[]): PermissionGroup[] {
+  const groups: PermissionGroup[] = [];
+  for (const group of tree) {
+    if (group.type !== 1) continue;
+    const items: PermissionItem[] = [];
+    if (group.children) {
+      for (const child of group.children) {
+        const desc = child.name.replace(/^查看|^生成|^导出|^发布|^新增|^编辑|^删除|^审核|^导入|^预览/, '').trim() || child.name;
+        items.push({
+          id: `P${child.id}`,
+          name: child.name,
+          desc: desc === child.name ? child.name : desc,
+          checked: false,
+          menuId: child.id,
+        });
+      }
+    }
+    groups.push({
+      id: `G${group.id}`,
+      icon: group.icon || '📄',
+      name: group.name,
+      checked: false,
+      menuId: group.id,
+      items,
+    });
+  }
+  return groups;
+}
+
+/** 菜单ID列表 -> 权限名称数组 */
+function menuIdsToNames(menuIds: number[] | undefined): string[] {
+  if (!menuIds || menuIds.length === 0) return [];
+  const names: string[] = [];
+  const walk = (nodes: MenuDto[]) => {
+    for (const node of nodes) {
+      if (menuIds.includes(node.id)) names.push(node.name);
+      if (node.children) walk(node.children);
+    }
+  };
+  walk(menuTree.value);
+  return names;
+}
+
+/** 从权限组提取已勾选的菜单ID */
+function getCheckedMenuIds(): number[] {
+  const ids: number[] = [];
+  for (const g of permissionGroups.value) {
+    for (const item of g.items) {
+      if (item.checked && item.menuId !== undefined) {
+        ids.push(item.menuId);
+      }
+    }
+  }
+  return ids;
+}
+
+/** 后端 RoleDto -> 前端 RoleInfo */
+function mapRoleDtoToInfo(dto: RoleDto): RoleInfo {
+  const info = LEVEL_MAP[dto.level] || { label: `级别${dto.level}`, icon: '👤' };
+  const statusInfo = STATUS_MAP[dto.status] || { text: '未知', class: 'status-inactive' };
+  const menuIds = dto.menuIds || [];
+  const permissions = menuIdsToNames(menuIds);
+  return {
+    id: dto.id,
+    icon: info.icon,
+    name: dto.name,
+    level: dto.level,
+    levelLabel: info.label,
+    userCount: dto.userCount || 0,
+    status: dto.status,
+    statusText: statusInfo.text,
+    statusClass: statusInfo.class,
+    permissions: permissions.length > 0 ? permissions : ['暂无权限'],
+    desc: dto.remark || '暂无描述',
+    code: dto.code,
+    menuIds,
+  };
+}
+
+// ================= 数据加载 =================
+
+async function fetchRoles() {
+  loading.value = true;
+  try {
+    const params: Record<string, any> = {
+      page: currentPage.value,
+      pageSize: pageSize.value,
+    };
+    if (roleSearch.value.trim()) params.name = roleSearch.value.trim();
+    if (levelFilter.value !== '' && levelFilter.value !== null && levelFilter.value !== undefined) {
+      params.level = Number(levelFilter.value);
+    }
+    if (statusFilter.value !== '' && statusFilter.value !== null && statusFilter.value !== undefined) {
+      params.status = Number(statusFilter.value);
+    }
+    const res = await roleApi.getPagedList(params);
+    const list = Array.isArray(res?.items) ? res.items : [];
+    totalCount.value = res?.total ?? 0;
+    roles.value = list.map(mapRoleDtoToInfo);
+  } catch (error: any) {
+    console.warn('[fetchRoles] 后端不可用，使用 mock 数据:', error?.message || error);
+    applyMockRoles();
+  } finally {
+    loading.value = false;
+  }
+}
+
+function applyMockRoles() {
+  let list = MOCK_ROLES;
+  if (roleSearch.value.trim()) {
+    list = list.filter(r => r.name.includes(roleSearch.value.trim()));
+  }
+  if (levelFilter.value !== '' && levelFilter.value !== null && levelFilter.value !== undefined) {
+    list = list.filter(r => r.level === Number(levelFilter.value));
+  }
+  if (statusFilter.value !== '' && statusFilter.value !== null && statusFilter.value !== undefined) {
+    list = list.filter(r => r.status === Number(statusFilter.value));
+  }
+  totalCount.value = list.length;
+  const start = (currentPage.value - 1) * pageSize.value;
+  roles.value = list.slice(start, start + pageSize.value);
+  if (!apiWarned) {
+    apiWarned = true;
+    message.warning('后端服务未启动，已使用本地模拟数据。启动后端后将自动切换至真实数据。');
+  }
+}
+
+let apiWarned = false;
+
+async function fetchMenuTree() {
+  try {
+    const res = await menuApi.getTree();
+    menuTree.value = Array.isArray(res) ? res : [];
+    permissionGroups.value = menuTreeToPermissionGroups(menuTree.value);
+  } catch (error: any) {
+    console.warn('[fetchMenuTree] 后端不可用，使用 mock 菜单:', error?.message || error);
+    menuTree.value = JSON.parse(JSON.stringify(MOCK_MENU_TREE));
+    permissionGroups.value = menuTreeToPermissionGroups(menuTree.value);
+  }
+}
+
+async function fetchRoleMenuIds(roleId: number): Promise<number[]> {
+  try {
+    const ids = await roleApi.getMenuPermission(roleId);
+    return Array.isArray(ids) ? ids : [];
+  } catch (error: any) {
+    console.warn('[fetchRoleMenuIds] 获取角色权限失败:', error?.message || error);
+    const role = roles.value.find(r => r.id === roleId);
+    return role?.menuIds || [];
+  }
+}
+
+// ================= 计算属性 =================
+
+const filteredRoles = computed(() => roles.value);
+
+const paginatedRoles = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  return filteredRoles.value.slice(start, start + pageSize.value);
+});
+
+const totalPages = computed(() => Math.max(1, Math.ceil(totalCount.value / pageSize.value)));
+
+const groupedRoles = computed(() => {
+  const groups: { levelKey: number; levelLabel: string; icon: string; roles: RoleInfo[] }[] = [];
+  for (const level of LEVEL_ORDER) {
+    const rolesOfLevel = paginatedRoles.value.filter(r => r.level === level);
+    if (rolesOfLevel.length > 0) {
+      const info = LEVEL_MAP[level];
+      groups.push({
+        levelKey: level,
+        levelLabel: info.label,
+        icon: info.icon,
+        roles: rolesOfLevel,
+      });
+    }
+  }
+  return groups;
+});
+
+const filteredRolesForSelect = computed(() => {
+  if (!roleSelectSearch.value) return roles.value;
+  const kw = roleSelectSearch.value.toLowerCase();
+  return roles.value.filter(r => r.name.toLowerCase().includes(kw));
+});
+
+const groupedRoleSelect = computed(() => {
+  const groups: { levelKey: number; levelLabel: string; icon: string; roles: RoleInfo[] }[] = [];
+  for (const level of LEVEL_ORDER) {
+    const rolesOfLevel = filteredRolesForSelect.value.filter(r => r.level === level);
+    if (rolesOfLevel.length > 0) {
+      const info = LEVEL_MAP[level];
+      groups.push({
+        levelKey: level,
+        levelLabel: info.label,
+        icon: info.icon,
+        roles: rolesOfLevel,
+      });
+    }
+  }
+  return groups;
+});
+
+const selectedRoleId = ref<number | null>(null);
+const selectedRole = computed(() => roles.value.find(r => r.id === selectedRoleId.value) || null);
+
+const allPermissionsSelected = computed(() => {
+  const allItems = permissionGroups.value.flatMap(g => g.items);
+  return allItems.length > 0 && allItems.every(i => i.checked);
+});
+
+const allExpanded = computed(() => {
+  return permissionGroups.value.length > 0 &&
+    permissionGroups.value.every(g => !collapsedPermGroups[g.id]);
+});
+
+const filteredPermItems = computed(() => {
+  if (!permSearch.value) return [];
+  const kw = permSearch.value.toLowerCase();
+  return permissionGroups.value
+    .flatMap(g => g.items)
+    .filter(i => i.name.toLowerCase().includes(kw) || i.desc.toLowerCase().includes(kw));
 });
 
 // ================= 辅助方法 =================
-const getCheckedCount = (group: any) => {
-  return group.items.filter((item: any) => item.checked).length;
+
+const getDisplayPerms = (role: RoleInfo) => {
+  return role.permissions;
 };
 
-const updateGroupCheck = (group: any) => {
-  group.checked = group.items.every((item: any) => item.checked);
+const toggleExpandPerm = (roleId: number) => {
+  expandPermMap[roleId] = !expandPermMap[roleId];
 };
 
-// ================= 选择角色（加载权限） =================
-const selectRole = (role: any) => {
+const getCheckedCount = (group: PermissionGroup) => group.items.filter(i => i.checked).length;
+
+const updateGroupCheck = (group: PermissionGroup) => {
+  group.checked = group.items.length > 0 && group.items.every(i => i.checked);
+};
+
+// ================= 折叠控制 =================
+
+const toggleLevelGroup = (level: number) => {
+  collapsedLevelGroups[level] = !collapsedLevelGroups[level];
+};
+
+const toggleRoleSelectGroup = (level: number) => {
+  collapsedRoleSelectGroups[level] = !collapsedRoleSelectGroups[level];
+};
+
+const togglePermGroup = (groupId: string) => {
+  collapsedPermGroups[groupId] = !collapsedPermGroups[groupId];
+};
+
+const toggleExpandAll = () => {
+  const shouldExpand = !allExpanded.value;
+  permissionGroups.value.forEach(g => {
+    collapsedPermGroups[g.id] = !shouldExpand;
+  });
+};
+
+// ================= 权限搜索辅助 =================
+
+const matchesSearch = (item: PermissionItem) => {
+  if (!permSearch.value) return true;
+  const kw = permSearch.value.toLowerCase();
+  return item.name.toLowerCase().includes(kw) || item.desc.toLowerCase().includes(kw);
+};
+
+const groupHasMatch = (group: PermissionGroup) => {
+  if (!permSearch.value) return true;
+  return group.items.some(item => matchesSearch(item));
+};
+
+// ================= 角色选择 & 权限加载 =================
+
+const selectRole = async (role: RoleInfo) => {
   selectedRoleId.value = role.id;
-  const roleData = roles.value.find(r => r.id === role.id);
-  if (roleData) {
-    permissionGroups.value.forEach(group => {
-      group.items.forEach(item => {
-        item.checked = roleData.permissions.includes(item.name);
-      });
-      group.checked = group.items.every(item => item.checked);
-    });
+
+  // 先加载菜单树（如果未加载）
+  if (menuTree.value.length === 0) {
+    await fetchMenuTree();
   }
+
+  // 加载角色的已分配菜单ID
+  const menuIds = await fetchRoleMenuIds(role.id);
+  const idSet = new Set(menuIds);
+
+  // 回填到权限组
+  permissionGroups.value.forEach(group => {
+    group.items.forEach(item => {
+      item.checked = item.menuId !== undefined && idSet.has(item.menuId);
+    });
+    updateGroupCheck(group);
+  });
+
+  // 更新角色的 permissions 显示
+  const permNames = menuIdsToNames(menuIds);
+  const idx = roles.value.findIndex(r => r.id === role.id);
+  if (idx !== -1) {
+    roles.value[idx] = {
+      ...roles.value[idx],
+      menuIds,
+      permissions: permNames.length > 0 ? permNames : ['暂无权限'],
+    };
+  }
+
+  // 展开含选中权限的分组
+  permissionGroups.value.forEach(group => {
+    const hasChecked = group.items.some(item => item.checked);
+    if (hasChecked) collapsedPermGroups[group.id] = false;
+  });
 };
 
-// ================= 切换单个权限项 =================
-const toggleItem = (item: any) => {
+// ================= 权限操作 =================
+const toggleItem = (item: PermissionItem) => {
   item.checked = !item.checked;
   const group = permissionGroups.value.find(g => g.items.some(i => i.id === item.id));
-  if (group) {
-    updateGroupCheck(group);
-  }
+  if (group) updateGroupCheck(group);
 };
 
-// ================= 切换权限组（全选/取消全选） =================
-const toggleGroup = (group: any) => {
-  // group.checked 已经被 v-model 更新
-  group.items.forEach((item: any) => {
+const toggleGroup = (group: PermissionGroup) => {
+  group.items.forEach(item => {
     item.checked = group.checked;
   });
 };
 
-// ================= 从角色管理跳转到权限分配 =================
-const handleAssignPermission = (role: any) => {
-  selectRole(role);
-  subActiveTab.value = 'permission';
-  message.info(`正在为 ${role.name} 配置权限`);
+const toggleAllPermissions = () => {
+  const newState = !allPermissionsSelected.value;
+  permissionGroups.value.forEach(group => {
+    group.items.forEach(item => {
+      item.checked = newState;
+    });
+    updateGroupCheck(group);
+  });
 };
 
-// ================= 保存权限（更新角色权限） =================
-const handleSavePermission = () => {
+// ================= 权限保存/重置（对接后端） =================
+const handleSavePermission = async () => {
   if (!selectedRoleId.value) {
     message.warning('请先选择角色');
     return;
   }
-  
-  // 获取所有选中的权限名称
-  const selectedPerms = permissionGroups.value
-    .flatMap(group => group.items)
-    .filter(item => item.checked)
-    .map(item => item.name);
-  
-  // 更新对应角色的权限
-  const index = roles.value.findIndex(r => r.id === selectedRoleId.value);
-  if (index === -1) {
-    message.error('角色不存在');
-    return;
+  const checkedMenuIds = getCheckedMenuIds();
+  submitting.value = true;
+  try {
+    await roleApi.assignMenuPermission(selectedRoleId.value, checkedMenuIds);
+
+    // 更新本地角色数据
+    const permNames = menuIdsToNames(checkedMenuIds);
+    const index = roles.value.findIndex(r => r.id === selectedRoleId.value);
+    if (index !== -1) {
+      roles.value[index] = {
+        ...roles.value[index],
+        menuIds: checkedMenuIds,
+        permissions: permNames.length > 0 ? permNames : ['暂无权限'],
+      };
+    }
+    const role = roles.value[index];
+    message.success(`角色 "${role?.name}" 权限保存成功！共配置 ${checkedMenuIds.length} 项权限`);
+  } catch (error: any) {
+    console.error('[handleSavePermission] 保存权限失败:', error);
+    const errorMsg = error?.response?.data?.message || error?.message || '保存失败';
+    message.error(`保存失败：${errorMsg}`);
+  } finally {
+    submitting.value = false;
   }
-  
-  const roleName = roles.value[index].name;
-  roles.value[index] = {
-    ...roles.value[index],
-    permissions: selectedPerms.length > 0 ? selectedPerms : ['暂无权限']
-  };
-  
-  message.success(`角色 "${roleName}" 权限保存成功！共配置 ${selectedPerms.length} 项权限`);
 };
 
-// ================= 重置权限 =================
 const handleResetPermission = () => {
   if (!selectedRoleId.value) return;
-  
   Modal.confirm({
     title: '确认重置',
     content: '确定要重置当前角色的权限配置吗？重置后将清空所有权限。',
@@ -582,80 +947,69 @@ const handleResetPermission = () => {
     cancelText: '取消',
     onOk: () => {
       permissionGroups.value.forEach(group => {
-        group.items.forEach(item => {
-          item.checked = false;
-        });
+        group.items.forEach(item => { item.checked = false; });
         group.checked = false;
       });
       message.info('权限已重置，请点击"保存权限"生效');
-    }
+    },
   });
+};
+
+// ================= 角色跳转 =================
+const handleAssignPermission = (role: RoleInfo) => {
+  selectRole(role);
+  subActiveTab.value = 'permission';
+  message.info(`正在为 ${role.name} 配置权限`);
 };
 
 // ================= 新增角色 =================
 const handleAddRole = () => {
   addForm.name = '';
   addForm.level = '';
-  addForm.status = '启用';
+  addForm.status = 1;
   addForm.desc = '';
-  addForm.permissions = availablePermissions.map(p => ({ ...p, checked: false }));
   showAddModal.value = true;
 };
 
-const closeAddModal = () => {
-  showAddModal.value = false;
-};
+const closeAddModal = () => { showAddModal.value = false; };
 
-const submitAddRole = () => {
+const submitAddRole = async () => {
   if (!addForm.name || !addForm.level) {
     message.warning('请填写角色名称和角色级别');
     return;
   }
-  
-  const maxId = roles.value.reduce((max, r) => r.id > max ? r.id : max, 0);
-  const newId = maxId + 1;
-  
-  const selectedPerms = addForm.permissions
-    .filter(p => p.checked)
-    .map(p => p.name);
-  
-  const iconMap: Record<string, string> = {
-    '国家级': '🏛️',
-    '省级': '🏛️',
-    '市级': '🏙️',
-    '区县级': '🏘️',
-    '学校级': '🏫',
-    '班级级': '👨‍🏫'
-  };
-  
-  const newRole = {
-    id: newId,
-    icon: iconMap[addForm.level] || '👤',
-    name: addForm.name,
-    level: addForm.level,
-    userCount: 0,
-    status: addForm.status,
-    statusClass: addForm.status === '启用' ? 'status-active' : 'status-inactive',
-    permissions: selectedPerms.length > 0 ? selectedPerms : ['暂无权限'],
-    desc: addForm.desc || '暂无描述'
-  };
-  
-  roles.value.push(newRole);
-  message.success(`角色 ${addForm.name} 创建成功`);
-  closeAddModal();
+  submitting.value = true;
+  try {
+    // 自动生成 code（角色名转英文缩写）
+    const code = `ROLE_${Date.now().toString().slice(-6)}`;
+    const payload = {
+      name: addForm.name,
+      code,
+      level: Number(addForm.level),
+      status: addForm.status,
+      remark: addForm.desc,
+    };
+    await roleApi.create(payload);
+    message.success(`角色 "${addForm.name}" 创建成功`);
+    closeAddModal();
+    currentPage.value = 1;
+    await fetchRoles();
+  } catch (error: any) {
+    console.error('[submitAddRole] 创建失败:', error);
+    const errorMsg = error?.response?.data?.message || error?.message || '创建失败';
+    message.error(`创建失败：${errorMsg}`);
+  } finally {
+    submitting.value = false;
+  }
 };
 
 // ================= 编辑角色 =================
-const handleEditRole = (role: any) => {
+const handleEditRole = (role: RoleInfo) => {
   editingRoleId.value = role.id;
   editForm.name = role.name;
-  editForm.level = role.level;
+  editForm.level = String(role.level);
   editForm.status = role.status;
   editForm.desc = role.desc;
-  editForm.permissions = availablePermissions.map(p => ({
-    ...p,
-    checked: role.permissions.includes(p.name)
-  }));
   showEditModal.value = true;
 };
 
@@ -664,90 +1018,127 @@ const closeEditModal = () => {
   editingRoleId.value = null;
 };
 
-const submitEditRole = () => {
+const submitEditRole = async () => {
   if (!editForm.name || !editForm.level) {
     message.warning('请填写角色名称和角色级别');
     return;
   }
-  
-  const index = roles.value.findIndex(r => r.id === editingRoleId.value);
-  if (index === -1) {
-    message.error('角色不存在');
+  if (!editingRoleId.value) {
+    message.error('缺少角色ID');
     return;
   }
-  
-  const selectedPerms = editForm.permissions
-    .filter(p => p.checked)
-    .map(p => p.name);
-  
-  const iconMap: Record<string, string> = {
-    '国家级': '🏛️',
-    '省级': '🏛️',
-    '市级': '🏙️',
-    '区县级': '🏘️',
-    '学校级': '🏫',
-    '班级级': '👨‍🏫'
-  };
-  
-  roles.value[index] = {
-    ...roles.value[index],
-    icon: iconMap[editForm.level] || roles.value[index].icon,
-    name: editForm.name,
-    level: editForm.level,
-    status: editForm.status,
-    statusClass: editForm.status === '启用' ? 'status-active' : 'status-inactive',
-    permissions: selectedPerms.length > 0 ? selectedPerms : ['暂无权限'],
-    desc: editForm.desc || '暂无描述'
-  };
-  
-  message.success(`角色 ${editForm.name} 已更新`);
-  closeEditModal();
+  submitting.value = true;
+  try {
+    const role = roles.value.find(r => r.id === editingRoleId.value);
+    const payload = {
+      id: editingRoleId.value,
+      name: editForm.name,
+      code: role?.code || `ROLE_${editingRoleId.value}`,
+      level: Number(editForm.level),
+      status: editForm.status,
+      remark: editForm.desc,
+    };
+    await roleApi.update(editingRoleId.value, payload);
+    message.success(`角色 "${editForm.name}" 已更新`);
+    closeEditModal();
+    await fetchRoles();
+  } catch (error: any) {
+    console.error('[submitEditRole] 更新失败:', error);
+    const errorMsg = error?.response?.data?.message || error?.message || '更新失败';
+    message.error(`更新失败：${errorMsg}`);
+  } finally {
+    submitting.value = false;
+  }
 };
 
-// ================= 删除角色（单个） =================
-const handleDeleteRole = (role: any) => {
+// ================= 删除角色 =================
+const handleDeleteRole = (role: RoleInfo) => {
   Modal.confirm({
     title: '确认删除',
     content: `确定要删除角色：${role.name} 吗？此操作不可恢复。`,
     okText: '确定',
     cancelText: '取消',
-    onOk: () => {
-      const index = roles.value.findIndex(r => r.id === role.id);
-      if (index > -1) {
-        roles.value.splice(index, 1);
-        if (selectedRoleId.value === role.id) {
-          selectedRoleId.value = null;
-        }
-        message.success(`角色 ${role.name} 已删除`);
+    async onOk() {
+      try {
+        await roleApi.delete(role.id);
+        message.success(`角色 "${role.name}" 已删除`);
+        if (selectedRoleId.value === role.id) selectedRoleId.value = null;
+        await fetchRoles();
+      } catch (error: any) {
+        console.error('[handleDeleteRole] 删除失败:', error);
+        const errorMsg = error?.response?.data?.message || error?.message || '删除失败';
+        message.error(errorMsg);
       }
-    }
+    },
   });
 };
 
-// ================= 删除角色（批量） =================
 const handleBatchDeleteRole = () => {
   if (roles.value.length === 0) {
     message.warning('暂无角色可删除');
     return;
   }
-  
   Modal.confirm({
     title: '确认批量删除',
-    content: `确定要删除所有 ${roles.value.length} 个角色吗？此操作不可恢复。`,
+    content: `确定要删除当前页 ${roles.value.length} 个角色吗？此操作不可恢复。`,
     okText: '确定',
     cancelText: '取消',
-    onOk: () => {
-      roles.value = [];
-      selectedRoleId.value = null;
-      message.success('所有角色已删除');
-    }
+    async onOk() {
+      try {
+        const ids = roles.value.map(r => r.id);
+        const res = await roleApi.batchDelete(ids);
+        message.success(res?.message || `已删除 ${res?.deletedCount ?? 0} 个角色`);
+        if (selectedRoleId.value && ids.includes(selectedRoleId.value)) {
+          selectedRoleId.value = null;
+        }
+        await fetchRoles();
+      } catch (error: any) {
+        console.error('[handleBatchDeleteRole] 批量删除失败:', error);
+        const errorMsg = error?.response?.data?.message || error?.message || '删除失败';
+        message.error(errorMsg);
+      }
+    },
   });
 };
 
-// ================= 搜索 =================
-const handleRoleSearch = () => {
-  message.success(`搜索关键词：${roleSearch.value || '全部'}`);
+// ================= 筛选重置 =================
+const handleResetFilter = () => {
+  roleSearch.value = '';
+  levelFilter.value = '';
+  statusFilter.value = '';
+  currentPage.value = 1;
+  fetchRoles();
 };
+
+// ================= 监听 =================
+watch([roleSearch, levelFilter, statusFilter], () => {
+  currentPage.value = 1;
+});
+
+watch(totalPages, (tp) => {
+  if (currentPage.value > tp) {
+    currentPage.value = Math.max(1, tp);
+  }
+});
+
+// 分页变化时重新加载
+watch(currentPage, () => {
+  if (roles.value.length > 0 || currentPage.value !== 1) {
+    fetchRoles();
+  }
+});
+
+watch(pageSize, () => {
+  currentPage.value = 1;
+  if (roles.value.length > 0) {
+    fetchRoles();
+  }
+});
+
+// ================= 初始化 =================
+onMounted(async () => {
+  await Promise.all([fetchRoles(), fetchMenuTree()]);
+});
 </script>
 
 <style scoped>
@@ -776,10 +1167,7 @@ const handleRoleSearch = () => {
   font-weight: 500;
   position: relative;
 }
-.sub-tab-item:hover {
-  background-color: #f5f7fa;
-  color: #409eff;
-}
+.sub-tab-item:hover { background-color: #f5f7fa; color: #409eff; }
 .sub-tab-item.active {
   background: linear-gradient(135deg, #e8f4fd, #d4e8f7);
   color: #409eff;
@@ -794,9 +1182,8 @@ const handleRoleSearch = () => {
   border-radius: 10px;
   margin-left: 4px;
 }
-.sub-tab-item.active .sub-tab-badge {
-  background: #409eff;
-}
+.sub-tab-item.active .sub-tab-badge { background: #409eff; }
+
 .sub-tab-content { animation: fadeIn 0.3s ease; }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }
@@ -811,15 +1198,13 @@ const handleRoleSearch = () => {
   margin-bottom: 16px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
   border: 1px solid #ebeef5;
 }
-.search-box {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
-}
+.toolbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.toolbar-right { display: flex; align-items: center; gap: 10px; }
 .search-box input {
   padding: 6px 12px;
   border: 1px solid #dcdfe6;
@@ -854,28 +1239,79 @@ const handleRoleSearch = () => {
 .btn-info:hover { background: #a6a9ad; }
 .btn-default { background: #fff; border: 1px solid #dcdfe6; color: #606266; }
 .btn-default:hover { color: #409eff; border-color: #409eff; }
+.btn-filter { min-width: 100px; }
 .btn .icon { font-size: 14px; }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* ===== 角色列表 ===== */
-.role-list { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.role-card {
+/* ===== 角色分组 ===== */
+.role-groups { display: flex; flex-direction: column; gap: 16px; }
+.role-group {
   background: #fff;
   border-radius: 10px;
-  padding: 16px 20px;
+  border: 1px solid #ebeef5;
+  overflow: hidden;
+}
+.role-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #f8fafd, #eef3fb);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.role-group-header:hover { background: linear-gradient(135deg, #eef3fb, #e3ecf8); }
+.role-group-header .group-toggle {
+  font-size: 10px;
+  color: #909399;
+  transition: transform 0.2s;
+  width: 14px;
+  text-align: center;
+}
+.role-group-header .group-toggle.collapsed { transform: rotate(-90deg); }
+.role-group-header .group-icon { font-size: 18px; }
+.role-group-header .group-name {
+  font-weight: 600;
+  color: #303133;
+  font-size: 14px;
+}
+.role-group-header .group-count {
+  font-size: 12px;
+  color: #909399;
+  background: #e8ecf1;
+  padding: 1px 10px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+
+/* ===== 角色列表（自适应网格） ===== */
+.role-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 14px;
+  padding: 14px 20px;
+}
+.role-card {
+  background: #fafbfc;
+  border-radius: 8px;
+  padding: 14px 16px;
   border: 1px solid #ebeef5;
   transition: all 0.3s;
 }
-.role-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.role-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
 
 .role-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
-.role-icon { font-size: 24px; }
-.role-name { font-weight: 600; color: #303133; font-size: 16px; }
+.role-icon { font-size: 22px; }
+.role-name { font-weight: 600; color: #303133; font-size: 15px; }
 .role-level {
   font-size: 11px;
   padding: 1px 10px;
@@ -883,10 +1319,7 @@ const handleRoleSearch = () => {
   background: #e8f0fe;
   color: #409eff;
 }
-.role-user-count {
-  font-size: 12px;
-  color: #909399;
-}
+.role-user-count { font-size: 12px; color: #909399; }
 .role-status {
   font-size: 11px;
   padding: 1px 10px;
@@ -899,40 +1332,87 @@ const handleRoleSearch = () => {
 .role-permissions {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin: 10px 0;
+  gap: 5px;
+  margin: 8px 0;
 }
 .permission-tag {
   font-size: 11px;
-  padding: 2px 10px;
-  border-radius: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
   background: #e8f0fe;
   color: #409eff;
+  cursor: default;
+  transition: background 0.2s;
 }
+.permission-tag.more-tag {
+  background: #f0f2f5;
+  color: #606266;
+  cursor: pointer;
+}
+.permission-tag.more-tag:hover { background: #d9ecff; color: #409eff; }
 .role-desc { font-size: 13px; color: #909399; }
+
+/* ===== 空状态 ===== */
+.empty-state {
+  background: #fff;
+  border-radius: 10px;
+  padding: 60px 20px;
+  text-align: center;
+  border: 1px solid #ebeef5;
+}
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-text { font-size: 16px; font-weight: 500; color: #606266; }
+.empty-desc { font-size: 13px; color: #909399; margin-top: 4px; }
+
+/* ===== 分页 ===== */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 12px 0;
+}
+.page-btn {
+  padding: 6px 16px;
+  border: 1px solid #dcdfe6;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #606266;
+  transition: all 0.2s;
+}
+.page-btn:hover:not(:disabled) { color: #409eff; border-color: #409eff; }
+.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.page-info { font-size: 13px; color: #606266; }
+.page-size-select {
+  padding: 6px 10px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+}
 
 /* ===== 权限分配 ===== */
 .permission-assign {
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 240px 1fr;
   gap: 20px;
   background: #fff;
   border-radius: 10px;
   padding: 20px;
   border: 1px solid #ebeef5;
-  min-height: 420px;
+  min-height: 480px;
 }
 
 /* 左侧角色列表 */
-.assign-left {
-  border-right: 1px solid #ebeef5;
-  padding-right: 16px;
-}
+.assign-left { border-right: 1px solid #ebeef5; padding-right: 16px; }
 .assign-header-left {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .assign-header-left h4 {
   font-size: 14px;
@@ -948,41 +1428,83 @@ const handleRoleSearch = () => {
   border-radius: 10px;
 }
 
+.role-search { margin-bottom: 12px; }
+.role-search input {
+  width: 100%;
+  padding: 6px 12px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+.role-search input:focus { border-color: #409eff; }
+
 .role-select-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  max-height: 400px;
+  gap: 4px;
+  max-height: 500px;
   overflow-y: auto;
 }
-.role-select-list::-webkit-scrollbar {
-  width: 4px;
+.role-select-list::-webkit-scrollbar { width: 4px; }
+.role-select-list::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 2px; }
+.role-select-list::-webkit-scrollbar-track { background: transparent; }
+
+.role-select-group { display: flex; flex-direction: column; }
+.role-select-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: #f5f7fa;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #606266;
+  transition: background 0.2s;
 }
-.role-select-list::-webkit-scrollbar-thumb {
-  background: #d0d5dd;
-  border-radius: 2px;
+.role-select-group-header:hover { background: #e8f0fe; color: #409eff; }
+.role-select-group-header .group-toggle {
+  font-size: 9px;
+  color: #909399;
+  transition: transform 0.2s;
+  width: 12px;
+  text-align: center;
 }
-.role-select-list::-webkit-scrollbar-track {
-  background: transparent;
+.role-select-group-header .group-toggle.collapsed { transform: rotate(-90deg); }
+.role-select-group-header .group-icon { font-size: 14px; }
+.role-select-group-header .group-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: #909399;
+  background: #e8ecf1;
+  padding: 0 8px;
+  border-radius: 8px;
 }
 
 .role-select-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  border-radius: 6px;
+  padding: 8px 12px 8px 28px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 13px;
 }
 .role-select-item:hover { background: #f5f7fa; }
 .role-select-item.active {
   background: #e8f4fd;
   color: #409eff;
   box-shadow: inset 3px 0 0 #409eff;
+  font-weight: 500;
 }
-.role-select-item .role-icon { font-size: 16px; }
-.role-select-item .role-name { font-weight: 500; flex: 1; }
+.role-select-item .role-icon { font-size: 14px; }
+.role-select-item .role-name { flex: 1; }
 .role-select-item .role-level {
   font-size: 10px;
   padding: 1px 8px;
@@ -1011,7 +1533,7 @@ const handleRoleSearch = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
   gap: 8px;
   flex-shrink: 0;
@@ -1028,7 +1550,26 @@ const handleRoleSearch = () => {
 .selected-role-name { color: #409eff; }
 .assign-subtitle { color: #909399; font-weight: 400; font-size: 14px; }
 .placeholder-text { color: #c0c4cc; }
-.assign-actions { display: flex; gap: 8px; }
+.assign-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* 权限搜索 */
+.perm-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.perm-search-bar input {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.perm-search-bar input:focus { border-color: #409eff; }
+.perm-search-hint { font-size: 12px; color: #909399; }
 
 /* 权限树 */
 .permission-tree {
@@ -1040,16 +1581,9 @@ const handleRoleSearch = () => {
   padding-right: 4px;
   min-height: 0;
 }
-.permission-tree::-webkit-scrollbar {
-  width: 4px;
-}
-.permission-tree::-webkit-scrollbar-thumb {
-  background: #d0d5dd;
-  border-radius: 2px;
-}
-.permission-tree::-webkit-scrollbar-track {
-  background: transparent;
-}
+.permission-tree::-webkit-scrollbar { width: 4px; }
+.permission-tree::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 2px; }
+.permission-tree::-webkit-scrollbar-track { background: transparent; }
 
 .perm-group {
   border: 1px solid #ebeef5;
@@ -1058,23 +1592,27 @@ const handleRoleSearch = () => {
   transition: box-shadow 0.2s;
   flex-shrink: 0;
 }
-.perm-group:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
+.perm-group:hover { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+
 .perm-group-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  gap: 8px;
+  padding: 10px 14px;
   background: #fafbfc;
   border-bottom: 1px solid #ebeef5;
   cursor: pointer;
   transition: background 0.2s;
-  cursor: default;
 }
-.perm-group-header:hover {
-  background: #f0f2f5;
+.perm-group-header:hover { background: #f0f2f5; }
+.perm-group-header .group-toggle {
+  font-size: 10px;
+  color: #909399;
+  transition: transform 0.2s;
+  width: 14px;
+  text-align: center;
 }
+.perm-group-header .group-toggle.collapsed { transform: rotate(-90deg); }
 .group-checkbox {
   width: 16px;
   height: 16px;
@@ -1095,7 +1633,7 @@ const handleRoleSearch = () => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2px;
-  padding: 8px 16px;
+  padding: 8px 14px;
 }
 .perm-item {
   display: flex;
@@ -1106,9 +1644,7 @@ const handleRoleSearch = () => {
   cursor: pointer;
   transition: background 0.2s;
 }
-.perm-item:hover {
-  background: #f5f7fa;
-}
+.perm-item:hover { background: #f5f7fa; }
 .perm-item input[type="checkbox"] {
   width: 15px;
   height: 15px;
@@ -1121,10 +1657,7 @@ const handleRoleSearch = () => {
   font-weight: 500;
   min-width: 80px;
 }
-.perm-item-desc {
-  font-size: 12px;
-  color: #909399;
-}
+.perm-item-desc { font-size: 12px; color: #909399; }
 
 /* 权限占位 */
 .permission-placeholder {
@@ -1170,12 +1703,8 @@ const handleRoleSearch = () => {
 .legend-desc { color: #909399; font-size: 13px; }
 
 /* ===== 弹窗表单 ===== */
-.modal-form {
-  padding: 8px 0;
-}
-.form-group {
-  margin-bottom: 16px;
-}
+.modal-form { padding: 8px 0; }
+.form-group { margin-bottom: 16px; }
 .form-label {
   display: block;
   font-size: 14px;
@@ -1198,6 +1727,7 @@ const handleRoleSearch = () => {
   transition: border-color 0.3s;
   background: #fff;
   font-family: inherit;
+  box-sizing: border-box;
 }
 .form-input:focus, .form-select:focus, .form-textarea:focus {
   border-color: #409eff;
@@ -1209,36 +1739,7 @@ const handleRoleSearch = () => {
   background-repeat: no-repeat;
   background-position: right 12px center;
 }
-.form-textarea {
-  resize: vertical;
-  min-height: 60px;
-}
-.permission-checkbox-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 6px;
-  padding: 8px 12px;
-  border: 1px solid #ebeef5;
-  border-radius: 4px;
-  background: #fafbfc;
-  max-height: 120px;
-  overflow-y: auto;
-}
-.perm-check-item {
-  font-size: 13px;
-  color: #606266;
-}
-.perm-check-item label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-}
-.perm-check-item input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
-  cursor: pointer;
-}
+.form-textarea { resize: vertical; min-height: 60px; }
 
 .form-actions {
   display: flex;
@@ -1251,7 +1752,7 @@ const handleRoleSearch = () => {
 
 /* ===== 响应式 ===== */
 @media (max-width: 1200px) {
-  .role-list { grid-template-columns: 1fr; }
+  .role-list { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
   .permission-assign { grid-template-columns: 1fr; }
   .assign-left { border-right: none; border-bottom: 1px solid #ebeef5; padding-right: 0; padding-bottom: 16px; }
   .assign-right { padding-left: 0; }
@@ -1259,12 +1760,11 @@ const handleRoleSearch = () => {
 }
 @media (max-width: 768px) {
   .toolbar { flex-direction: column; align-items: stretch; }
-  .search-box { margin-left: 0; }
+  .toolbar-left, .toolbar-right { justify-content: flex-start; }
   .search-box input { width: 100%; }
   .role-header { flex-direction: column; align-items: stretch; }
   .role-actions { margin-left: 0; }
   .sub-tab-item { padding: 6px 12px; font-size: 13px; }
-  .permission-checkbox-group { grid-template-columns: 1fr 1fr; }
   .assign-header { flex-direction: column; align-items: stretch; }
   .assign-actions { justify-content: flex-start; }
   .perm-items { grid-template-columns: 1fr; }

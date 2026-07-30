@@ -22,6 +22,7 @@ export interface BackendUserDto {
   email: string;
   status: number;       // 1:启用 0:禁用
   password?: string;
+  createdAt?: string;
 }
 
 /** 分页结果 */
@@ -227,32 +228,239 @@ export const userApi = {
 };
 
 // =====================================================================
-// 角色 / 权限 / 组织 / 字典 / 日志（保留原函数，路径已修正）
-// 后续按需要再实装后端接口
+// 角色 / 权限 / 数据权限管理
 // =====================================================================
 
-/** 角色下拉数据（前端用 ROLE_NAME_TO_ID 静态映射） */
+/** 角色 DTO（后端返回） */
+export interface RoleDto {
+  id: number;
+  name: string;           // 角色名称
+  code: string;           // 权限字符
+  level: number;          // 等级
+  status: number;         // 1:启用 0:停用
+  remark?: string;        // 备注
+  createdAt?: string;
+  updatedAt?: string | null;
+  menuIds?: number[];     // 关联菜单ID列表
+  dataScope?: string;     // 数据权限范围
+  userCount?: number;     // 关联用户数
+}
+
+/** 角色表单 */
+export interface RoleForm {
+  id?: number;
+  name: string;
+  code: string;
+  level: number;
+  status: number;
+  remark?: string;
+}
+
+/** 角色查询参数 */
+export interface RoleQuery {
+  page?: number;
+  pageSize?: number;
+  name?: string;
+  code?: string;
+  status?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+/** 菜单权限 DTO */
+export interface MenuDto {
+  id: number;
+  name: string;
+  code?: string;
+  icon?: string;
+  type: number;           // 1:目录 2:菜单 3:按钮
+  parentId: number | null;
+  sort: number;
+  status: number;         // 1:正常 0:停用
+  path?: string;
+  component?: string;
+  permission?: string;    // 权限标识
+  createdAt?: string;
+  updatedAt?: string | null;
+  children?: MenuDto[];
+}
+
+/** 菜单表单 */
+export interface MenuForm {
+  id?: number;
+  name: string;
+  code?: string;
+  icon?: string;
+  type: number;           // 1:目录 2:菜单 3:按钮
+  parentId: number | null;
+  sort: number;
+  status: number;
+  path?: string;
+  component?: string;
+  permission?: string;
+}
+
+/** 菜单查询参数 */
+export interface MenuQuery {
+  name?: string;
+  status?: number;
+  type?: number;
+}
+
+/** 数据权限范围选项 */
+export const DATA_SCOPE_OPTIONS = [
+  { label: '全部数据权限', value: 'ALL' },
+  { label: '自定义数据权限', value: 'CUSTOM' },
+  { label: '本部门数据权限', value: 'DEPT' },
+  { label: '本部门及以下数据权限', value: 'DEPT_AND_BELOW' },
+  { label: '仅本人数据权限', value: 'SELF' },
+];
+
+/** 角色 API */
+export const roleApi = {
+  /** 分页查询角色列表 */
+  async getPagedList(query: RoleQuery = {}): Promise<{ items: RoleDto[]; total: number }> {
+    return requestClient.get<{ items: RoleDto[]; total: number }>('/role/paged', { params: query });
+  },
+
+  /** 获取所有角色（用于下拉选择） */
+  async getAll(): Promise<RoleDto[]> {
+    return requestClient.get<RoleDto[]>('/role/all');
+  },
+
+  /** 按 ID 查询单个角色 */
+  async getById(id: number | string): Promise<RoleDto> {
+    return requestClient.get<RoleDto>(`/role/${id}`);
+  },
+
+  /** 新建角色 */
+  async create(data: RoleForm): Promise<RoleDto> {
+    return requestClient.post<RoleDto>('/role', data);
+  },
+
+  /** 更新角色 */
+  async update(id: number | string, data: RoleForm): Promise<RoleDto> {
+    return requestClient.put<RoleDto>(`/role/${id}`, data);
+  },
+
+  /** 删除角色 */
+  async delete(id: number | string): Promise<void> {
+    await requestClient.delete(`/role/${id}`);
+  },
+
+  /** 批量删除角色 */
+  async batchDelete(ids: Array<number | string>): Promise<{ deletedCount: number; message: string }> {
+    return requestClient.post<{ deletedCount: number; message: string }>(
+      '/role/batch-delete',
+      { ids: ids.map(Number) },
+    );
+  },
+
+  /** 导出角色数据 */
+  export(query: RoleQuery = {}): void {
+    const params = new URLSearchParams();
+    Object.entries(query).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') params.append(k, String(v));
+    });
+    const qs = params.toString();
+    const a = document.createElement('a');
+    a.href = `/api/role/export${qs ? '?' + qs : ''}`;
+    a.download = `角色导出_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  },
+
+  /** 分配菜单权限 */
+  async assignMenuPermission(roleId: number | string, menuIds: number[]): Promise<void> {
+    return requestClient.post<void>(`/role/${roleId}/menu-permission`, { menuIds });
+  },
+
+  /** 获取角色已分配的菜单权限 */
+  async getMenuPermission(roleId: number | string): Promise<number[]> {
+    return requestClient.get<number[]>(`/role/${roleId}/menu-permission`);
+  },
+
+  /** 分配数据权限 */
+  async assignDataPermission(roleId: number | string, data: {
+    dataScope: string;
+    deptIds?: number[];
+  }): Promise<void> {
+    return requestClient.post<void>(`/role/${roleId}/data-permission`, data);
+  },
+
+  /** 获取角色数据权限 */
+  async getDataPermission(roleId: number | string): Promise<{ dataScope: string; deptIds: number[] }> {
+    return requestClient.get<{ dataScope: string; deptIds: number[] }>(`/role/${roleId}/data-permission`);
+  },
+};
+
+/** 菜单权限 API */
+export const menuApi = {
+  /** 获取菜单树 */
+  async getTree(): Promise<MenuDto[]> {
+    return requestClient.get<MenuDto[]>('/menu/tree');
+  },
+
+  /** 获取所有菜单（扁平列表） */
+  async getAll(): Promise<MenuDto[]> {
+    return requestClient.get<MenuDto[]>('/menu/all');
+  },
+
+  /** 按 ID 查询单个菜单 */
+  async getById(id: number | string): Promise<MenuDto> {
+    return requestClient.get<MenuDto>(`/menu/${id}`);
+  },
+
+  /** 新建菜单 */
+  async create(data: MenuForm): Promise<MenuDto> {
+    return requestClient.post<MenuDto>('/menu', data);
+  },
+
+  /** 更新菜单 */
+  async update(id: number | string, data: MenuForm): Promise<MenuDto> {
+    return requestClient.put<MenuDto>(`/menu/${id}`, data);
+  },
+
+  /** 删除菜单 */
+  async delete(id: number | string): Promise<void> {
+    await requestClient.delete(`/menu/${id}`);
+  },
+
+  /** 批量删除菜单 */
+  async batchDelete(ids: Array<number | string>): Promise<{ deletedCount: number; message: string }> {
+    return requestClient.post<{ deletedCount: number; message: string }>(
+      '/menu/batch-delete',
+      { ids: ids.map(Number) },
+    );
+  },
+};
+
+/** 状态文本映射 */
+export const ROLE_STATUS_MAP: Record<number, { text: string; color: string }> = {
+  1: { text: '启用', color: '#52c41a' },
+  0: { text: '停用', color: '#ff4d4f' },
+};
+
+/** 角色等级选项 */
+export const ROLE_LEVEL_OPTIONS = [
+  { label: '1', value: 1 },
+  { label: '2', value: 2 },
+  { label: '3', value: 3 },
+  { label: '4', value: 4 },
+  { label: '5', value: 5 },
+];
+
+/** 角色下拉数据（保留兼容） */
 export const ROLE_OPTIONS = Object.keys(ROLE_NAME_TO_ID).map((k) => ({ label: k, value: k }));
 export const ORG_OPTIONS = Object.keys(ORG_NAME_TO_ID).map((k) => ({ label: k, value: k }));
 
-// 角色管理（占位）
-export function getRoleList() {
-  return requestClient.get('/system/role/list');
-}
-export function createRole(data: any) {
-  return requestClient.post('/system/role', data);
-}
-export function updateRole(id: string, data: any) {
-  return requestClient.put(`/system/role/${id}`, data);
-}
-export function deleteRole(id: string) {
-  return requestClient.delete(`/system/role/${id}`);
-}
-
-// 权限管理（占位）
-export function getPermissionTree() {
-  return requestClient.get('/system/permission/tree');
-}
+// 保留旧函数名兼容
+export const getRoleList = () => roleApi.getPagedList();
+export const createRole = (data: any) => roleApi.create(data);
+export const updateRole = (id: string, data: any) => roleApi.update(id, data);
+export const deleteRole = (id: string) => roleApi.delete(id);
+export const getPermissionTree = () => menuApi.getTree();
 
 // 组织管理（占位）
 export function getOrgTree() {

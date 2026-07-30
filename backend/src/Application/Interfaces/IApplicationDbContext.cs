@@ -9,6 +9,9 @@ public interface IApplicationDbContext
     DbSet<SysDict> Dicts { get; set; }
     DbSet<SysDictItem> DictItems { get; set; }
     DbSet<SysOrg> Orgs { get; set; }
+    DbSet<SysRole> Roles { get; set; }
+    DbSet<SysMenu> Menus { get; set; }
+    DbSet<SysRoleMenu> RoleMenus { get; set; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

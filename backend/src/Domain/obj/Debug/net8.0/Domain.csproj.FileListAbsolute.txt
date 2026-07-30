@@ -19,6 +19,7 @@ E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\Domain.GeneratedMSBuildEditor
 E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\Domain.AssemblyInfoInputs.cache
 E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\Domain.AssemblyInfo.cs
 E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\Domain.csproj.CoreCompileInputs.cache
+E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\Domain.sourcelink.json
 E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\Domain.dll
 E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\refint\Domain.dll
 E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\Domain.pdb
