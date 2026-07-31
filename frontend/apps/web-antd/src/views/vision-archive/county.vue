@@ -1,5 +1,6 @@
 <template>
   <div class="app-root" :class="{ 'theme-light': isLight }">
+    <!-- 背景 -->
     <div class="bg-decor" aria-hidden="true">
       <div class="bg-grid"></div>
       <div class="bg-glow bg-glow-1"></div>
@@ -7,9 +8,12 @@
       <div class="bg-glow bg-glow-3"></div>
       <div class="bg-stars"></div>
     </div>
+
+    <!-- 扫描线 -->
     <div class="scan-line"></div>
     <div class="scan-line-2"></div>
 
+    <!-- 顶部装饰光带 -->
     <div class="tech-topbar">
       <div class="tech-corner tech-corner-l"><span class="tc-dot"></span></div>
       <div class="tech-line"><span class="line-pulse line-pulse-1"></span><span class="line-pulse line-pulse-2"></span></div>
@@ -19,6 +23,8 @@
       <div class="tech-line"><span class="line-pulse line-pulse-3"></span><span class="line-pulse line-pulse-4"></span></div>
       <div class="tech-corner tech-corner-r"><span class="tc-dot"></span></div>
     </div>
+
+    <!-- Header -->
     <header class="national-header">
       <div class="header-deco header-deco-l">
         <span class="hd-line"></span>
@@ -41,6 +47,8 @@
         <span class="hd-line"></span>
       </div>
     </header>
+
+    <!-- Tab 切换 -->
     <nav class="national-tabs">
       <button v-for="t in tabs" :key="t.key"
         :class="['tech-tab', { active: activeTab === t.key }]"
@@ -51,88 +59,89 @@
       </button>
     </nav>
 
+    <!-- 顶部筛选栏 -->
     <div class="top-filter-bar">
-      <div class="filter-select" :class="{ 'has-value': currentFilter.province, 'is-open': openDropdown === 'province' }">
-        <div class="select-trigger" @click.stop="toggleDropdown('province')">
-          <span class="select-value" :class="{ placeholder: !currentFilter.province }">
-            {{ getSelectedName(provinceList, currentFilter.province) || '请选择省份' }}
+      <div class="filter-select" ref="provinceRef" :class="{ 'has-value': filter.province, 'is-open': openDropdown === 'province' }">
+        <div class="select-trigger" :class="{ disabled: false }" @click.stop="toggleDropdown('province')">
+          <span class="select-value" :class="{ placeholder: !filter.province }">
+            {{ getSelectedName(provinceList, filter.province) || '请选择省份' }}
           </span>
-          <span v-if="currentFilter.province" class="clear-icon" @click.stop="clearProvince">✕</span>
+          <span v-if="filter.province" class="clear-icon" @click.stop="clearProvince">✕</span>
           <span class="arrow-down" :class="{ rotated: openDropdown === 'province' }">▼</span>
         </div>
         <div v-if="openDropdown === 'province'" class="select-dropdown">
           <div class="dropdown-header">选择省份</div>
           <div class="dropdown-list">
             <div v-for="p in provinceList" :key="p.code"
-              class="dropdown-item" :class="{ selected: currentFilter.province === p.code }"
+              class="dropdown-item" :class="{ selected: filter.province === p.code }"
               @click.stop="selectOption('province', p.code)">
               {{ p.name }}
-              <span v-if="currentFilter.province === p.code" class="check-mark">✓</span>
+              <span v-if="filter.province === p.code" class="check-mark">✓</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="filter-select" :class="{ 'has-value': currentFilter.city, 'is-open': openDropdown === 'city', 'disabled': !currentFilter.province }">
-        <div class="select-trigger" :class="{ disabled: !currentFilter.province }" @click.stop="toggleDropdown('city')">
-          <span class="select-value" :class="{ placeholder: !currentFilter.city }">
-            {{ getSelectedName(cityOptions, currentFilter.city) || '请选择城市' }}
+      <div class="filter-select" ref="cityRef" :class="{ 'has-value': filter.city, 'is-open': openDropdown === 'city', 'disabled': !filter.province }">
+        <div class="select-trigger" :class="{ disabled: !filter.province }" @click.stop="toggleDropdown('city')">
+          <span class="select-value" :class="{ placeholder: !filter.city }">
+            {{ getSelectedName(cityOptions, filter.city) || '请选择城市' }}
           </span>
-          <span v-if="currentFilter.city" class="clear-icon" @click.stop="clearCity">✕</span>
+          <span v-if="filter.city" class="clear-icon" @click.stop="clearCity">✕</span>
           <span class="arrow-down" :class="{ rotated: openDropdown === 'city' }">▼</span>
         </div>
         <div v-if="openDropdown === 'city'" class="select-dropdown">
           <div class="dropdown-header">选择城市</div>
           <div class="dropdown-list">
             <div v-for="c in cityOptions" :key="c.code"
-              class="dropdown-item" :class="{ selected: currentFilter.city === c.code }"
+              class="dropdown-item" :class="{ selected: filter.city === c.code }"
               @click.stop="selectOption('city', c.code)">
               {{ c.name }}
-              <span v-if="currentFilter.city === c.code" class="check-mark">✓</span>
+              <span v-if="filter.city === c.code" class="check-mark">✓</span>
             </div>
             <div v-if="cityOptions.length === 0" class="dropdown-empty">请先选择省份</div>
           </div>
         </div>
       </div>
 
-      <div class="filter-select" :class="{ 'has-value': currentFilter.district, 'is-open': openDropdown === 'district', 'disabled': !currentFilter.city }">
-        <div class="select-trigger" :class="{ disabled: !currentFilter.city }" @click.stop="toggleDropdown('district')">
-          <span class="select-value" :class="{ placeholder: !currentFilter.district }">
-            {{ getSelectedName(districtOptions, currentFilter.district) || '请选择区县' }}
+      <div class="filter-select" ref="districtRef" :class="{ 'has-value': filter.district, 'is-open': openDropdown === 'district', 'disabled': !filter.city }">
+        <div class="select-trigger" :class="{ disabled: !filter.city }" @click.stop="toggleDropdown('district')">
+          <span class="select-value" :class="{ placeholder: !filter.district }">
+            {{ getSelectedName(districtOptions, filter.district) || '请选择区县' }}
           </span>
-          <span v-if="currentFilter.district" class="clear-icon" @click.stop="clearDistrict">✕</span>
+          <span v-if="filter.district" class="clear-icon" @click.stop="clearDistrict">✕</span>
           <span class="arrow-down" :class="{ rotated: openDropdown === 'district' }">▼</span>
         </div>
         <div v-if="openDropdown === 'district'" class="select-dropdown">
           <div class="dropdown-header">选择区县</div>
           <div class="dropdown-list">
             <div v-for="d in districtOptions" :key="d.code"
-              class="dropdown-item" :class="{ selected: currentFilter.district === d.code }"
+              class="dropdown-item" :class="{ selected: filter.district === d.code }"
               @click.stop="selectOption('district', d.code)">
               {{ d.name }}
-              <span v-if="currentFilter.district === d.code" class="check-mark">✓</span>
+              <span v-if="filter.district === d.code" class="check-mark">✓</span>
             </div>
             <div v-if="districtOptions.length === 0" class="dropdown-empty">请先选择城市</div>
           </div>
         </div>
       </div>
 
-      <div class="filter-select" :class="{ 'has-value': currentFilter.school, 'is-open': openDropdown === 'school', 'disabled': !currentFilter.city }">
-        <div class="select-trigger" :class="{ disabled: !currentFilter.city }" @click.stop="toggleDropdown('school')">
-          <span class="select-value" :class="{ placeholder: !currentFilter.school }">
-            {{ getSelectedName(schoolOptions, currentFilter.school) || '请选择学校' }}
+      <div class="filter-select" ref="schoolRef" :class="{ 'has-value': filter.school, 'is-open': openDropdown === 'school', 'disabled': !filter.district }">
+        <div class="select-trigger" :class="{ disabled: !filter.district }" @click.stop="toggleDropdown('school')">
+          <span class="select-value" :class="{ placeholder: !filter.school }">
+            {{ getSelectedName(schoolOptions, filter.school) || '请选择学校' }}
           </span>
-          <span v-if="currentFilter.school" class="clear-icon" @click.stop="clearSchool">✕</span>
+          <span v-if="filter.school" class="clear-icon" @click.stop="clearSchool">✕</span>
           <span class="arrow-down" :class="{ rotated: openDropdown === 'school' }">▼</span>
         </div>
         <div v-if="openDropdown === 'school'" class="select-dropdown">
           <div class="dropdown-header">选择学校</div>
           <div class="dropdown-list">
             <div v-for="s in schoolOptions" :key="s.code"
-              class="dropdown-item" :class="{ selected: currentFilter.school === s.code }"
+              class="dropdown-item" :class="{ selected: filter.school === s.code }"
               @click.stop="selectOption('school', s.code)">
               {{ s.name }}
-              <span v-if="currentFilter.school === s.code" class="check-mark">✓</span>
+              <span v-if="filter.school === s.code" class="check-mark">✓</span>
             </div>
             <div v-if="schoolOptions.length === 0" class="dropdown-empty">请先选择区县</div>
           </div>
@@ -142,17 +151,19 @@
       <button class="btn-search-top" @click="handleSearch">
         <span class="icon">🔍</span> 搜索
       </button>
-      <button class="btn-reset-top" @click="handleReset">
+      <button class="btn-reset-top" @click="handleResetFilter">
         <span class="icon">↺</span> 重置
       </button>
     </div>
 
+    <!-- 主体 -->
     <main class="national-body">
+      <!-- 左栏 -->
       <aside class="left-col">
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentMetric.name }}核心数据</span>
+            <span class="panel-title">{{ currentCounty }}{{ currentMetric.name }}核心数据</span>
             <span class="panel-tag">{{ currentMetric.name }}专题</span>
           </header>
           <div class="tech-panel-body">
@@ -180,6 +191,7 @@
                   <div class="kpi-lg-trend down">覆盖 {{ currentCountyData.schools }} 所学校</div>
                 </div>
               </div>
+
               <div class="kpi-row-gender">
                 <div class="gender-item male">
                   <span class="gender-icon">♂</span>
@@ -198,6 +210,7 @@
                   <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentCountyData.femaleRate + '%' }"></div></div>
                 </div>
               </div>
+
               <div class="kpi-row-small">
                 <div class="kpi-card-sm">
                   <div class="kpi-sm-label">小学{{ currentMetric.name }}率</div>
@@ -218,39 +231,20 @@
             </div>
           </div>
         </section>
+
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
             <span class="panel-title">学校{{ currentMetric.name }}率排名</span>
-            <span class="panel-tag">TOP {{ schoolList.length > 0 ? Math.min(10, schoolList.length) : 10 }}</span>
+            <span class="panel-tag">TOP 10</span>
           </header>
           <div class="tech-panel-body">
-            <div ref="rankingChartRef" class="chart-area"></div>
-          </div>
-        </section>
-        <section class="tech-panel">
-          <header class="tech-panel-header">
-            <span class="panel-bullet"></span>
-            <span class="panel-title">预警提醒</span>
-          </header>
-          <div class="tech-panel-body">
-            <div class="alert-list">
-              <div class="alert-item danger">
-                <span class="alert-icon">🔴</span>
-                <span class="alert-msg">{{ currentCountyData.topSchool }}{{ currentMetric.name }}率达{{ currentCountyData.topRate }}%，高于全区平均水平</span>
-              </div>
-              <div class="alert-item warning">
-                <span class="alert-icon">🟡</span>
-                <span class="alert-msg">3所学校{{ currentMetric.name }}监测覆盖率低于40%，需加强推进</span>
-              </div>
-              <div class="alert-item info">
-                <span class="alert-icon">🔵</span>
-                <span class="alert-msg">本月{{ currentMetric.name }}检测完成率85.2%，较上月提升3.8%</span>
-              </div>
-            </div>
+            <div ref="schoolRankRef" class="chart-area"></div>
           </div>
         </section>
       </aside>
+
+      <!-- 地图 -->
       <section class="map-col">
         <div class="map-area">
           <div ref="mapRef" class="map-canvas"></div>
@@ -275,17 +269,27 @@
           <button class="map-back-btn" @click="goBack">
             <span class="back-icon">◀</span> 返回上级地图
           </button>
-        </div>
-        <div class="map-legend">
-          <div class="legend-title">{{ currentMetric.name }}率分布</div>
-          <div class="legend-items">
-            <div class="legend-item"><span class="legend-dot" style="--lgc:1"></span><span>较低</span></div>
-            <div class="legend-item"><span class="legend-dot" style="--lgc:2"></span><span>中等</span></div>
-            <div class="legend-item"><span class="legend-dot" style="--lgc:3"></span><span>较高</span></div>
-            <div class="legend-item"><span class="legend-dot" style="--lgc:4"></span><span>高发</span></div>
+          <div class="map-legend">
+            <div class="legend-title">{{ currentMetric.name }}率分布</div>
+            <div class="legend-gradient-bar"></div>
+            <div class="legend-scale">
+              <span>0%</span>
+              <span>48%</span>
+              <span>55%</span>
+              <span>60%</span>
+              <span>100%</span>
+            </div>
+            <div class="legend-items">
+              <div class="legend-item"><span class="legend-bar bar-1"></span><span>≤48%</span></div>
+              <div class="legend-item"><span class="legend-bar bar-2"></span><span>48-55%</span></div>
+              <div class="legend-item"><span class="legend-bar bar-3"></span><span>55-60%</span></div>
+              <div class="legend-item"><span class="legend-bar bar-4"></span><span>≥60%</span></div>
+            </div>
           </div>
         </div>
       </section>
+
+      <!-- 右栏 -->
       <aside class="right-col">
         <section class="tech-panel">
           <header class="tech-panel-header">
@@ -293,9 +297,10 @@
             <span class="panel-title">年龄/性别{{ currentMetric.name }}率对比</span>
           </header>
           <div class="tech-panel-body">
-            <div ref="ageGenderChartRef" class="chart-area"></div>
+            <div ref="ageGenderRef" class="chart-area"></div>
           </div>
         </section>
+
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
@@ -308,69 +313,86 @@
             </div>
           </div>
         </section>
+
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentMetric.name }}变化趋势</span>
+            <span class="panel-title">示范区{{ currentMetric.name }}防控效果</span>
           </header>
           <div class="tech-panel-body">
-            <div ref="trendChartRef" class="chart-area"></div>
-          </div>
-        </section>
-        <section class="tech-panel">
-          <header class="tech-panel-header">
-            <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentMetric.name }}防控效果</span>
-          </header>
-          <div class="tech-panel-body">
-            <div ref="interventionChartRef" class="chart-area"></div>
+            <div ref="interventionRef" class="chart-area"></div>
           </div>
         </section>
       </aside>
     </main>
 
-  </div>
+    </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import * as echarts from 'echarts';
 
-const router = useRouter();
 const route = useRoute();
+const router = useRouter();
 
+// ============================================================
+//  色板（深浅色主题）
+// ============================================================
 const DARK_COLOR = {
-  primary: '#38bdf8', secondary: '#a78bfa', accent: '#f472b6',
-  warning: '#fbbf24', success: '#34d399', danger: '#fb7185',
-  male: '#38bdf8', female: '#a78bfa',
-  text: '#e2e8f0', textDim: '#94a3b8',
-  bg: 'rgba(10, 22, 50, 0.96)', mapArea: 'rgba(15, 30, 65, 0.85)',
-  mapBorder: 'rgba(56, 189, 248, 0.75)', mapLabel: '#e2e8f0',
-  splitLine: 'rgba(56, 189, 248, 0.12)',
-  gaugeTrack: 'rgba(56, 189, 248, 0.12)', initialBar: '#475569',
-  mapColors: ['#0891b2', '#38bdf8', '#a78bfa', '#f472b6'],
+  primary: '#0bc4e9',
+  secondary: '#59ebe8',
+  accent: '#00a8d7',
+  warning: '#fbbf24',
+  success: '#34d399',
+  danger: '#fb7185',
+  male: '#0bc4e9',
+  female: '#59ebe8',
+  text: '#e2e8f0',
+  textDim: '#94a3b8',
+  bg: 'rgba(6, 16, 28, 0.96)',
+  mapArea: 'rgba(15, 30, 65, 0.85)',
+  mapBorder: 'rgba(11, 196, 233, 0.75)',
+  mapLabel: '#e2e8f0',
+  splitLine: 'rgba(11, 196, 233, 0.12)',
+  gaugeTrack: 'rgba(11, 196, 233, 0.12)',
+  initialBar: '#475569',
+  mapColors: ['#0bc4e9', '#7dd87d', '#f5c542', '#e8554f'],
 };
 
 const LIGHT_COLOR = {
-  primary: '#0891b2', secondary: '#7c3aed', accent: '#db2777',
-  warning: '#d97706', success: '#059669', danger: '#dc2626',
-  male: '#0891b2', female: '#7c3aed',
-  text: '#1e293b', textDim: '#64748b',
-  bg: 'rgba(255, 255, 255, 0.98)', mapArea: '#f1f5f9',
-  mapBorder: 'rgba(8, 145, 178, 0.35)', mapLabel: '#1e293b',
+  primary: '#0891b2',
+  secondary: '#00a8d7',
+  accent: '#0bc4e9',
+  warning: '#d97706',
+  success: '#059669',
+  danger: '#dc2626',
+  male: '#0891b2',
+  female: '#00a8d7',
+  text: '#1e293b',
+  textDim: '#64748b',
+  bg: 'rgba(255, 255, 255, 0.98)',
+  mapArea: '#f1f5f9',
+  mapBorder: 'rgba(8, 145, 178, 0.35)',
+  mapLabel: '#1e293b',
   splitLine: 'rgba(8, 145, 178, 0.1)',
-  gaugeTrack: 'rgba(8, 145, 178, 0.08)', initialBar: '#cbd5e1',
-  mapColors: ['#67e8f9', '#0891b2', '#7c3aed', '#db2777'],
+  gaugeTrack: 'rgba(8, 145, 178, 0.08)',
+  initialBar: '#cbd5e1',
+  mapColors: ['#4dd4f5', '#a8e8a8', '#f7d56e', '#ed807d'],
 };
 
 const getColors = () => (isLight.value ? LIGHT_COLOR : DARK_COLOR);
 
 const makeGrad = (c1, c2, horizontal = true) =>
   new echarts.graphic.LinearGradient(0, 0, horizontal ? 1 : 0, horizontal ? 0 : 1, [
-    { offset: 0, color: c1 }, { offset: 1, color: c2 },
+    { offset: 0, color: c1 },
+    { offset: 1, color: c2 },
   ]);
 
+// ============================================================
+//  区县/学校 地图与数据配置
+// ============================================================
 const COUNTY_MAP_CONFIG = {
   '370102': { name: '历下区', short: '历下区', center: [117.14, 36.65], zoom: 2.3 },
   '370103': { name: '市中区', short: '市中区', center: [117.10, 36.63], zoom: 2.3 },
@@ -503,6 +525,7 @@ const SCHOOL_CODES_MAP = {
   '潍坊市寒亭区高里镇学校': '370703009', '潍坊市寒亭区央子镇中心小学': '370703010',
 };
 
+// 学校坐标：以区县中心为圆心，按角度分散生成
 const SCHOOL_COORDS_MAP = {};
 const _countyCenters = {
   '370102': [117.14, 36.65], '370103': [117.10, 36.63], '370104': [116.98, 36.65],
@@ -521,7 +544,18 @@ Object.entries(DISTRICT_SCHOOLS_MAP).forEach(([code, schools]) => {
   });
 });
 
-const PROVINCE_CODES = { '山东省': '370000' };
+// ============================================================
+//  顶部筛选（省/市/区县/学校）数据源
+// ============================================================
+const PROVINCE_CODES = {
+  '北京': '110000', '天津': '120000', '河北': '130000', '山西': '140000', '内蒙古': '150000',
+  '辽宁': '210000', '吉林': '220000', '黑龙江': '230000', '上海': '310000', '江苏': '320000',
+  '浙江': '330000', '安徽': '340000', '福建': '350000', '江西': '360000', '山东': '370000',
+  '河南': '410000', '湖北': '420000', '湖南': '430000', '广东': '440000', '广西': '450000',
+  '海南': '460000', '重庆': '500000', '四川': '510000', '贵州': '520000', '云南': '530000',
+  '西藏': '540000', '陕西': '610000', '甘肃': '620000', '青海': '630000', '宁夏': '640000',
+  '新疆': '650000', '台湾': '710000', '香港': '810000', '澳门': '820000',
+};
 
 const PROVINCE_CITY_MAP = {
   '370000': [
@@ -547,116 +581,62 @@ const CITY_DISTRICT_MAP = {
   ],
 };
 
-const PROVINCE_NAMES = Object.fromEntries(Object.entries(PROVINCE_CODES).map(([n, c]) => [c, n]));
-const CITY_NAMES = {};
-Object.entries(PROVINCE_CITY_MAP).forEach(([_, cities]) => {
-  cities.forEach(c => { CITY_NAMES[c.code] = c.name; });
-});
-const DISTRICT_NAMES = {};
-Object.entries(CITY_DISTRICT_MAP).forEach(([_, districts]) => {
-  if (Array.isArray(districts)) districts.forEach(d => { DISTRICT_NAMES[d.code] = d.name; });
-});
-
-const routeCode = computed(() => String(route.params.code || '370102'));
-const currentCountyConfig = computed(() => {
-  if (COUNTY_MAP_CONFIG[routeCode.value]) return COUNTY_MAP_CONFIG[routeCode.value];
-  const code = routeCode.value;
-  return { name: code, short: code, center: [117.12, 36.65], zoom: 2.0 };
-});
-const currentCounty = computed(() => currentCountyConfig.value.short);
-const currentCountyCenter = computed(() => currentCountyConfig.value.center);
-
-const schoolList = computed(() => {
-  const districtCode = currentFilter.district || routeCode.value;
-  const list = DISTRICT_SCHOOLS_MAP[districtCode] || DISTRICT_SCHOOLS_MAP[routeCode.value] || [];
-  if (currentFilter.school) {
-    const schoolName = Object.keys(SCHOOL_CODES_MAP).find(k => SCHOOL_CODES_MAP[k] === currentFilter.school);
-    if (schoolName) return [schoolName];
-  }
-  return list;
-});
-
+// ============================================================
+//  Tabs
+// ============================================================
 const tabs = [
   { key: 'vision', label: '视力健康', icon: '👁️' },
-  { key: 'oral', label: '口腔健康', icon: '🦷' },
+  { key: 'oral',   label: '口腔健康', icon: '🦷' },
   { key: 'mental', label: '心理健康', icon: '🧠' },
   { key: 'weight', label: '健康体重', icon: '⚖️' },
-  { key: 'bone', label: '骨骼健康', icon: '🦴' }
+  { key: 'bone',   label: '骨骼健康', icon: '🦴' }
 ];
 
-const metricConfig = {
-  vision: { name: '近视', baseRate: 55, trend: 2.0, maleFactor: 0.95, femaleFactor: 1.05, primaryFactor: 0.6, juniorFactor: 1.0, seniorFactor: 1.25 },
-  oral: { name: '龋齿', baseRate: 40, trend: -1.0, maleFactor: 0.96, femaleFactor: 1.05, primaryFactor: 1.24, juniorFactor: 0.9, seniorFactor: 0.67 },
-  mental: { name: '心理预警', baseRate: 16, trend: -0.6, maleFactor: 0.92, femaleFactor: 1.1, primaryFactor: 0.67, juniorFactor: 1.22, seniorFactor: 1.56 },
-  weight: { name: '超重/肥胖', baseRate: 22, trend: 1.2, maleFactor: 1.12, femaleFactor: 0.88, primaryFactor: 0.63, juniorFactor: 1.17, seniorFactor: 1.33 },
-  bone: { name: '骨密度偏低', baseRate: 14, trend: -0.4, maleFactor: 0.91, femaleFactor: 1.11, primaryFactor: 0.75, juniorFactor: 1.13, seniorFactor: 1.38 }
-};
-
-const activeTab = ref('vision');
-const isLight = ref(false);
-const currentDate = ref('');
-const currentTime = ref('');
-const mapLoaded = ref(false);
-const mapZoom = ref(2.0);
-
-const currentMetric = computed(() => metricConfig[activeTab.value]);
-
-const currentFilter = reactive({ province: '', city: '', district: '', school: '' });
+// ============================================================
+//  顶部筛选
+// ============================================================
+const filter = reactive({
+  province: '',
+  city: '',
+  district: '',
+  school: '',
+});
 
 const openDropdown = ref(null);
 
-const provinceList = computed(() => {
-  return Object.entries(PROVINCE_CODES).map(([name, code]) => ({
-    code, name,
-  }));
-});
-
-const cityOptions = computed(() => PROVINCE_CITY_MAP[currentFilter.province] || []);
-
-const districtOptions = computed(() => CITY_DISTRICT_MAP[currentFilter.city] || []);
-
-const schoolOptions = computed(() => {
-  const districtCode = currentFilter.district || routeCode.value;
-  const list = DISTRICT_SCHOOLS_MAP[districtCode] || [];
-  return list.map(name => ({ code: SCHOOL_CODES_MAP[name] || name, name }));
-});
-
-const getSelectedName = (list, value) => {
-  if (!value) return '';
-  const item = list.find(i => i.value === value || i.code === value);
-  return item ? item.name : '';
-};
-
 const toggleDropdown = (key) => {
+  if (key === 'city' && !filter.province) return;
+  if (key === 'district' && !filter.city) return;
+  if (key === 'school' && !filter.district) return;
   openDropdown.value = openDropdown.value === key ? null : key;
 };
 
 const selectOption = (key, value) => {
   if (key === 'province') {
-    currentFilter.province = value;
-    currentFilter.city = '';
-    currentFilter.district = '';
-    currentFilter.school = '';
+    filter.province = value;
+    filter.city = '';
+    filter.district = '';
+    filter.school = '';
   } else if (key === 'city') {
-    currentFilter.city = value;
-    currentFilter.district = '';
-    currentFilter.school = '';
+    filter.city = value;
+    filter.district = '';
+    filter.school = '';
   } else if (key === 'district') {
-    currentFilter.district = value;
-    currentFilter.school = '';
+    filter.district = value;
+    filter.school = '';
   } else if (key === 'school') {
-    currentFilter.school = value;
+    filter.school = value;
     const code = String(value);
     if (code.length >= 6) {
       const provCode = code.substring(0, 2) + '0000';
       const cityCode = code.substring(0, 4) + '00';
       const distCode = code.substring(0, 6);
       if (PROVINCE_CITY_MAP[provCode]) {
-        currentFilter.province = provCode;
+        filter.province = provCode;
         if (PROVINCE_CITY_MAP[provCode].some(c => c.code === cityCode)) {
-          currentFilter.city = cityCode;
+          filter.city = cityCode;
           if (CITY_DISTRICT_MAP[cityCode] && CITY_DISTRICT_MAP[cityCode].some(d => d.code === distCode)) {
-            currentFilter.district = distCode;
+            filter.district = distCode;
           }
         }
       }
@@ -666,28 +646,141 @@ const selectOption = (key, value) => {
   renderAllCharts();
 };
 
-const clearSchool = () => { currentFilter.school = ''; };
-const clearProvince = () => {
-  currentFilter.province = '';
-  currentFilter.city = '';
-  currentFilter.district = '';
-  currentFilter.school = '';
-};
-const clearCity = () => {
-  currentFilter.city = '';
-  currentFilter.district = '';
-  currentFilter.school = '';
-};
-const clearDistrict = () => {
-  currentFilter.district = '';
-  currentFilter.school = '';
+const getSelectedName = (list, code) => {
+  if (!code) return '';
+  const found = list.find(item => item.code === code);
+  return found ? found.name : '';
 };
 
-const handleDropdownClickOutside = (e) => {
+const clearSchool = () => { filter.school = ''; };
+const clearProvince = () => {
+  filter.province = '';
+  filter.city = '';
+  filter.district = '';
+  filter.school = '';
+};
+const clearCity = () => {
+  filter.city = '';
+  filter.district = '';
+  filter.school = '';
+};
+const clearDistrict = () => {
+  filter.district = '';
+  filter.school = '';
+};
+
+const handleDocumentClick = (e) => {
   if (!e.target.closest('.filter-select')) {
     openDropdown.value = null;
   }
 };
+
+const provinceList = computed(() => {
+  return Object.entries(PROVINCE_CODES).map(([name, code]) => ({
+    code,
+    name: name + (['北京', '天津', '上海', '重庆'].includes(name) ? '市' : ['内蒙古', '广西', '西藏', '宁夏', '新疆'].includes(name) ? '' : '省'),
+  }));
+});
+
+const cityOptions = computed(() => PROVINCE_CITY_MAP[filter.province] || []);
+
+const districtOptions = computed(() => CITY_DISTRICT_MAP[filter.city] || []);
+
+const schoolOptions = computed(() => {
+  const districtCode = filter.district || routeCode.value;
+  const list = DISTRICT_SCHOOLS_MAP[districtCode] || [];
+  return list.map(name => ({ code: SCHOOL_CODES_MAP[name] || name, name }));
+});
+
+const handleSearch = () => {
+  openDropdown.value = null;
+  if (filter.school) {
+    router.push({ path: `/vision/school/${filter.school}`, query: { tab: activeTab.value } });
+  } else if (filter.district) {
+    router.push({ path: `/vision/county/${filter.district}`, query: { tab: activeTab.value } });
+  } else if (filter.city) {
+    router.push({ path: `/vision/city/${filter.city}`, query: { tab: activeTab.value } });
+  } else if (filter.province) {
+    router.push({ path: `/vision/province/${filter.province}`, query: { tab: activeTab.value } });
+  }
+};
+
+const handleResetFilter = () => {
+  filter.province = '';
+  filter.city = '';
+  filter.district = '';
+  filter.school = '';
+  openDropdown.value = null;
+};
+
+// ============================================================
+//  路由驱动的区县配置 + 学校列表
+// ============================================================
+const routeCode = computed(() => String(route.params.code || '370102'));
+const currentCountyConfig = computed(() => {
+  if (COUNTY_MAP_CONFIG[routeCode.value]) return COUNTY_MAP_CONFIG[routeCode.value];
+  const code = routeCode.value;
+  return { name: code, short: code, center: [117.12, 36.65], zoom: 2.0 };
+});
+const currentCounty = computed(() => currentCountyConfig.value.short);
+const currentCountyCenter = computed(() => currentCountyConfig.value.center);
+
+// 根据路由参数同步筛选条件（从 city.vue 地图下钻进入时生效）
+// 区县码前两位 + '0000' 为省份码，前四位 + '00' 为城市码
+const syncFilterFromRoute = () => {
+  const code = routeCode.value;
+  if (code && code.length >= 6) {
+    const provinceCode = code.slice(0, 2) + '0000';
+    const cityCode = code.slice(0, 4) + '00';
+    if (Object.values(PROVINCE_CODES).includes(provinceCode)) {
+      filter.province = provinceCode;
+      filter.city = cityCode;
+      filter.district = code;
+      filter.school = '';
+    }
+  }
+};
+
+const schoolList = computed(() => {
+  const districtCode = filter.district || routeCode.value;
+  const list = DISTRICT_SCHOOLS_MAP[districtCode] || DISTRICT_SCHOOLS_MAP[routeCode.value] || [];
+  if (filter.school) {
+    const schoolName = Object.keys(SCHOOL_CODES_MAP).find(k => SCHOOL_CODES_MAP[k] === filter.school);
+    if (schoolName) return [schoolName];
+  }
+  return list;
+});
+
+// ============================================================
+//  状态
+// ============================================================
+const activeTab = ref('vision');
+const mapLoaded = ref(false);
+const currentDate = ref('');
+const currentTime = ref('');
+const isLight = ref(false);
+const mapZoom = ref(1.0);
+
+const schoolRankRef = ref(null);
+const ageGenderRef = ref(null);
+const urbanGaugeRef = ref(null);
+const ruralGaugeRef = ref(null);
+const interventionRef = ref(null);
+const mapRef = ref(null);
+
+const chartInstances = {};
+let timer = null;
+let themeObserver = null;
+
+const metricConfig = {
+  vision: { name: '近视', baseRate: 55, trend: 2.0, maleFactor: 0.95, femaleFactor: 1.05, primaryFactor: 0.6, juniorFactor: 1.0, seniorFactor: 1.25 },
+  oral: { name: '龋齿', baseRate: 40, trend: -1.0, maleFactor: 0.96, femaleFactor: 1.05, primaryFactor: 1.24, juniorFactor: 0.9, seniorFactor: 0.67 },
+  mental: { name: '心理预警', baseRate: 16, trend: -0.6, maleFactor: 0.92, femaleFactor: 1.1, primaryFactor: 0.67, juniorFactor: 1.22, seniorFactor: 1.56 },
+  weight: { name: '超重/肥胖', baseRate: 22, trend: 1.2, maleFactor: 1.12, femaleFactor: 0.88, primaryFactor: 0.63, juniorFactor: 1.17, seniorFactor: 1.33 },
+  bone: { name: '骨密度偏低', baseRate: 14, trend: -0.4, maleFactor: 0.91, femaleFactor: 1.11, primaryFactor: 0.75, juniorFactor: 1.13, seniorFactor: 1.38 }
+};
+
+const currentMetric = computed(() => metricConfig[activeTab.value]);
 
 const computeCountyMetricData = () => {
   const m = metricConfig[activeTab.value];
@@ -712,18 +805,9 @@ const computeCountyMetricData = () => {
 
 const currentCountyData = computed(() => computeCountyMetricData());
 
-const rankingChartRef = ref(null);
-const ageGenderChartRef = ref(null);
-const urbanGaugeRef = ref(null);
-const ruralGaugeRef = ref(null);
-const trendChartRef = ref(null);
-const interventionChartRef = ref(null);
-const mapRef = ref(null);
-
-const chartInstances = {};
-let timer = null;
-let themeObserver = null;
-
+// ============================================================
+//  方法
+// ============================================================
 const applySystemTheme = () => {
   isLight.value = !document.documentElement.classList.contains('dark');
   setTimeout(() => renderAllCharts(), 300);
@@ -739,24 +823,10 @@ const observeTheme = () => {
   themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 };
 
-const updateDateTime = () => {
-  const now = new Date();
-  currentDate.value = now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
-  currentTime.value = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-};
-
-const switchTab = (tabKey) => {
-  activeTab.value = tabKey;
-  setTimeout(() => renderAllCharts(), 100);
-};
-
-const handleSearch = () => { openDropdown.value = null; renderAllCharts(); };
-const handleReset = () => {
-  currentFilter.province = '';
-  currentFilter.city = '';
-  currentFilter.district = '';
-  currentFilter.school = '';
-  openDropdown.value = null;
+const drillToSchool = (name) => {
+  const code = SCHOOL_CODES_MAP[name];
+  if (code) router.push({ path: `/vision/school/${code}`, query: { tab: activeTab.value } });
+  else console.warn('未找到学校编码:', name);
 };
 
 const goBack = () => {
@@ -765,10 +835,9 @@ const goBack = () => {
   router.push({ path: `/vision/city/${cityCode}`, query: { tab: activeTab.value } });
 };
 
-const drillToSchool = (name) => {
-  const code = SCHOOL_CODES_MAP[name];
-  if (code) router.push({ path: `/vision/school/${code}`, query: { tab: activeTab.value } });
-  else console.warn('未找到学校编码:', name);
+const switchTab = (key) => {
+  activeTab.value = key;
+  setTimeout(() => renderAllCharts(), 100);
 };
 
 const getTooltip = (trigger = 'axis') => {
@@ -781,31 +850,272 @@ const getTooltip = (trigger = 'axis') => {
     textStyle: { color: c.text, fontSize: 12 },
     extraCssText: isLight.value
       ? 'box-shadow: 0 8px 24px rgba(15,23,42,0.12); border-radius: 8px;'
-      : 'box-shadow: 0 0 20px rgba(56,189,248,0.35); border-radius: 6px; backdrop-filter: blur(8px);',
+      : 'box-shadow: 0 0 20px rgba(11,196,233,0.35); border-radius: 6px; backdrop-filter: blur(8px);',
   };
 };
 
-const disposeAll = () => {
-  Object.values(chartInstances).forEach(c => { if (c && !c.isDisposed()) c.dispose(); });
-  Object.keys(chartInstances).forEach(k => delete chartInstances[k]);
+// 学校排名（左栏）
+const getRankingOption = () => {
+  const c = getColors();
+  const schools = schoolList.value.length ? schoolList.value.slice(0, 10) : ['暂无数据'];
+  const baseRate = currentCountyData.value.rate;
+  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
+  const rates = schools.map((_, i) => Math.round((baseRate + (12 - i * 1.2) + ((seed + i * 3) % 5 - 2)) * 10) / 10);
+  const maxRate = Math.max(...rates);
+
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      ...getTooltip('axis'),
+      axisPointer: { type: 'shadow' },
+      formatter: (params) => {
+        const p = params[0];
+        return `<div style="font-weight:600">${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div><div style="font-size:11px;color:${c.textDim};margin-top:4px">点击查看学校详情</div>`;
+      },
+    },
+    grid: { left: 10, right: 50, top: 5, bottom: 5, containLabel: true },
+    xAxis: { type: 'value', show: false, max: maxRate + 5 },
+    yAxis: {
+      type: 'category',
+      data: schools,
+      inverse: true,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: c.text, fontSize: 11, fontWeight: 'bold', interval: 0 },
+    },
+    series: [{
+      name: currentMetric.value.name + '率',
+      type: 'bar',
+      barGap: '30%',
+      barCategoryGap: '40%',
+      data: rates.map(v => ({
+        value: v,
+        itemStyle: {
+          color: makeGrad(c.primary, c.secondary),
+          borderRadius: [0, 4, 4, 0],
+          shadowBlur: isLight.value ? 4 : 8,
+          shadowColor: `${c.primary}44`,
+        },
+      })),
+      barWidth: 12,
+      label: {
+        show: true,
+        position: 'right',
+        color: c.primary,
+        fontSize: 10,
+        fontWeight: 'bold',
+        formatter: '{c}%',
+      },
+    }],
+  };
 };
 
-const initChart = (ref, key, option, onClick, retryCount = 0) => {
-  if (!ref.value) return;
-  try {
-    const rect = ref.value.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) {
-      if (retryCount < 3) setTimeout(() => initChart(ref, key, option, onClick, retryCount + 1), 200);
-      return;
-    }
-    const chart = echarts.init(ref.value);
-    chartInstances[key] = chart;
-    chart.setOption(option);
-    if (onClick) chart.on('click', onClick);
-    chart.resize();
-  } catch (e) {}
+const getAgeGenderOption = () => {
+  const c = getColors();
+  const grades = ['小学低年级', '小学中年级', '小学高年级', '初中', '高中'];
+  const baseRate = currentCountyData.value.rate;
+  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
+  const d = {
+    grades,
+    male: grades.map((_, i) => Math.round((baseRate * 0.95 + i * 5 + ((seed + i * 3) % 6 - 3)) * 10) / 10),
+    female: grades.map((_, i) => Math.round((baseRate * 1.05 + i * 6 + ((seed + i * 2) % 5 - 2)) * 10) / 10)
+  };
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      ...getTooltip('axis'),
+      axisPointer: { type: 'shadow' },
+      formatter: (params) => {
+        const i = params[0].dataIndex;
+        return `<div style="font-weight:600;margin-bottom:4px">${d.grades[i]}</div>
+                <div>■男生：<span style="color:${c.primary};font-weight:bold">${d.male[i]}%</span></div>
+                <div>■女生：<span style="color:${c.secondary};font-weight:bold">${d.female[i]}%</span></div>`;
+      },
+    },
+    legend: {
+      data: ['男生', '女生'],
+      textStyle: { color: c.text, fontSize: 11 },
+      right: 10,
+      top: 2,
+      itemWidth: 12,
+      itemHeight: 12,
+    },
+    grid: { left: 40, right: 25, top: 30, bottom: 20 },
+    xAxis: {
+      type: 'value',
+      min: -100,
+      max: 100,
+      splitNumber: 5,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: c.splitLine } },
+      axisLabel: { color: c.textDim, fontSize: 10, formatter: (v) => Math.abs(v) + '' },
+    },
+    yAxis: {
+      type: 'category',
+      data: d.grades,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: c.text, fontSize: 11, fontWeight: 'bold' },
+    },
+    series: [
+      {
+        name: '男生',
+        type: 'bar',
+        stack: 'total',
+        data: d.male.map((v) => -v),
+        barWidth: 14,
+        itemStyle: { color: makeGrad(c.primary, isLight.value ? '#67e8f9' : '#0891b2'), borderRadius: [4, 0, 0, 4] },
+        label: {
+          show: true,
+          position: 'left',
+          color: c.text,
+          fontSize: 10,
+          fontWeight: 'bold',
+          formatter: (p) => Math.abs(p.value) + '%',
+        },
+      },
+      {
+        name: '女生',
+        type: 'bar',
+        stack: 'total',
+        data: d.female,
+        barWidth: 14,
+        itemStyle: { color: makeGrad(c.secondary, isLight.value ? '#c4f1f0' : '#59ebe8'), borderRadius: [0, 4, 4, 0] },
+        label: {
+          show: true,
+          position: 'right',
+          color: c.text,
+          fontSize: 10,
+          fontWeight: 'bold',
+          formatter: '{c}%',
+        },
+      },
+    ],
+  };
 };
 
+const getGaugeOption = (value, name, color) => {
+  const c = getColors();
+  return {
+    backgroundColor: 'transparent',
+    series: [{
+      type: 'gauge',
+      startAngle: 200,
+      endAngle: -20,
+      min: 0,
+      max: 100,
+      radius: '92%',
+      center: ['50%', '58%'],
+      progress: {
+        show: true,
+        width: 10,
+        roundCap: true,
+        itemStyle: {
+          color: makeGrad(color, color === c.primary ? c.secondary : c.accent),
+          shadowBlur: isLight.value ? 6 : 12,
+          shadowColor: `${color}88`,
+        },
+      },
+      axisLine: { lineStyle: { width: 10, color: [[1, c.gaugeTrack]] } },
+      pointer: { show: false },
+      axisTick: { show: false },
+      splitLine: { show: false },
+      axisLabel: { show: false },
+      anchor: { show: false },
+      detail: {
+        valueAnimation: true,
+        formatter: '{value}%',
+        color,
+        fontSize: 22,
+        fontWeight: 'bold',
+        offsetCenter: [0, '15%'],
+        textShadowBlur: isLight.value ? 0 : 8,
+        textShadowColor: color,
+      },
+      title: { show: true, offsetCenter: [0, '70%'], color: c.textDim, fontSize: 12 },
+      data: [{ value, name }],
+    }],
+  };
+};
+
+const getInterventionOption = () => {
+  const c = getColors();
+  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
+  const base = currentCountyData.value.rate;
+  const data = [
+    { name: '示范区A', initial: Math.round((base + 8 + (seed % 5)) * 10) / 10, final: Math.round((base + 1 - (seed % 3)) * 10) / 10, change: -Math.round((7 + (seed % 3)) * 10) / 10 },
+    { name: '示范区B', initial: Math.round((base + 12 + (seed % 4)) * 10) / 10, final: Math.round((base + 3 - (seed % 4)) * 10) / 10, change: -Math.round((9 + (seed % 2)) * 10) / 10 },
+    { name: '示范区C', initial: Math.round((base + 5 + (seed % 3)) * 10) / 10, final: Math.round((base + 1 - (seed % 2)) * 10) / 10, change: -Math.round((5 + (seed % 4)) * 10) / 10 },
+    { name: '示范区D', initial: Math.round((base + 10 + (seed % 2)) * 10) / 10, final: Math.round((base + 2 - (seed % 3)) * 10) / 10, change: -Math.round((8 + (seed % 2)) * 10) / 10 },
+  ];
+  const names = data.map((d) => d.name);
+  const initials = data.map((d) => d.initial);
+  const finals = data.map((d) => d.final);
+  const changes = data.map((d) => d.change);
+
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      ...getTooltip('axis'),
+      axisPointer: { type: 'shadow' },
+      formatter: (params) => {
+        let html = '';
+        params.forEach((p) => {
+          html += `<div>${p.marker}${p.seriesName}：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div>`;
+        });
+        return html;
+      },
+    },
+    legend: { show: false },
+    grid: { left: 90, right: 60, top: 8, bottom: 8 },
+    xAxis: { type: 'value', show: false, max: Math.ceil(Math.max(...initials) * 1.15) },
+    yAxis: {
+      type: 'category',
+      data: names,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: c.text, fontSize: 11 },
+    },
+    series: [
+      {
+        name: '期初',
+        type: 'bar',
+        data: initials,
+        barWidth: 9,
+        barGap: '30%',
+        itemStyle: { color: c.initialBar, borderRadius: [0, 3, 3, 0] },
+        label: { show: true, position: 'right', color: c.textDim, fontSize: 10, formatter: '{c}%', distance: 4 },
+      },
+      {
+        name: '期末',
+        type: 'bar',
+        data: finals,
+        barWidth: 9,
+        itemStyle: {
+          color: makeGrad(c.primary, isLight.value ? '#67e8f9' : '#0891b2'),
+          borderRadius: [0, 3, 3, 0],
+          shadowBlur: isLight.value ? 4 : 8,
+          shadowColor: `${c.primary}55`,
+        },
+        label: {
+          show: true,
+          position: 'right',
+          color: c.primary,
+          fontSize: 10,
+          fontWeight: 'bold',
+          formatter: (p) => {
+            const ch = changes[p.dataIndex];
+            return `${p.value}%  {ch|${ch > 0 ? '+' : ''}${ch}}`;
+          },
+          rich: { ch: { color: c.success, fontSize: 9, padding: [0, 0, 0, 4] } },
+        },
+      },
+    ],
+  };
+};
+
+// 区县地图：学校散点 + 中心连线，散点按 4 段分级着色（与图例一致）
 const getMapOption = () => {
   if (!mapLoaded.value) return {};
   const c = getColors();
@@ -824,13 +1134,21 @@ const getMapOption = () => {
   if (data.length === 0) return {};
 
   const values = data.map(d => d.value);
-  const minV = Math.min(...values);
   const maxV = Math.max(...values);
   const cfg = currentCountyConfig.value;
+
+  const colorForRate = (v) => {
+    const cols = c.mapColors;
+    if (v < 48) return cols[0];
+    if (v < 55) return cols[1];
+    if (v < 60) return cols[2];
+    return cols[3];
+  };
 
   const scatterData = data.map(d => ({
     name: d.name,
     value: [...(SCHOOL_COORDS_MAP[d.name] || cfg.center), d.value],
+    itemStyle: { color: colorForRate(d.value) },
   }));
 
   const lineData = data.map(d => ({
@@ -851,35 +1169,22 @@ const getMapOption = () => {
           return `<div style="font-weight:600">${p.name}</div>
             <div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${v[2]}%</span></div>
             <div style="color:${c.textDim};font-size:11px;margin-top:4px">📍 坐标：${v[0].toFixed(2)}°E, ${v[1].toFixed(2)}°N</div>
-            <div style="color:${c.accent};font-size:11px;margin-top:4px">点击查看详情 →</div>`;
+            <div style="color:${c.accent};font-size:11px;margin-top:4px">点击查看学校详情 →</div>`;
         }
         if (p.seriesType === 'lines') {
           return `<div style="font-weight:600">${p.name}</div>
             <div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div>
-            <div style="color:${c.textDim};font-size:11px;margin-top:4px">点击查看详情 →</div>`;
+            <div style="color:${c.textDim};font-size:11px;margin-top:4px">点击查看学校详情 →</div>`;
         }
         return `<div style="font-weight:600">${p.name}</div>`;
       },
-    },
-    visualMap: {
-      show: true,
-      orient: 'horizontal',
-      right: 16,
-      bottom: 10,
-      itemWidth: 10,
-      itemHeight: 80,
-      textStyle: { color: c.textDim, fontSize: 10 },
-      min: minV, max: maxV,
-      inRange: { color: c.mapColors },
-      text: ['高', '低'],
-      calculable: false,
     },
     geo: {
       map: 'county',
       roam: true,
       selectedMode: false,
       layoutCenter: ['50%', '50%'],
-      layoutSize: '95%',
+      layoutSize: '92%',
       zoom: 1,
       label: {
         show: true,
@@ -899,8 +1204,8 @@ const getMapOption = () => {
       emphasis: {
         label: { color: '#ffffff', fontSize: 12, fontWeight: 700 },
         itemStyle: {
-          areaColor: isLight.value ? 'rgba(241, 245, 249, 0.85)' : 'rgba(56,189,248,0.55)',
-          borderColor: isLight.value ? 'rgba(8,145,178,0.3)' : c.primary,
+          areaColor: isLight.value ? 'rgba(241, 245, 249, 0.85)' : 'rgba(11, 196, 233, 0.35)',
+          borderColor: isLight.value ? 'rgba(8, 145, 178, 0.3)' : c.primary,
           borderWidth: 2,
           shadowBlur: 20,
           shadowColor: `${c.primary}aa`,
@@ -932,13 +1237,9 @@ const getMapOption = () => {
         type: 'effectScatter',
         coordinateSystem: 'geo',
         data: scatterData,
-        symbolSize: (val) => Math.max(10, Math.min(18, (val[2] || 0) / maxV * 18 + 6)),
+        symbolSize: (val) => Math.max(10, Math.min(18, (val[2] || 0) / Math.max(maxV, 1) * 18 + 6)),
         showEffectOn: 'render',
-        rippleEffect: {
-          brushType: 'stroke',
-          scale: 4,
-          period: 3,
-        },
+        rippleEffect: { brushType: 'stroke', scale: 4, period: 3 },
         label: {
           show: true,
           formatter: '{b}',
@@ -951,7 +1252,6 @@ const getMapOption = () => {
           textShadowBlur: 4,
         },
         itemStyle: {
-          color: c.primary,
           shadowBlur: 15,
           shadowColor: c.primary,
           borderColor: isLight.value ? '#fff' : c.bg,
@@ -959,8 +1259,8 @@ const getMapOption = () => {
         },
         emphasis: {
           scale: 1.4,
-          itemStyle: { color: c.accent, shadowBlur: 25, shadowColor: c.accent, borderWidth: 3 },
-          label: { fontSize: 12, fontWeight: 700, color: c.accent },
+          itemStyle: { shadowBlur: 25, borderWidth: 3 },
+          label: { fontSize: 12, fontWeight: 700 },
         },
         zlevel: 3,
       },
@@ -988,243 +1288,55 @@ const getMapOption = () => {
   };
 };
 
-const getRankingOption = () => {
-  const c = getColors();
-  const schools = schoolList.value.length ? schoolList.value.slice(0, 10) : ['暂无数据'];
-  const baseRate = currentCountyData.value.rate;
-  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
-  const rates = schools.map((_, i) => Math.round((baseRate + (12 - i * 1.2) + ((seed + i * 3) % 5 - 2)) * 10) / 10);
-  const maxRate = Math.max(...rates);
-
-  return {
-    backgroundColor: 'transparent',
-    tooltip: {
-      ...getTooltip('axis'),
-      axisPointer: { type: 'shadow' },
-      formatter: (params) => {
-        const p = params[0];
-        return `<div style="font-weight:600">${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div>`;
-      },
-    },
-    grid: { left: 10, right: 55, top: 10, bottom: 10, containLabel: true },
-    xAxis: { type: 'value', show: false, max: maxRate + 5 },
-    yAxis: {
-      type: 'category', data: schools, inverse: true,
-      axisLine: { show: false }, axisTick: { show: false },
-      axisLabel: { color: c.text, fontSize: 11, fontWeight: 'bold', interval: 0 },
-    },
-    series: [{
-      name: currentMetric.value.name + '率',
-      type: 'bar',
-      barGap: '30%',
-      barCategoryGap: '40%',
-      data: rates.map(v => ({
-        value: v,
-        itemStyle: {
-          color: makeGrad(c.primary, c.secondary),
-          borderRadius: [0, 4, 4, 0],
-          shadowBlur: isLight.value ? 4 : 8, shadowColor: `${c.primary}44`,
-        },
-      })),
-      barWidth: 10,
-      label: { show: true, position: 'right', color: c.primary, fontSize: 10, fontWeight: 'bold', formatter: '{c}%' },
-    }],
-  };
+const disposeAll = () => {
+  Object.values(chartInstances).forEach(c => { if (c && !c.isDisposed()) c.dispose(); });
+  Object.keys(chartInstances).forEach(k => delete chartInstances[k]);
 };
 
-const getAgeGenderOption = () => {
-  const c = getColors();
-  const grades = ['小学低年级', '小学中年级', '小学高年级', '初中', '高中'];
-  const d = {
-    grades,
-    male: grades.map((_, i) => Math.round(22 + i * 7 + (Math.random() * 4 - 2))),
-    female: grades.map((_, i) => Math.round(20 + i * 8 + (Math.random() * 4 - 2)))
-  };
-  return {
-    backgroundColor: 'transparent',
-    tooltip: {
-      ...getTooltip('axis'),
-      axisPointer: { type: 'shadow' },
-      formatter: (params) => {
-        const i = params[0].dataIndex;
-        return `<div style="font-weight:600;margin-bottom:4px">${d.grades[i]}</div>
-                <div>■男生：<span style="color:${c.primary};font-weight:bold">${d.male[i]}%</span></div>
-                <div>■女生：<span style="color:${c.secondary};font-weight:bold">${d.female[i]}%</span></div>`;
-      },
-    },
-    legend: { data: ['男生', '女生'], textStyle: { color: c.text, fontSize: 11 }, right: 10, top: 2, itemWidth: 12, itemHeight: 12 },
-    grid: { left: 40, right: 25, top: 30, bottom: 20, containLabel: true },
-    xAxis: {
-      type: 'value', min: -100, max: 100, splitNumber: 5,
-      axisLine: { show: false }, axisTick: { show: false },
-      splitLine: { lineStyle: { color: c.splitLine } },
-      axisLabel: { color: c.textDim, fontSize: 10, formatter: (v) => Math.abs(v) + '' },
-    },
-    yAxis: {
-      type: 'category', data: d.grades,
-      axisLine: { show: false }, axisTick: { show: false },
-      axisLabel: { color: c.text, fontSize: 11, fontWeight: 'bold' },
-    },
-    series: [
-      {
-        name: '男生', type: 'bar', stack: 'total', data: d.male.map((v) => -v), barWidth: 14,
-        itemStyle: { color: makeGrad(c.primary, isLight.value ? '#67e8f9' : '#0891b2'), borderRadius: [4, 0, 0, 4] },
-        label: { show: true, position: 'left', color: c.text, fontSize: 10, fontWeight: 'bold', formatter: (p) => Math.abs(p.value) + '%' },
-      },
-      {
-        name: '女生', type: 'bar', stack: 'total', data: d.female, barWidth: 14,
-        itemStyle: { color: makeGrad(c.secondary, isLight.value ? '#c4b5fd' : '#7c3aed'), borderRadius: [0, 4, 4, 0] },
-        label: { show: true, position: 'right', color: c.text, fontSize: 10, fontWeight: 'bold', formatter: '{c}%' },
-      },
-    ],
-  };
-};
-
-const getGaugeOption = (value, name, color) => {
-  const c = getColors();
-  return {
-    backgroundColor: 'transparent',
-    series: [{
-      type: 'gauge', startAngle: 200, endAngle: -20, min: 0, max: 100,
-      radius: '92%', center: ['50%', '58%'],
-      progress: {
-        show: true, width: 10, roundCap: true,
-        itemStyle: {
-          color: makeGrad(color, color === c.primary ? c.secondary : c.accent),
-          shadowBlur: isLight.value ? 6 : 12, shadowColor: `${color}88`,
-        },
-      },
-      axisLine: { lineStyle: { width: 10, color: [[1, c.gaugeTrack]] } },
-      pointer: { show: false }, axisTick: { show: false }, splitLine: { show: false },
-      axisLabel: { show: false }, anchor: { show: false },
-      detail: {
-        valueAnimation: true, formatter: '{value}%', color, fontSize: 22, fontWeight: 'bold',
-        offsetCenter: [0, '15%'], textShadowBlur: isLight.value ? 0 : 8, textShadowColor: color,
-      },
-      title: { show: true, offsetCenter: [0, '70%'], color: c.textDim, fontSize: 12 },
-      data: [{ value, name }],
-    }],
-  };
-};
-
-const getTrendOption = () => {
-  const c = getColors();
-  const months = ['1月', '2月', '3月', '4月', '5月', '6月'];
-  const baseRate = currentCountyData.value.rate;
-  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
-  const rateData = months.map((_, i) => Math.round((baseRate + i * 0.7 + ((seed + i * 3) % 4 - 2)) * 10) / 10);
-  const targetData = months.map((_, i) => Math.round((baseRate + 2 - i * 0.3) * 10) / 10);
-
-  return {
-    backgroundColor: 'transparent',
-    tooltip: { ...getTooltip('axis') },
-    legend: { show: false },
-    grid: { left: 40, right: 20, top: 10, bottom: 30, containLabel: true },
-    xAxis: {
-      type: 'category', data: months,
-      axisLine: { lineStyle: { color: c.splitLine } }, axisTick: { show: false },
-      axisLabel: { color: c.textDim, fontSize: 11 },
-    },
-    yAxis: {
-      type: 'value', axisLine: { show: false }, axisTick: { show: false },
-      axisLabel: { color: c.textDim, fontSize: 11 },
-      splitLine: { lineStyle: { color: c.splitLine } },
-    },
-    series: [
-      {
-        name: '实际' + currentMetric.value.name + '率', type: 'line', data: rateData,
-        smooth: true, symbol: 'circle', symbolSize: 8,
-        lineStyle: { width: 3, color: c.primary, shadowBlur: 8, shadowColor: `${c.primary}55` },
-        itemStyle: { color: c.primary, borderColor: c.bg, borderWidth: 2 },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: `${c.primary}55` }, { offset: 1, color: `${c.primary}00` },
-          ]),
-        },
-      },
-      {
-        name: '目标线', type: 'line', data: targetData,
-        smooth: true, symbol: 'none',
-        lineStyle: { width: 2, color: c.secondary, type: 'dashed' },
-      },
-    ],
-  };
-};
-
-const getInterventionOption = () => {
-  const c = getColors();
-  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
-  const base = currentCountyData.value.rate;
-  const data = [
-    { name: '示范区A', initial: Math.round((base + 6 + (seed % 5)) * 10) / 10, final: Math.round((base + 1 - (seed % 3)) * 10) / 10, change: -Math.round((6 + (seed % 3)) * 10) / 10 },
-    { name: '示范区B', initial: Math.round((base + 10 + (seed % 4)) * 10) / 10, final: Math.round((base + 2 - (seed % 4)) * 10) / 10, change: -Math.round((8 + (seed % 2)) * 10) / 10 },
-    { name: '示范区C', initial: Math.round((base + 4 + (seed % 3)) * 10) / 10, final: Math.round((base + 1 - (seed % 2)) * 10) / 10, change: -Math.round((4 + (seed % 4)) * 10) / 10 },
-    { name: '示范区D', initial: Math.round((base + 8 + (seed % 2)) * 10) / 10, final: Math.round((base + 2 - (seed % 3)) * 10) / 10, change: -Math.round((7 + (seed % 2)) * 10) / 10 },
-  ];
-  const names = data.map(d => d.name);
-  const initials = data.map(d => d.initial);
-  const finals = data.map(d => d.final);
-  const changes = data.map(d => d.change);
-
-  return {
-    backgroundColor: 'transparent',
-    tooltip: {
-      ...getTooltip('axis'),
-      axisPointer: { type: 'shadow' },
-      formatter: (params) => {
-        let html = '';
-        params.forEach((p) => { html += `<div>${p.marker}${p.seriesName}：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div>`; });
-        return html;
-      },
-    },
-    legend: { show: false },
-    grid: { left: 80, right: 60, top: 8, bottom: 8, containLabel: true },
-    xAxis: { type: 'value', show: false, max: Math.ceil(Math.max(...initials) * 1.2) },
-    yAxis: { type: 'category', data: names, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: c.text, fontSize: 11 } },
-    series: [
-      {
-        name: '期初', type: 'bar', data: initials, barWidth: 9, barGap: '30%',
-        itemStyle: { color: c.initialBar, borderRadius: [0, 3, 3, 0] },
-        label: { show: true, position: 'right', color: c.textDim, fontSize: 10, formatter: '{c}%', distance: 4 },
-      },
-      {
-        name: '期末', type: 'bar', data: finals, barWidth: 9,
-        itemStyle: {
-          color: makeGrad(c.primary, isLight.value ? '#67e8f9' : '#0891b2'),
-          borderRadius: [0, 3, 3, 0],
-          shadowBlur: isLight.value ? 4 : 8, shadowColor: `${c.primary}55`,
-        },
-        label: {
-          show: true, position: 'right', color: c.primary, fontSize: 10, fontWeight: 'bold',
-          formatter: (p) => {
-            const ch = changes[p.dataIndex];
-            return `${p.value}%  {ch|${ch > 0 ? '+' : ''}${ch}}`;
-          },
-          rich: { ch: { color: c.success, fontSize: 9, padding: [0, 0, 0, 4] } },
-        },
-      },
-    ],
-  };
+const initChart = (ref, key, option, onClick, retryCount = 0) => {
+  if (!ref.value) return;
+  try {
+    const rect = ref.value.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      if (retryCount < 3) setTimeout(() => initChart(ref, key, option, onClick, retryCount + 1), 200);
+      return;
+    }
+    const chart = echarts.init(ref.value);
+    chartInstances[key] = chart;
+    chart.setOption(option);
+    if (onClick) chart.on('click', onClick);
+    chart.resize();
+  } catch (e) {}
 };
 
 const renderAllCharts = () => {
   disposeAll();
   requestAnimationFrame(() => {
     nextTick(() => {
+      const c = getColors();
       const d = currentCountyData.value;
-      const ur = { urban: Math.round(d.rate * 0.9 * 10) / 10, rural: Math.round(d.rate * 1.2 * 10) / 10 };
-      initChart(rankingChartRef, 'ranking', getRankingOption(), (params) => {
+      const ur = { urban: Math.round((d.rate + 3) * 10) / 10, rural: Math.round((d.rate - 5) * 10) / 10 };
+      initChart(schoolRankRef, 'schoolRank', getRankingOption(), (params) => {
         if (params?.name) drillToSchool(params.name);
       });
-      initChart(ageGenderChartRef, 'ageGender', getAgeGenderOption());
-      initChart(urbanGaugeRef, 'urbanGauge', getGaugeOption(ur.urban, `城区${currentMetric.value.name}率`, getColors().primary));
-      initChart(ruralGaugeRef, 'ruralGauge', getGaugeOption(ur.rural, `县乡${currentMetric.value.name}率`, getColors().secondary));
-      initChart(trendChartRef, 'trend', getTrendOption());
-      initChart(interventionChartRef, 'intervention', getInterventionOption());
+      initChart(ageGenderRef, 'ageGender', getAgeGenderOption());
+      initChart(urbanGaugeRef, 'urbanGauge', getGaugeOption(ur.urban, `城区${currentMetric.value.name}率`, c.primary));
+      initChart(ruralGaugeRef, 'ruralGauge', getGaugeOption(ur.rural, `县乡${currentMetric.value.name}率`, c.secondary));
+      initChart(interventionRef, 'intervention', getInterventionOption());
       if (mapLoaded.value) {
         initChart(mapRef, 'map', getMapOption(), (params) => {
           if (params?.name) drillToSchool(params.name);
         });
+        // 地图漫游时同步缩放显示
+        const mapChart = chartInstances['map'];
+        if (mapChart) {
+          mapChart.on('georoam', () => {
+            const option = mapChart.getOption();
+            if (option && option.geo && option.geo[0] && option.geo[0].zoom != null) {
+              mapZoom.value = option.geo[0].zoom;
+            }
+          });
+        }
       }
     });
   });
@@ -1232,7 +1344,6 @@ const renderAllCharts = () => {
 
 const loadMap = async () => {
   const code = routeCode.value;
-  const cfg = currentCountyConfig.value;
   const urls = [
     `https://geo.datav.aliyun.com/areas_v3/bound/${code}_full.json`,
     `https://geo.datav.aliyun.com/areas_v3/bound/${code}.json`,
@@ -1255,6 +1366,12 @@ const loadMap = async () => {
   setTimeout(() => renderAllCharts(), 200);
 };
 
+const updateDateTime = () => {
+  const now = new Date();
+  currentDate.value = now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+  currentTime.value = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+};
+
 const resizeAll = () => {
   Object.values(chartInstances).forEach(c => { if (c && !c.isDisposed()) c.resize(); });
 };
@@ -1264,10 +1381,11 @@ onMounted(() => {
   observeTheme();
   updateDateTime();
   timer = setInterval(updateDateTime, 1000);
+  syncFilterFromRoute();
   loadMap();
   renderAllCharts();
   window.addEventListener('resize', resizeAll);
-  document.addEventListener('click', handleDropdownClickOutside);
+  document.addEventListener('click', handleDocumentClick);
   setTimeout(() => resizeAll(), 500);
   setTimeout(() => resizeAll(), 1500);
 });
@@ -1275,132 +1393,143 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (timer) clearInterval(timer);
   window.removeEventListener('resize', resizeAll);
-  document.removeEventListener('click', handleDropdownClickOutside);
+  document.removeEventListener('click', handleDocumentClick);
   if (themeObserver) { themeObserver.disconnect(); themeObserver = null; }
   disposeAll();
 });
 
 watch(activeTab, () => setTimeout(() => renderAllCharts(), 100));
 watch(isLight, () => setTimeout(() => renderAllCharts(), 100));
+const VALID_TABS = ['vision', 'oral', 'mental', 'weight', 'bone'];
 watch(() => route.query.tab, (tab) => {
-  if (tab && ['vision','oral','mental','weight','bone'].includes(tab)) {
+  if (tab && typeof tab === 'string' && VALID_TABS.includes(tab)) {
     activeTab.value = tab;
     setTimeout(() => renderAllCharts(), 100);
   }
 }, { immediate: true });
 watch(() => route.params.code, () => {
   mapLoaded.value = false;
+  syncFilterFromRoute();
   setTimeout(() => loadMap(), 100);
 });
+
+defineExpose({ switchTab });
 </script>
 
 <style scoped>
+/* ============================================================
+   CSS 变量 - 深色主题（参考 1.css 青色科技风格）
+   ============================================================ */
 .app-root {
-  position: relative;
-  height: 100vh;
-  padding: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  --primary: #00d4ff;
-  --primary-soft: rgba(0, 212, 255, 0.15);
-  --primary-glow: rgba(0, 212, 255, 0.5);
-  --secondary: #a855f7;
-  --secondary-soft: rgba(168, 85, 247, 0.15);
-  --secondary-glow: rgba(168, 85, 247, 0.45);
-  --accent: #f472b6;
-  --accent-glow: rgba(244, 114, 182, 0.45);
+  --primary: #0bc4e9;
+  --primary-soft: rgba(11, 196, 233, 0.12);
+  --primary-glow: rgba(11, 196, 233, 0.6);
+  --secondary: #59ebe8;
+  --secondary-soft: rgba(89, 235, 232, 0.12);
+  --secondary-glow: rgba(89, 235, 232, 0.5);
+  --accent: #0efcff;
+  --accent-glow: rgba(14, 252, 255, 0.4);
   --warning: #fbbf24;
   --success: #34d399;
   --danger: #fb7185;
-  --glow-danger: rgba(251, 113, 133, 0.35);
-  --bg: #030818;
-  --bg-deep: #020612;
-  --bg-card: rgba(8, 18, 45, 0.88);
-  --bg-card-hover: rgba(12, 26, 58, 0.95);
-  --bg-soft: rgba(0, 212, 255, 0.05);
-  --border: rgba(0, 212, 255, 0.28);
-  --border-hover: rgba(0, 212, 255, 0.55);
-  --border-soft: rgba(0, 212, 255, 0.12);
-  --border-purple: rgba(168, 85, 247, 0.35);
-  --text: #e2e8f0;
-  --text-dim: #94a3b8;
-  --text-muted: #64748b;
-  --text-dimmer: #7dd3fc;
-  --glow: rgba(0, 212, 255, 0.45);
-  --glow-soft: rgba(0, 212, 255, 0.15);
-  --glow-strong: rgba(0, 212, 255, 0.7);
-  --glow-purple: rgba(168, 85, 247, 0.45);
-  --shadow-card: 0 4px 28px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 212, 255, 0.08);
-  --shadow-hover: 0 8px 36px rgba(0, 212, 255, 0.2);
-  --shadow-purple: 0 8px 36px rgba(168, 85, 247, 0.18);
-  --grad-main: linear-gradient(135deg, #00d4ff 0%, #a855f7 100%);
-  --grad-cyan: linear-gradient(135deg, #00d4ff 0%, #0891b2 100%);
-  --grad-purple: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-  --grad-pink: linear-gradient(135deg, #f472b6 0%, #db2777 100%);
+
+  --bg: #06101c;
+  --bg-deep: #040a14;
+  --bg-card: rgba(0, 72, 115, 0.28);
+  --bg-card-hover: rgba(0, 90, 140, 0.4);
+  --bg-soft: rgba(11, 196, 233, 0.05);
+
+  --border: #0bc4e9;
+  --border-hover: #59ebe8;
+  --border-soft: rgba(11, 196, 233, 0.3);
+  --border-inner: #007297;
+  --border-accent: #00d8ff;
+
+  --text: #ffffff;
+  --text-dim: #8adeff;
+  --text-muted: #4e7a94;
+  --text-dimmer: #61d2f7;
+
+  --glow: rgba(11, 196, 233, 0.5);
+  --glow-soft: rgba(11, 196, 233, 0.15);
+  --glow-strong: rgba(11, 196, 233, 0.8);
+  --glow-cyan: rgba(0, 216, 255, 0.5);
+
+  --shadow-card: 0 4px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(11, 196, 233, 0.15);
+  --shadow-hover: 0 8px 40px rgba(11, 196, 233, 0.3);
+  --shadow-glow: 0 0 20px rgba(11, 196, 233, 0.25);
+
+  --grad-main: linear-gradient(135deg, #0bc4e9 0%, #59ebe8 100%);
+  --grad-cyan: linear-gradient(135deg, #0bc4e9 0%, #00a8d7 100%);
+  --grad-accent: linear-gradient(135deg, #0efcff 0%, #00d8ff 100%);
+  --grad-deep: linear-gradient(180deg, rgba(0,72,115,.28) 0%, rgba(0,50,90,.4) 100%);
 }
+
+/* 浅色主题（青色科技风格） */
 .app-root.theme-light {
   --primary: #0891b2;
-  --primary-soft: rgba(8, 145, 178, 0.12);
-  --primary-glow: rgba(8, 145, 178, 0.35);
-  --secondary: #7c3aed;
-  --secondary-soft: rgba(124, 58, 237, 0.12);
-  --secondary-glow: rgba(124, 58, 237, 0.3);
-  --accent: #db2777;
-  --accent-glow: rgba(219, 39, 119, 0.3);
-  --danger: #dc2626;
-  --glow-danger: rgba(220, 38, 38, 0.25);
-  --bg: #f8fafc;
-  --bg-deep: #f1f5f9;
-  --bg-card: rgba(255, 255, 255, 0.98);
+  --primary-soft: rgba(8, 145, 178, 0.08);
+  --primary-glow: rgba(8, 145, 178, 0.25);
+  --secondary: #0e7490;
+  --secondary-soft: rgba(14, 116, 144, 0.08);
+  --secondary-glow: rgba(14, 116, 144, 0.2);
+  --accent: #00d8ff;
+  --accent-glow: rgba(0, 216, 255, 0.2);
+  --bg: #f1f5f9;
+  --bg-deep: #e2e8f0;
+  --bg-card: rgba(255, 255, 255, 0.95);
   --bg-card-hover: rgba(255, 255, 255, 1);
-  --bg-soft: rgba(8, 145, 178, 0.04);
+  --bg-soft: rgba(8, 145, 178, 0.03);
   --border: rgba(8, 145, 178, 0.2);
-  --border-hover: rgba(8, 145, 178, 0.38);
-  --border-soft: rgba(8, 145, 178, 0.12);
-  --border-purple: rgba(124, 58, 237, 0.22);
+  --border-hover: rgba(8, 145, 178, 0.4);
+  --border-soft: rgba(8, 145, 178, 0.1);
+  --border-inner: rgba(0, 114, 151, 0.15);
+  --border-accent: rgba(0, 216, 255, 0.4);
   --text: #1e293b;
-  --text-dim: #64748b;
-  --text-muted: #94a3b8;
-  --text-dimmer: #475569;
+  --text-dim: #0e7490;
+  --text-muted: #64748b;
+  --text-dimmer: #0891b2;
   --glow: rgba(8, 145, 178, 0.15);
   --glow-soft: rgba(8, 145, 178, 0.08);
-  --glow-strong: rgba(8, 145, 178, 0.25);
-  --glow-purple: rgba(124, 58, 237, 0.15);
-  --shadow-card: 0 4px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(8, 145, 178, 0.06);
-  --shadow-hover: 0 8px 32px rgba(8, 145, 178, 0.14);
-  --shadow-purple: 0 8px 32px rgba(124, 58, 237, 0.12);
-  --grad-main: linear-gradient(135deg, #0891b2 0%, #7c3aed 100%);
+  --glow-strong: rgba(8, 145, 178, 0.3);
+  --glow-cyan: rgba(0, 216, 255, 0.2);
+  --shadow-card: 0 4px 20px rgba(15, 23, 42, 0.05), 0 0 0 1px rgba(8, 145, 178, 0.08);
+  --shadow-hover: 0 8px 28px rgba(8, 145, 178, 0.12);
+  --shadow-glow: 0 0 20px rgba(8, 145, 178, 0.15);
+  --grad-main: linear-gradient(135deg, #0891b2 0%, #59ebe8 100%);
   --grad-cyan: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
-  --grad-purple: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-  --grad-pink: linear-gradient(135deg, #db2777 0%, #be185d 100%);
+  --grad-accent: linear-gradient(135deg, #00d8ff 0%, #0bc4e9 100%);
+  --grad-deep: linear-gradient(180deg, rgba(255,255,255,.95) 0%, rgba(240,249,255,.98) 100%);
 }
+
 .app-root *, .app-root *::before, .app-root *::after { box-sizing: border-box; }
+
 .app-root {
   width: 100%;
   height: 100vh;
   position: relative;
   overflow: hidden;
-  background: var(--bg);
+  background: #060f1c url('./images/bg.png') no-repeat center center fixed;
+  background-size: cover;
   color: var(--text);
   font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
   display: flex;
   flex-direction: column;
 }
+
+/* ============================================================
+   全局背景 - 增强版
+   ============================================================ */
 .app-root.theme-light .scan-line,
 .app-root.theme-light .scan-line-2,
 .app-root.theme-light .bg-stars,
-.app-root.theme-light .scan-particle { display: none; }
-.app-root.theme-light .bg-glow { opacity: 0.08; filter: blur(100px); }
-.app-root.theme-light .bg-grid { opacity: 0.4; }
+.app-root.theme-light .bg-particles { display: none; }
+.app-root.theme-light .bg-glow { opacity: 0.04; filter: blur(120px); }
+.app-root.theme-light .bg-grid { opacity: 0.3; }
 .app-root.theme-light .tech-panel::before,
-.app-root.theme-light .tech-panel::after { opacity: 0.5; box-shadow: none; }
-.app-root.theme-light .tech-panel-corner { opacity: 0.6; }
+.app-root.theme-light .tech-panel::after { opacity: 0.35; box-shadow: none; }
 .app-root.theme-light .title-text {
-  background: linear-gradient(180deg, #1e293b 0%, #0891b2 55%, #7c3aed 100%);
+  background: linear-gradient(180deg, #1e293b 0%, #0891b2 50%, #00a8d7 100%);
   -webkit-background-clip: text;
   background-clip: text;
   filter: none;
@@ -1411,128 +1540,140 @@ watch(() => route.params.code, () => {
 .app-root.theme-light .gender-item.male .gender-value,
 .app-root.theme-light .gender-item.female .gender-value { text-shadow: none; }
 .app-root.theme-light .tech-tab.active {
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.28);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.25);
 }
 .app-root.theme-light .map-area {
-  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(238,241,247,0.85));
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(238,241,247,0.9));
   box-shadow: var(--shadow-card);
 }
-.app-root.theme-light .map-deco-ready .map-grid { opacity: 0.3; }
-.app-root.theme-light .tech-panel {
-  box-shadow: 0 2px 16px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(8, 145, 178, 0.06);
+.app-root.theme-light .map-deco-ready .map-grid { opacity: 0.2; }
+.app-root.theme-light .tech-panel-top-border { display: none; }
+.app-root.theme-light .chart-area-glow { display: none; }
+.app-root.theme-light {
+  background: #f1f5f9 url('./images/bg.png') no-repeat center center fixed;
+  background-size: cover;
 }
-.app-root.theme-light .kpi-card-lg,
-.app-root.theme-light .kpi-card-sm {
-  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+.app-root.theme-light .bg-decor {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.75) 0%, rgba(241, 245, 249, 0.85) 100%);
 }
-.app-root.theme-light .alert-item:hover {
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+.bg-decor { 
+  position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; 
+  background: linear-gradient(180deg, rgba(6, 15, 28, 0.65) 0%, rgba(6, 15, 28, 0.75) 100%);
 }
-
-.bg-decor { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
 .bg-grid {
   position: absolute; inset: 0;
   background-image:
-    linear-gradient(rgba(0, 212, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.08) 1px, transparent 1px);
-  background-size: 60px 60px;
+    linear-gradient(rgba(0, 229, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
   mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
   animation: grid-drift 30s linear infinite;
 }
-@keyframes grid-drift { 0% { background-position: 0 0; } 100% { background-position: 60px 60px; } }
-.bg-glow { position: absolute; border-radius: 50%; filter: blur(140px); animation: glow-float 20s ease-in-out infinite; }
-.bg-glow-1 { width: 750px; height: 750px; background: #00d4ff; top: -200px; left: -150px; opacity: 0.25; }
-.bg-glow-2 { width: 850px; height: 850px; background: #a855f7; bottom: -250px; right: -150px; opacity: 0.2; animation-delay: -7s; }
-.bg-glow-3 { width: 600px; height: 600px; background: var(--accent); top: 35%; left: 45%; opacity: 0.1; animation-delay: -14s; }
-@keyframes glow-float { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(80px, -50px) scale(1.08); } 66% { transform: translate(-50px, 60px) scale(0.92); } }
+@keyframes grid-drift {
+  0% { background-position: 0 0; }
+  100% { background-position: 50px 50px; }
+}
+
+.bg-glow {
+  position: absolute; border-radius: 50%; filter: blur(150px);
+  animation: glow-float 20s ease-in-out infinite;
+}
+.bg-glow-1 { width: 800px; height: 800px; background: #00e5ff; top: -200px; left: -150px; opacity: 0.2; }
+.bg-glow-2 { width: 900px; height: 900px; background: #00a8d7; bottom: -250px; right: -150px; opacity: 0.18; animation-delay: -6s; }
+.bg-glow-3 { width: 700px; height: 700px; background: var(--accent); top: 30%; left: 40%; opacity: 0.08; animation-delay: -12s; }
+@keyframes glow-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(80px, -50px) scale(1.1); }
+  66% { transform: translate(-50px, 60px) scale(0.95); }
+}
+
+.bg-particles {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(0, 229, 255, 0.7) 50%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(0, 229, 255, 0.5) 50%, transparent 100%),
+    radial-gradient(1px 1px at 50% 10%, rgba(139, 92, 246, 0.6) 50%, transparent 100%),
+    radial-gradient(1px 1px at 70% 40%, rgba(0, 229, 255, 0.4) 50%, transparent 100%),
+    radial-gradient(1px 1px at 90% 80%, rgba(139, 92, 246, 0.5) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 25% 85%, rgba(0, 229, 255, 0.6) 50%, transparent 100%),
+    radial-gradient(1px 1px at 65% 75%, rgba(0, 229, 255, 0.45) 50%, transparent 100%),
+    radial-gradient(1px 1px at 85% 25%, rgba(139, 92, 246, 0.55) 50%, transparent 100%);
+  background-size: 400px 400px, 350px 350px, 500px 500px, 300px 300px, 450px 450px, 380px 380px, 420px 420px, 480px 480px;
+  animation: particle-drift 25s linear infinite, star-twinkle 5s ease-in-out infinite alternate;
+}
+@keyframes particle-drift {
+  0% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: -400px 300px, -350px 280px, -500px 350px, -300px 220px, -450px 320px, -380px 260px, -420px 300px, -480px 340px; }
+}
+
 .bg-stars { position: absolute; inset: 0; }
 .bg-stars::before, .bg-stars::after {
   content: ''; position: absolute; inset: 0;
   background-image:
-    radial-gradient(1px 1px at 20% 30%, var(--primary) 60%, transparent 100%),
-    radial-gradient(1px 1px at 60% 70%, var(--secondary) 60%, transparent 100%),
-    radial-gradient(1px 1px at 80% 10%, var(--text) 60%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 40% 80%, var(--primary) 60%, transparent 100%),
-    radial-gradient(1px 1px at 90% 50%, var(--secondary) 60%, transparent 100%),
-    radial-gradient(1px 1px at 15% 85%, var(--accent) 50%, transparent 100%),
-    radial-gradient(1px 1px at 75% 25%, var(--primary) 50%, transparent 100%);
-  background-size: 350px 350px;
+    radial-gradient(1px 1px at 20% 30%, var(--primary) 50%, transparent 100%),
+    radial-gradient(1px 1px at 60% 70%, var(--secondary) 50%, transparent 100%),
+    radial-gradient(1px 1px at 80% 10%, var(--text) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 80%, var(--primary) 50%, transparent 100%),
+    radial-gradient(1px 1px at 90% 50%, var(--secondary) 50%, transparent 100%);
+  background-size: 300px 300px;
   animation: star-twinkle 4s ease-in-out infinite alternate;
 }
 .bg-stars::after { animation-delay: 2s; opacity: 0.6; }
-@keyframes star-twinkle { 0% { opacity: 0.3; } 100% { opacity: 0.85; } }
+@keyframes star-twinkle { 0% { opacity: 0.3; } 100% { opacity: 0.8; } }
 
-.scan-particle {
-  position: absolute;
-  width: 2px; height: 2px;
-  background: var(--primary);
-  border-radius: 50%;
-  box-shadow: 0 0 6px var(--primary);
-  pointer-events: none;
-  animation: particle-float 12s linear infinite;
-}
-.scan-particle:nth-child(1) { top: 10%; left: 15%; animation-delay: 0s; }
-.scan-particle:nth-child(2) { top: 30%; left: 80%; animation-delay: -2s; }
-.scan-particle:nth-child(3) { top: 60%; left: 25%; animation-delay: -4s; }
-.scan-particle:nth-child(4) { top: 80%; left: 70%; animation-delay: -6s; }
-.scan-particle:nth-child(5) { top: 45%; left: 50%; animation-delay: -8s; }
-@keyframes particle-float {
-  0% { transform: translateY(0) translateX(0); opacity: 0; }
-  10% { opacity: 0.8; }
-  50% { transform: translateY(-30px) translateX(15px); opacity: 0.6; }
-  90% { opacity: 0.8; }
-  100% { transform: translateY(-60px) translateX(-10px); opacity: 0; }
-}
-
+/* 扫描线 - 参考 1.css 风格 */
 .scan-line {
   position: absolute; left: 0; right: 0; top: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--primary), transparent);
-  box-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary), 0 0 60px var(--glow-soft);
+  background: linear-gradient(90deg, transparent, var(--primary), var(--accent), var(--primary), transparent);
+  background-size: 200% 100%;
+  box-shadow: 0 0 20px var(--glow), 0 0 40px var(--glow), 0 0 60px var(--glow-soft);
   animation: scan-move 7s linear infinite;
   z-index: 1; pointer-events: none;
 }
 .scan-line-2 {
   position: absolute; left: 0; right: 0; top: 0; height: 120px;
-  background: linear-gradient(180deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+  background: linear-gradient(180deg, transparent, rgba(11, 196, 233, 0.08), transparent);
   animation: scan-move 7s linear infinite;
   animation-delay: 1.5s;
   z-index: 1; pointer-events: none;
 }
 @keyframes scan-move {
-  0% { transform: translateY(-100px); }
+  0% { transform: translateY(-120px); }
   100% { transform: translateY(100vh); }
 }
 
+/* 顶部光带 - 增强版 */
 .tech-topbar {
   position: relative; z-index: 5;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 2px 24px;
-  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.04), transparent);
+  padding: 4px 24px;
+  background: linear-gradient(90deg, transparent, rgba(11, 196, 233, 0.06), rgba(0, 168, 215, 0.04), transparent);
   border-bottom: 1px solid var(--border-soft);
 }
 .tech-corner {
-  width: 24px; height: 24px;
+  width: 26px; height: 26px;
   border: 1.5px solid var(--primary);
-  position: relative; box-shadow: 0 0 8px var(--glow);
+  position: relative; box-shadow: 0 0 10px var(--glow), 0 0 20px var(--glow-soft);
 }
 .tech-corner-l { border-right: none; border-bottom: none; }
 .tech-corner-r { border-left: none; border-bottom: none; }
 .tc-dot {
-  position: absolute; width: 5px; height: 5px;
+  position: absolute; width: 6px; height: 6px;
   background: var(--primary); border-radius: 50%;
-  box-shadow: 0 0 8px var(--primary);
+  box-shadow: 0 0 10px var(--primary), 0 0 20px var(--glow);
   animation: dot-blink 1.5s ease-in-out infinite;
 }
-.tech-corner-l .tc-dot { right: -2.5px; bottom: -2.5px; }
-.tech-corner-r .tc-dot { left: -2.5px; bottom: -2.5px; }
+.tech-corner-l .tc-dot { right: -3px; bottom: -3px; }
+.tech-corner-r .tc-dot { left: -3px; bottom: -3px; }
 @keyframes dot-blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
 
-.tech-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--primary), transparent); margin: 0 8px; position: relative; }
+.tech-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), transparent); margin: 0 8px; position: relative; }
 .line-pulse {
-  position: absolute; top: 50%; width: 60px; height: 2px;
-  background: var(--primary); transform: translateY(-50%);
-  box-shadow: 0 0 10px var(--primary);
+  position: absolute; top: 50%; width: 70px; height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transform: translateY(-50%);
+  box-shadow: 0 0 12px var(--primary);
   animation: line-move 3s ease-in-out infinite;
 }
 .line-pulse-1 { left: 10%; }
@@ -1546,7 +1687,7 @@ watch(() => route.params.code, () => {
 }
 
 .tech-dots { display: flex; gap: 6px; }
-.tech-dots span { width: 4px; height: 4px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 4px var(--primary); animation: dot-blink 1.2s ease-in-out infinite; }
+.tech-dots span { width: 4px; height: 4px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 6px var(--primary), 0 0 12px var(--glow); animation: dot-blink 1.2s ease-in-out infinite; }
 .tech-dots span:nth-child(2) { animation-delay: 0.15s; }
 .tech-dots span:nth-child(3) { animation-delay: 0.3s; }
 .tech-dots span:nth-child(4) { animation-delay: 0.45s; }
@@ -1554,108 +1695,108 @@ watch(() => route.params.code, () => {
 .tech-dots span:nth-child(6) { animation-delay: 0.75s; }
 .tech-dots span:nth-child(7) { animation-delay: 0.9s; }
 
+/* Header - 增强版 */
 .national-header {
   position: relative; z-index: 5;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 32px; flex-shrink: 0;
+  padding: 6px 32px 4px; flex-shrink: 0;
 }
 .header-deco { display: flex; align-items: center; gap: 8px; flex: 1; }
 .header-deco-l { justify-content: flex-end; padding-right: 24px; }
 .header-deco-r { padding-left: 24px; }
-.hd-line { width: 100px; height: 1px; background: linear-gradient(90deg, transparent, var(--primary)); box-shadow: 0 0 6px var(--glow-soft); }
-.hd-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 12px var(--primary); animation: hd-dot-pulse 2s ease-in-out infinite; }
-@keyframes hd-dot-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.85); } }
+.hd-line { width: 100px; height: 1px; background: linear-gradient(90deg, transparent, var(--primary), var(--secondary)); }
+.hd-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px var(--primary), 0 0 20px var(--glow); animation: dot-blink 2s ease-in-out infinite; }
 
 .national-title {
   position: relative; display: inline-flex; align-items: center;
-  font-size: 20px; font-weight: 700; letter-spacing: 4px;
+  font-size: 40px; font-weight: 700; letter-spacing: 6px;
   margin: 0; white-space: nowrap;
 }
-.title-bracket { 
-  color: var(--secondary); 
-  font-weight: 700; 
-  text-shadow: 0 0 16px var(--secondary-glow), 0 0 30px var(--glow-purple); 
-  font-size: 26px;
-  animation: bracket-glow 3s ease-in-out infinite;
-}
-@keyframes bracket-glow {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.3); }
-}
+.title-bracket { color: var(--primary); font-weight: 700; text-shadow: 0 0 30px var(--glow); }
 .title-text {
-  background: linear-gradient(90deg, #ffffff 0%, #00d4ff 25%, #a855f7 60%, #ffffff 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 0 16px var(--glow)) drop-shadow(0 0 30px var(--glow-soft));
+  color: #fff;
+  text-shadow: 0 0 10px var(--primary), 0 0 20px var(--glow), 0 0 40px var(--glow-soft);
   margin: 0 14px;
-  animation: title-gradient-shift 5s ease-in-out infinite;
-}
-@keyframes title-gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  font-family: "微软雅黑", sans-serif;
+  font-weight: bolder;
+  letter-spacing: 8px;
 }
 .title-shine {
-  position: absolute; top: 0; left: -50%; width: 30%; height: 100%;
+  position: absolute; top: 0; left: -30%; width: 30%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-  animation: shine-move 3.5s ease-in-out infinite;
+  animation: shine-move 4s ease-in-out infinite;
   pointer-events: none;
-  filter: blur(1px);
 }
 @keyframes shine-move {
-  0%, 100% { left: -50%; }
+  0%, 100% { left: -30%; }
   50% { left: 120%; }
 }
 
+.national-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), var(--accent), var(--primary), transparent);
+  background-size: 200% 100%;
+  animation: title-underline-flow 4s linear infinite;
+  box-shadow: 0 0 15px var(--glow);
+}
+@keyframes title-underline-flow {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 .national-time { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-.time-date { font-size: 12px; color: var(--text-dimmer); letter-spacing: 1px; text-shadow: 0 0 4px var(--glow-soft); }
+.time-date { font-size: 12px; color: var(--text-dimmer); letter-spacing: 1px; text-shadow: 0 0 6px var(--glow-soft); }
 .time-clock { display: flex; align-items: center; gap: 1px; }
 .tc-digit {
   font-size: 20px; font-weight: 700; color: var(--primary);
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  text-shadow: 0 0 14px var(--glow), 0 0 4px var(--primary), 0 0 30px var(--glow-soft);
+  text-shadow: 0 0 14px var(--glow), 0 0 6px var(--primary);
   letter-spacing: 2px;
-  animation: clock-glow-pulse 2s ease-in-out infinite;
 }
-@keyframes clock-glow-pulse {
-  0%, 100% { text-shadow: 0 0 14px var(--glow), 0 0 4px var(--primary); }
-  50% { text-shadow: 0 0 20px var(--glow), 0 0 8px var(--primary), 0 0 40px var(--glow-soft); }
-}
+.tc-blink { color: var(--secondary); animation: blink 1s steps(1) infinite; padding: 0 1px; text-shadow: 0 0 10px var(--secondary-glow); }
+@keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.3; } }
 
+/* Tabs - 增强版 */
 .national-tabs {
   position: relative; z-index: 5;
   display: flex; align-items: center; justify-content: center;
-  gap: 3px; padding: 0 20px; flex-shrink: 0;
+  gap: 6px; padding: 4px 20px; flex-shrink: 0;
 }
 .tech-tab {
   position: relative;
-  display: flex; align-items: center; gap: 4px;
-  padding: 3px 12px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 20px;
   background: var(--bg-soft);
   border: 1px solid var(--border-soft);
-  border-radius: 16px;
+  border-radius: 20px;
   color: var(--text-dim);
-  font-size: 12px; font-weight: 500;
+  font-size: 13px; font-weight: 500;
   font-family: inherit; cursor: pointer;
   transition: all 0.3s; overflow: hidden;
 }
-.tech-tab:hover { background: var(--primary-soft); color: var(--primary); border-color: var(--border); }
-.tech-tab-icon { font-size: 13px; }
+.tech-tab:hover { background: var(--primary-soft); color: var(--primary); border-color: var(--border); box-shadow: 0 0 12px var(--glow-soft); }
+.tech-tab-icon { font-size: 14px; }
 .tech-tab.active {
   background: var(--grad-main);
   border-color: transparent; color: #fff;
-  box-shadow: 0 0 16px var(--glow), 0 0 24px var(--glow-purple);
+  box-shadow: 0 0 24px var(--glow), 0 0 36px var(--glow-soft);
   text-shadow: 0 0 6px rgba(255,255,255,0.5);
 }
 .tech-tab.active::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), var(--primary), transparent);
+  background: linear-gradient(90deg, transparent, var(--primary), var(--accent), var(--primary), transparent);
   background-size: 200% 100%;
   animation: tab-border-move 3s linear infinite;
 }
 .tech-tab.active::after {
   content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), var(--primary), transparent);
+  background: linear-gradient(90deg, transparent, var(--primary), var(--accent), var(--primary), transparent);
   background-size: 200% 100%;
   animation: tab-border-move 3s linear infinite;
   animation-delay: -1.5s;
@@ -1671,152 +1812,19 @@ watch(() => route.params.code, () => {
 }
 .tech-tab.active .tech-tab-glow { opacity: 1; box-shadow: 0 0 10px var(--primary); }
 
-.national-body {
-  position: relative; z-index: 3;
-  flex: 1;
-  display: grid;
-  grid-template-columns: 24% 1fr 24%;
-  gap: 4px;
-  padding: 0 8px 2px;
-  min-height: 0;
-  height: 0;
-}
-.left-col, .right-col, .map-col { display: flex; flex-direction: column; gap: 3px; min-height: 0; height: 100%; justify-content: flex-start; }
-.map-col { gap: 4px; }
-.map-col .map-area { flex: 2; min-height: 0; }
-.map-col .map-legend { flex-shrink: 0; }
-.left-col .tech-panel:nth-child(1) { flex: 0 1 auto; }
-.left-col .tech-panel:nth-child(2) { flex: 0 1 auto; }
-.left-col .tech-panel:nth-child(3) { flex: 0 1 auto; }
-.right-col .tech-panel:nth-child(1) { flex: 0 1 auto; }
-.right-col .tech-panel:nth-child(2) { flex: 0 1 auto; }
-.right-col .tech-panel:nth-child(3) { flex: 0 1 auto; }
-.right-col .tech-panel:nth-child(4) { flex: 0 1 auto; }
-
-.tech-panel {
-  position: relative;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 3px 6px;
-  display: flex; flex-direction: column;
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.12), inset 0 0 20px rgba(0, 212, 255, 0.03);
-  flex: 0 1 auto;
-  min-height: 0;
-  overflow: visible;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-.tech-panel:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 40px rgba(0, 212, 255, 0.22), inset 0 0 30px rgba(0, 212, 255, 0.06);
-}
-.tech-panel::before {
-  content: ''; position: absolute; top: -1px; left: -1px; right: -1px; height: 2px;
-  background: linear-gradient(90deg, var(--primary) 0%, transparent 30%, transparent 70%, var(--secondary) 100%);
-  background-size: 300% 100%;
-  border-radius: 6px 6px 0 0;
-  animation: border-shine 4s linear infinite, border-pulse 3s ease-in-out infinite;
-  box-shadow: 0 0 10px var(--glow-soft);
-}
-@keyframes border-shine { 0% { background-position: -100% 0; } 100% { background-position: 200% 0; } }
-@keyframes border-pulse { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
-.tech-panel::after {
-  content: ''; position: absolute; top: 0; left: 0; width: 16px; height: 16px;
-  border-top: 2px solid var(--primary); border-left: 2px solid var(--primary);
-  border-radius: 6px 0 0 0;
-  box-shadow: 0 0 12px var(--glow), 0 0 20px var(--glow-soft);
-}
-.tech-panel-corner {
-  position: absolute;
-  width: 16px; height: 16px;
-  pointer-events: none;
-}
-.tech-panel-corner::before,
-.tech-panel-corner::after {
-  content: ''; position: absolute;
-  background: var(--primary);
-  box-shadow: 0 0 10px var(--glow);
-}
-.tech-panel-corner.tl { top: 0; left: 0; }
-.tech-panel-corner.tl::before { top: 0; left: 0; width: 16px; height: 2px; }
-.tech-panel-corner.tl::after { top: 0; left: 0; width: 2px; height: 16px; }
-.tech-panel-corner.tr { top: 0; right: 0; }
-.tech-panel-corner.tr::before { top: 0; right: 0; width: 16px; height: 2px; }
-.tech-panel-corner.tr::after { top: 0; right: 0; width: 2px; height: 16px; }
-.tech-panel-corner.bl { bottom: 0; left: 0; }
-.tech-panel-corner.bl::before { bottom: 0; left: 0; width: 16px; height: 2px; }
-.tech-panel-corner.bl::after { bottom: 0; left: 0; width: 2px; height: 16px; }
-.tech-panel-corner.br { bottom: 0; right: 0; }
-.tech-panel-corner.br::before { bottom: 0; right: 0; width: 16px; height: 2px; }
-.tech-panel-corner.br::after { bottom: 0; right: 0; width: 2px; height: 16px; }
-
-.tech-panel-header {
-  display: flex; align-items: center; gap: 6px;
-  margin-bottom: 1px; position: relative;
-  padding-bottom: 1px;
-}
-.tech-panel-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0;
-  width: 100%; height: 1px;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: header-line-flow 3s linear infinite;
-  box-shadow: 0 0 4px var(--glow-soft);
-}
-@keyframes header-line-flow {
-  0% { background-position: -100% 0; }
-  100% { background-position: 100% 0; }
-}
-.panel-bullet {
-  width: 8px; height: 8px;
-  background: var(--grad-main);
-  border-radius: 2px;
-  box-shadow: 0 0 8px var(--glow), 0 0 14px var(--glow-soft);
-  animation: bullet-pulse 2s ease-in-out infinite;
-}
-@keyframes bullet-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-.panel-title {
-  font-size: 12px; font-weight: 600;
-  color: var(--text);
-  letter-spacing: 1px;
-  text-shadow: 0 0 6px var(--glow-soft);
-}
-.panel-tag {
-  margin-left: auto;
-  font-size: 9px;
-  padding: 1px 6px;
-  background: var(--primary-soft);
-  border: 1px solid var(--border-soft);
-  color: var(--primary);
-  border-radius: 3px;
-  letter-spacing: 0.5px;
-  box-shadow: 0 0 8px var(--glow-soft);
-}
-.tech-panel-body {
-  flex: 1; min-height: 0; position: relative;
-}
-
+/* 顶部筛选栏 */
 .top-filter-bar {
   position: relative; z-index: 6;
   display: flex; align-items: center; justify-content: center;
-  gap: 6px; padding: 0 16px 2px; flex-shrink: 0;
+  gap: 10px; padding: 4px 20px 6px; flex-shrink: 0;
 }
 .filter-select {
   position: relative; display: inline-flex; align-items: stretch;
-  flex: 0 0 auto;
-  width: 100px;
-  min-width: 100px;
-  max-width: 100px;
 }
 .filter-select::before {
   content: ''; position: absolute; inset: 0;
   border-radius: 4px; padding: 1px;
-  background: linear-gradient(135deg, rgba(0,212,255,0.6), rgba(168,85,247,0.6));
+  background: linear-gradient(135deg, rgba(11, 196, 233, 0.6), rgba(0, 168, 215, 0.6));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
           mask-composite: exclude;
@@ -1833,19 +1841,18 @@ watch(() => route.params.code, () => {
   border: 1px solid var(--border);
   border-radius: 4px;
   color: var(--text-dim);
-  font-size: 12px;
-  padding: 3px 24px 3px 8px;
+  font-size: 13px;
+  padding: 7px 34px 7px 14px;
   font-family: inherit;
   cursor: pointer;
   outline: none;
   transition: all 0.3s;
   box-shadow: inset 0 0 12px rgba(0, 212, 255, 0.08);
-  width: 100%;
+  min-width: 150px;
   display: flex;
   align-items: center;
   gap: 4px;
   user-select: none;
-  overflow: hidden;
 }
 .select-trigger:hover,
 .select-trigger:focus {
@@ -1855,7 +1862,15 @@ watch(() => route.params.code, () => {
 }
 .filter-select.has-value .select-trigger { color: var(--text); }
 .select-trigger.placeholder { color: var(--text-muted); }
-
+.select-trigger.disabled {
+  opacity: 0.45; cursor: not-allowed;
+  background: var(--bg-soft);
+}
+.select-trigger.disabled:hover {
+  border-color: var(--border);
+  box-shadow: inset 0 0 12px rgba(0, 212, 255, 0.05);
+  color: var(--text-muted);
+}
 .select-value {
   flex: 1;
   overflow: hidden;
@@ -1892,22 +1907,6 @@ watch(() => route.params.code, () => {
   color: var(--danger); border-color: var(--danger);
   box-shadow: 0 0 8px var(--glow-danger);
 }
-
-.filter-select.disabled {
-  opacity: 0.45;
-  pointer-events: none;
-}
-.filter-select.disabled .select-trigger {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: var(--bg-soft);
-}
-.filter-select.disabled .select-trigger:hover {
-  border-color: var(--border);
-  box-shadow: inset 0 0 12px rgba(0, 212, 255, 0.05);
-  color: var(--text-muted);
-}
-.filter-select.disabled::before { opacity: 0 !important; }
 
 .select-dropdown {
   position: absolute;
@@ -1999,13 +1998,13 @@ watch(() => route.params.code, () => {
 }
 
 .btn-search-top, .btn-reset-top {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 10px;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 18px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--bg-soft);
   color: var(--text-dim);
-  font-size: 12px;
+  font-size: 13px;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.3s;
@@ -2031,279 +2030,504 @@ watch(() => route.params.code, () => {
 .btn-search-top .icon, .btn-reset-top .icon { font-size: 13px; }
 
 /* 主体 */
-.kpi-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.national-body {
+  position: relative; z-index: 3;
   flex: 1;
+  display: grid;
+  grid-template-columns: 22% 1fr 22%;
+  gap: 14px;
+  padding: 8px 20px 16px;
   min-height: 0;
-  overflow: visible;
+  height: 0;
 }
-.kpi-row-large {
-  display: flex; gap: 4px; flex: 0 0 auto;
+.left-col, .right-col, .map-col { display: flex; flex-direction: column; gap: 12px; min-height: 0; height: 100%; }
+.map-col { 
+  gap: 12px; 
+  padding: 6px;
 }
-.kpi-row-large > .kpi-card-lg { flex: 1; }
+.map-col .map-area { min-height: 0; position: relative; flex: 1; }
+
+/* 科技面板 - 参考 1.css .boxall 风格 */
+.tech-panel {
+  position: relative;
+  background: var(--grad-deep);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 12px 14px;
+  display: flex; flex-direction: column;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-card);
+  flex: 1; min-height: 0;
+  overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.tech-panel::before {
+  content: '';
+  position: absolute;
+  width: 80%;
+  height: 100%;
+  bottom: -1px;
+  top: -1px;
+  left: 10%;
+  border-bottom: 1px solid var(--border-inner);
+  border-top: 1px solid var(--border-inner);
+  transition: all 0.5s;
+  pointer-events: none;
+}
+.tech-panel::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 80%;
+  left: -1px;
+  right: -1px;
+  top: 10%;
+  border-left: 1px solid var(--border-inner);
+  border-right: 1px solid var(--border-inner);
+  transition: all 0.5s;
+  pointer-events: none;
+}
+.tech-panel:hover::before { width: 0%; }
+.tech-panel:hover::after { height: 0%; }
+.tech-panel:hover {
+  box-shadow: 
+    -5px 0 2px rgba(255,255,255,.1),
+    0 -5px 2px rgba(255,255,255,.1),
+    5px 0 2px rgba(255,255,255,.1),
+    0 5px 2px rgba(255,255,255,.1),
+    0 0 30px var(--glow-soft);
+  background: rgba(0, 90, 140, 0.4);
+}
+.tech-panel > .mc-tl, .tech-panel > .mc-tr,
+.tech-panel > .mc-bl, .tech-panel > .mc-br {
+  width: 10px; height: 10px;
+}
+
+.tech-panel::selection { background: var(--primary-soft); }
+
+.tech-panel-top-border {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--grad-main);
+  background-size: 200% 100%;
+  animation: top-border-flow 4s linear infinite;
+  opacity: 0.9;
+  z-index: 2;
+  pointer-events: none;
+}
+@keyframes top-border-flow {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.tech-panel-inner-glow {
+  position: absolute;
+  inset: 1px;
+  border-radius: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 30px rgba(11, 196, 233, 0.04);
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+.tech-panel:hover .tech-panel-inner-glow {
+  opacity: 1;
+  box-shadow: inset 0 0 40px rgba(11, 196, 233, 0.08);
+}
+
+.tech-panel-header {
+  display: flex; align-items: center; gap: 8px;
+  padding-bottom: 8px; margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-inner);
+  flex-shrink: 0;
+  position: relative;
+}
+.tech-panel-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary), transparent 30%, transparent 70%, var(--secondary));
+  background-size: 200% 100%;
+  animation: header-line-flow 5s linear infinite;
+  opacity: 0.8;
+}
+@keyframes header-line-flow {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.panel-bullet {
+  position: relative;
+  width: 5px; height: 22px;
+  background: #59ebe8;
+  border-radius: 0;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px var(--glow), 0 0 20px var(--glow-soft);
+}
+.panel-bullet::after {
+  content: ''; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 6px; height: 6px;
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: bullet-pulse 2s ease-in-out infinite;
+}
+@keyframes bullet-pulse {
+  0%, 100% { box-shadow: 0 0 4px var(--primary); opacity: 0.8; }
+  50% { box-shadow: 0 0 12px var(--primary), 0 0 24px var(--glow); opacity: 1; }
+}
+.panel-title { 
+  font-size: 16px; font-weight: 500; color: var(--text); 
+  line-height: 35px;
+  letter-spacing: 0.5px; flex: 1; 
+  text-shadow: 0 0 15px var(--glow);
+  padding-left: 4px;
+}
+.panel-tag {
+  font-size: 10px; color: var(--primary);
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  background: var(--primary-soft);
+  letter-spacing: 0.5px; border-radius: 2px;
+  box-shadow: 0 0 10px var(--glow-soft);
+  font-weight: 600;
+}
+.tech-panel-body { flex: 1; min-height: 0; position: relative; }
+
+/* KPI - 参考 1.css 风格 */
+.kpi-grid { display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; overflow: hidden; }
+.kpi-row-large { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .kpi-card-lg {
   position: relative;
-  background: linear-gradient(135deg, var(--bg-soft) 0%, rgba(0, 212, 255, 0.03) 100%);
+  padding: 14px 16px;
+  background: rgba(0, 72, 115, 0.28);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 4px 6px;
-  overflow: hidden;
-  transition: all 0.3s;
-  box-shadow: 0 0 12px rgba(0, 212, 255, 0.08);
+  border-radius: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.kpi-card-lg::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: var(--grad-accent);
+  box-shadow: 0 0 10px var(--glow);
+}
+.kpi-card-lg::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary), transparent 60%);
 }
 .kpi-card-lg:hover { 
-  border-color: var(--border-hover); 
-  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2); 
   transform: translateY(-2px); 
+  border-color: var(--border-hover); 
+  box-shadow: 0 4px 20px var(--glow-soft), 0 0 30px var(--glow); 
 }
 .kpi-card-deco {
-  position: absolute; top: 0; right: 0;
-  width: 0; height: 0;
-  border-style: solid;
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--grad-main);
+  animation: deco-scan 3s linear infinite;
+  box-shadow: 0 0 10px var(--glow);
 }
-.kpi-row-large > .kpi-card-lg:nth-child(1) .kpi-card-deco { border-width: 0 30px 30px 0; border-color: transparent var(--primary) transparent transparent; filter: drop-shadow(0 0 4px var(--glow)); }
-.kpi-row-large > .kpi-card-lg:nth-child(2) .kpi-card-deco { border-width: 0 30px 30px 0; border-color: transparent var(--secondary) transparent transparent; filter: drop-shadow(0 0 4px var(--glow-purple)); }
+@keyframes deco-scan { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
 .kpi-card-hex {
-  position: absolute; top: 6px; right: 8px;
-  display: flex; gap: 2px;
+  position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
+  width: 55px; height: 55px; opacity: 0.4;
 }
 .kpi-card-hex span {
-  width: 5px; height: 5px;
-  background: var(--primary);
-  opacity: 0.7;
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  animation: hex-pulse 2s ease-in-out infinite;
+  position: absolute; inset: 0;
+  border: 1.5px solid var(--primary);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  animation: hex-rotate 10s linear infinite;
+  box-shadow: 0 0 8px var(--glow);
 }
-.kpi-card-hex span:nth-child(2) { animation-delay: -0.4s; }
-.kpi-card-hex span:nth-child(3) { animation-delay: -0.8s; }
-@keyframes hex-pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.9; }
+.kpi-card-hex span:nth-child(2) { transform: scale(0.7); animation-direction: reverse; }
+.kpi-card-hex span:nth-child(3) { transform: scale(0.4); }
+@keyframes hex-rotate {
+  0% { transform: rotate(0deg) scale(1); }
+  100% { transform: rotate(360deg) scale(1); }
 }
-.kpi-row-large > .kpi-card-lg:nth-child(2) .kpi-card-hex span { background: var(--secondary); }
-.kpi-lg-label {
-  font-size: 10px; color: var(--text-dim);
-  margin-bottom: 2px; letter-spacing: 0.5px;
-}
+
+.kpi-lg-label { font-size: 12px; color: var(--text-dim); letter-spacing: 0.5px; z-index: 1; }
 .kpi-lg-value {
-  font-size: 18px; font-weight: 700;
-  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 36px; font-weight: bolder;
+  color: #00a8d7;
+  font-family: "等线", "DengXian", 'Consolas', monospace;
+  text-shadow: 0 0 20px var(--glow), 0 0 40px var(--glow-soft);
+  display: flex; align-items: baseline; gap: 2px;
+  line-height: 1.1; z-index: 1;
   letter-spacing: 2px;
-  margin-bottom: 2px;
-  animation: value-glow-pulse 3s ease-in-out infinite;
 }
-@keyframes value-glow-pulse {
-  0%, 100% { text-shadow: 0 0 10px var(--glow); }
-  50% { text-shadow: 0 0 20px var(--glow), 0 0 30px var(--glow-soft); }
+.kpi-lg-value .unit { 
+  font-size: 14px; 
+  color: var(--text-dim); 
+  margin-left: 4px;
+  text-shadow: 0 0 8px var(--glow-soft);
 }
-.kpi-lg-value .num { color: var(--primary); text-shadow: 0 0 14px var(--glow), 0 0 30px var(--glow-soft); }
-.kpi-row-large > .kpi-card-lg:nth-child(2) .kpi-lg-value .num { color: var(--secondary); text-shadow: 0 0 14px var(--glow-purple), 0 0 30px rgba(168, 85, 247, 0.2); }
-.kpi-lg-value .unit { font-size: 13px; color: var(--text-dim); margin-left: 4px; font-weight: 400; }
-.kpi-lg-trend {
-  display: flex; align-items: center; gap: 3px;
-  font-size: 11px;
-}
-.kpi-lg-trend.up { color: var(--success); text-shadow: 0 0 6px rgba(52, 211, 153, 0.3); }
-.kpi-lg-trend.down { color: var(--text-dim); }
-.kpi-lg-trend .trend-arrow { font-weight: 700; }
+.kpi-lg-trend { font-size: 10px; padding: 2px 10px; border-radius: 2px; z-index: 1; }
+.kpi-lg-trend.up { color: var(--danger); background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.5); box-shadow: 0 0 10px rgba(244, 63, 94, 0.3); }
+.kpi-lg-trend.down { color: var(--success); background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+.trend-arrow { font-size: 9px; margin-right: 2px; }
 
-.kpi-row-gender {
-  display: flex; gap: 4px;
-  flex: 0 0 auto;
-}
+/* 性别 - 参考 1.css 风格 */
+.kpi-row-gender { display: flex; flex-direction: column; gap: 10px; }
 .gender-item {
-  flex: 1;
-  display: flex; align-items: center; gap: 6px;
-  padding: 3px 6px;
-  background: linear-gradient(135deg, var(--bg-soft) 0%, rgba(0, 212, 255, 0.02) 100%);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  background: rgba(0, 72, 115, 0.28);
+  border: 1px solid var(--border-soft);
+  border-radius: 0; transition: all 0.5s;
+  position: relative; overflow: hidden;
 }
-.gender-item:hover { transform: translateX(2px); box-shadow: 0 4px 12px rgba(0, 212, 255, 0.12); }
-.gender-item.male { border-left: 2px solid var(--primary); box-shadow: -2px 0 8px var(--glow-soft); }
-.gender-item.female { border-left: 2px solid var(--secondary); box-shadow: -2px 0 8px var(--glow-purple); }
+.gender-item::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px;
+}
+.gender-item.male::before { background: var(--grad-accent); box-shadow: 0 0 10px var(--glow); }
+.gender-item.female::before { background: var(--grad-cyan); box-shadow: 0 0 10px var(--glow-soft); }
+.gender-item:hover { border-color: var(--border); background: rgba(0, 90, 140, 0.4); transform: translateX(2px); }
 .gender-icon {
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700;
-  flex-shrink: 0;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; font-size: 18px; font-weight: bold;
 }
-.gender-item.male .gender-icon {
-  background: var(--primary-soft);
-  color: var(--primary);
-  box-shadow: 0 0 8px var(--glow-soft);
-}
-.gender-item.female .gender-icon {
-  background: var(--secondary-soft);
-  color: var(--secondary);
-  box-shadow: 0 0 8px var(--glow-purple);
-}
+.gender-item.male .gender-icon { background: var(--primary-soft); color: var(--primary); box-shadow: 0 0 15px var(--glow-soft); }
+.gender-item.female .gender-icon { background: var(--secondary-soft); color: var(--secondary); box-shadow: 0 0 15px var(--glow-soft); }
 .gender-info { flex: 1; min-width: 0; }
-.gender-label {
-  display: block;
-  font-size: 10px; color: var(--text-dim);
-  margin-bottom: 2px;
-  letter-spacing: 0.5px;
-}
-.gender-value {
-  font-size: 16px; font-weight: 700;
-  font-family: 'Consolas', 'Monaco', monospace;
-  letter-spacing: 1px;
-}
-.gender-item.male .gender-value { color: var(--primary); text-shadow: 0 0 8px var(--glow); }
-.gender-item.female .gender-value { color: var(--secondary); text-shadow: 0 0 8px var(--glow-purple); }
-.gender-bar {
-  position: absolute; left: 0; right: 0; bottom: 0;
-  height: 2px;
-  background: var(--border-soft);
-  overflow: hidden;
-}
-.gender-bar-fill {
-  height: 100%;
-  transition: width 0.8s ease-out;
-}
-.gender-item.male .gender-bar-fill { background: var(--grad-main); box-shadow: 0 0 6px var(--glow); }
-.gender-item.female .gender-bar-fill { background: var(--grad-purple); box-shadow: 0 0 6px var(--glow-purple); }
+.gender-label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 2px; }
+.gender-value { display: block; font-size: 22px; font-weight: bolder; font-family: "等线", 'Consolas', monospace; }
+.gender-item.male .gender-value { color: var(--primary); text-shadow: 0 0 10px var(--glow-soft); }
+.gender-item.female .gender-value { color: var(--secondary); text-shadow: 0 0 10px var(--glow-soft); }
+.gender-bar { flex: 1; height: 6px; background: rgba(11, 196, 233, 0.08); border-radius: 0; overflow: hidden; min-width: 40px; }
+.gender-bar-fill { height: 100%; border-radius: 0; box-shadow: 0 0 10px currentColor; transition: width 0.5s ease; }
+.gender-item.male .gender-bar-fill { background: var(--grad-accent); }
+.gender-item.female .gender-bar-fill { background: var(--grad-cyan); }
 
-.kpi-row-small {
-  display: flex; gap: 4px;
-  flex: 0 0 auto;
-}
+/* 小卡片 - 参考 1.css 风格 */
+.kpi-row-small { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 .kpi-card-sm {
-  flex: 1;
-  padding: 3px 5px;
-  background: linear-gradient(135deg, var(--bg-soft) 0%, rgba(244, 114, 182, 0.02) 100%);
-  border: 1px solid var(--border);
-  border-radius: 5px;
   position: relative;
+  padding: 12px 10px;
+  background: rgba(0, 72, 115, 0.28);
+  border: 1px solid var(--border-soft);
+  border-radius: 0; text-align: center; transition: all 0.5s;
   overflow: hidden;
-  transition: all 0.3s;
-  box-shadow: 0 0 8px rgba(244, 114, 182, 0.06);
 }
-.kpi-card-sm:hover { border-color: var(--border-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(244, 114, 182, 0.12); }
-.kpi-sm-label {
-  font-size: 10px; color: var(--text-dim);
-  margin-bottom: 3px;
-  letter-spacing: 0.5px;
-}
-.kpi-sm-value {
-  font-size: 17px; font-weight: 700;
-  font-family: 'Consolas', 'Monaco', monospace;
-  color: var(--accent);
-  text-shadow: 0 0 10px var(--accent-glow);
-  letter-spacing: 1px;
-  animation: sm-value-pulse 3s ease-in-out infinite;
-}
-@keyframes sm-value-pulse {
-  0%, 100% { text-shadow: 0 0 8px var(--accent-glow); }
-  50% { text-shadow: 0 0 14px var(--accent-glow), 0 0 22px rgba(244, 114, 182, 0.15); }
-}
-.kpi-sm-bar {
-  margin-top: 4px;
+.kpi-card-sm::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
   height: 2px;
-  background: var(--border-soft);
-  border-radius: 2px;
-  overflow: hidden;
+  background: var(--grad-main);
+  opacity: 0.8;
 }
-.kpi-sm-bar-fill {
-  height: 100%;
-  background: var(--grad-pink);
-  box-shadow: 0 0 6px var(--accent-glow);
-  transition: width 0.8s ease-out;
+.kpi-card-sm:hover { border-color: var(--border); background: var(--primary-soft); transform: translateY(-2px); box-shadow: 0 4px 20px var(--glow-soft); }
+.kpi-sm-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+.kpi-sm-value { 
+  font-size: 24px; font-weight: bolder; 
+  color: #00a8d7;
+  font-family: "等线", 'Consolas', monospace; 
+  text-shadow: 0 0 15px var(--glow-soft); 
+  margin-bottom: 8px; 
+  letter-spacing: 1px;
 }
+.kpi-sm-bar { height: 4px; background: rgba(11, 196, 233, 0.08); border-radius: 0; overflow: hidden; }
+.kpi-sm-bar-fill { height: 100%; background: var(--grad-accent); border-radius: 0; box-shadow: 0 0 8px var(--glow-soft); }
 
-.chart-area {
-  width: 100%; height: 150px; min-height: 130px;
-  position: relative;
-  background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.02) 0%, transparent 70%);
+.chart-area { width: 100%; height: 100%; min-height: 0; position: relative; }
+.chart-area-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   border-radius: 4px;
+  box-shadow: inset 0 0 30px rgba(0, 229, 255, 0.04);
+  opacity: 0.8;
 }
-.chart-area::before {
+.chart-area::after {
   content: '';
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background-image:
-    linear-gradient(rgba(0, 212, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.02) 1px, transparent 1px);
+    linear-gradient(rgba(0, 229, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
   background-size: 30px 30px;
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
   pointer-events: none;
   border-radius: 4px;
 }
 
-.map-canvas {
+/* 地图 - 增强版 */
+.map-area {
+  position: relative;
+  display: flex; flex-direction: column;
+  min-height: 0;
+  background: 
+    radial-gradient(ellipse at 50% 40%, rgba(0, 100, 150, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at center, rgba(11, 196, 233, 0.08) 0%, transparent 70%);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 
+    0 4px 30px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(11, 196, 233, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  animation: map-glow-breathe 5s ease-in-out infinite;
+  padding: 10px;
+}
+@keyframes map-glow-breathe {
+  0%, 100% { box-shadow: 0 0 50px rgba(11, 196, 233, 0.2), inset 0 0 40px rgba(11, 196, 233, 0.06); }
+  50% { box-shadow: 0 0 80px rgba(11, 196, 233, 0.35), 0 0 120px rgba(0, 168, 215, 0.15), inset 0 0 60px rgba(11, 196, 233, 0.1); }
+}
+.map-area::after {
+  content: '';
   position: absolute;
   inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, var(--primary) 0px, transparent 2px),
+    radial-gradient(circle at 80% 20%, var(--secondary) 0px, transparent 2px),
+    radial-gradient(circle at 60% 80%, var(--accent) 0px, transparent 2px),
+    radial-gradient(circle at 40% 50%, var(--primary) 0px, transparent 2px),
+    radial-gradient(circle at 90% 60%, var(--secondary) 0px, transparent 2px);
+  background-size: 200px 200px, 250px 250px, 180px 180px, 220px 220px, 300px 300px;
+  animation: particle-flow 8s linear infinite;
+  opacity: 0.5;
+  pointer-events: none;
+}
+@keyframes particle-flow {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-200px); }
+}
+.map-canvas {
   width: 100%;
   height: 100%;
+  position: relative;
+  z-index: 2;
 }
 .map-loading {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 16px;
-  z-index: 5;
+  background: var(--bg-card);
 }
+.map-loading-text { font-size: 13px; color: var(--text-dim); text-shadow: 0 0 10px var(--glow-soft); }
+.map-deco { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+.map-deco-ready .map-grid { opacity: 0.5; }
+.map-deco-ready .map-corner { opacity: 1; }
 .map-radar {
-  width: 120px; height: 120px;
-  border: 2px solid var(--primary);
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 200px; height: 200px;
+  border: 1px dashed rgba(0, 229, 255, 0.5);
   border-radius: 50%;
-  position: relative;
-  animation: radar-rotate 3s linear infinite;
-  box-shadow: 0 0 40px var(--glow), 0 0 80px var(--glow-soft);
+  animation: radar-spin 8s linear infinite;
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
 }
 .map-radar::before {
-  content: ''; position: absolute; inset: -12px;
-  border: 1px solid var(--primary);
-  border-radius: 50%;
-  opacity: 0.5;
-  animation: radar-pulse 2s ease-out infinite;
+  content: ''; position: absolute; top: 50%; left: 50%;
+  width: 50%; height: 1px;
+  background: linear-gradient(90deg, var(--primary), transparent);
+  transform-origin: left center;
+  box-shadow: 0 0 10px var(--primary), 0 0 20px var(--glow);
 }
-.map-radar::after {
-  content: ''; position: absolute; inset: -25px;
-  border: 1px dashed var(--primary);
+@keyframes radar-spin { 0% { transform: translate(-50%, -50%) rotate(0); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+
+.map-radar-sweep {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 120%; height: 120%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: conic-gradient(from 0deg, transparent 0deg, #0bc4e9 30deg, transparent 60deg, transparent 180deg, #00a8d7 210deg, transparent 240deg);
   border-radius: 50%;
   opacity: 0.25;
+  animation: radar-sweep-rotate 6s linear infinite;
+  mix-blend-mode: screen;
 }
-@keyframes radar-rotate { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
-@keyframes radar-pulse { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(1.3); opacity: 0; } }
-.map-loading-text {
-  font-size: 14px; color: var(--primary);
-  letter-spacing: 3px;
-  text-shadow: 0 0 10px var(--glow);
-  animation: loading-text-pulse 1.5s ease-in-out infinite;
+@keyframes radar-sweep-rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
 }
-@keyframes loading-text-pulse {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; }
+
+.map-pulse-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 100px; height: 100px;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  animation: pulse-ring-expand 4s ease-out infinite;
 }
+.map-pulse-ring:nth-child(2) { animation-delay: -1.3s; border-color: var(--secondary); }
+.map-pulse-ring:nth-child(3) { animation-delay: -2.6s; border-color: var(--accent); }
+@keyframes pulse-ring-expand {
+  0% { width: 50px; height: 50px; opacity: 0.8; }
+  100% { width: 600px; height: 600px; opacity: 0; }
+}
+
+.map-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(11, 196, 233, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11, 196, 233, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
+}
+.map-corner { position: absolute; width: 24px; height: 24px; border: 2px solid var(--primary); box-shadow: 0 0 12px var(--glow), 0 0 24px var(--glow-soft); transition: all 0.3s; }
+.mc-tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+.mc-tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+.mc-bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+.mc-br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+.map-data-strip {
+  position: absolute; bottom: 0; left: 230px; right: 0;
+  display: flex; justify-content: flex-end; gap: 20px;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, transparent, rgba(6, 16, 28, 0.95));
+  border-top: 1px solid var(--border-soft);
+  font-size: 11px; color: var(--text-dim);
+  font-family: 'Consolas', monospace;
+  z-index: 5;
+}
+.map-data-strip b { color: var(--primary); font-weight: 700; text-shadow: 0 0 10px var(--glow-soft); }
+
 .map-back-btn {
   position: absolute;
   left: 16px;
-  bottom: 16px;
+  top: 16px;
   z-index: 10;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
+  padding: 7px 16px;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 4px;
   color: var(--text);
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.3s;
   backdrop-filter: blur(8px);
+  box-shadow: 0 0 12px var(--glow-soft);
 }
 .map-back-btn:hover {
   border-color: var(--primary);
   color: var(--primary);
-  box-shadow: 0 0 16px var(--glow-soft);
+  box-shadow: 0 0 18px var(--glow);
   transform: translateX(-2px);
 }
 .map-back-btn .back-icon {
@@ -2317,217 +2541,271 @@ watch(() => route.params.code, () => {
   background: var(--primary-soft);
   color: var(--primary);
 }
-.map-deco {
-  position: absolute; inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.8s ease-out;
+.app-root.theme-light .map-back-btn {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(8, 145, 178, 0.15);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
-.map-deco-ready { opacity: 1; }
-.map-grid {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
-  background-size: 50px 50px;
+.app-root.theme-light .map-back-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.15);
 }
-.map-corner {
-  position: absolute; width: 26px; height: 26px;
+.map-drill-tip {
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(11, 196, 233, 0.8), 0 0 20px rgba(11, 196, 233, 0.4);
+  background: linear-gradient(90deg, rgba(11, 196, 233, 0.3), rgba(0, 168, 215, 0.3));
+  border: 1px solid rgba(11, 196, 233, 0.6);
+  padding: 4px 12px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  animation: tip-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(11, 196, 233, 0.4), inset 0 0 10px rgba(11, 196, 233, 0.1);
+  cursor: pointer;
 }
-.map-corner::before, .map-corner::after {
-  content: ''; position: absolute;
-  background: var(--primary);
-  box-shadow: 0 0 12px var(--glow);
-}
-.mc-tl { top: 12px; left: 12px; }
-.mc-tl::before { top: 0; left: 0; width: 22px; height: 2px; }
-.mc-tl::after { top: 0; left: 0; width: 2px; height: 22px; }
-.mc-tr { top: 12px; right: 12px; }
-.mc-tr::before { top: 0; right: 0; width: 22px; height: 2px; }
-.mc-tr::after { top: 0; right: 0; width: 2px; height: 22px; }
-.mc-bl { bottom: 12px; left: 12px; }
-.mc-bl::before { bottom: 0; left: 0; width: 22px; height: 2px; }
-.mc-bl::after { bottom: 0; left: 0; width: 2px; height: 22px; }
-.mc-br { bottom: 12px; right: 12px; }
-.mc-br::before { bottom: 0; right: 0; width: 22px; height: 2px; }
-.mc-br::after { bottom: 0; right: 0; width: 2px; height: 22px; }
-.map-data-strip {
-  position: absolute; bottom: 10px; left: 50%;
-  transform: translateX(-50%);
-  display: flex; gap: 18px;
-  padding: 8px 18px;
-  background: rgba(0, 20, 50, 0.75);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 11px;
-  color: var(--text-dim);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
-}
-.map-data-strip b { color: var(--primary); font-weight: 600; font-family: 'Consolas', monospace; text-shadow: 0 0 6px var(--glow-soft); }
-.map-drill-tip { color: var(--accent); text-shadow: 0 0 6px var(--accent-glow); }
-
-.map-area {
-  position: relative;
-  display: flex; flex-direction: column;
-  background:
-    radial-gradient(ellipse at center, rgba(0, 212, 255, 0.04) 0%, transparent 70%),
-    linear-gradient(135deg, var(--bg-card), var(--bg-deep));
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 0 50px rgba(0, 212, 255, 0.12), inset 0 0 50px rgba(0, 212, 255, 0.03);
-  animation: map-glow-breathe 5s ease-in-out infinite;
-  min-height: 0;
-}
-@keyframes map-glow-breathe {
-  0%, 100% { box-shadow: 0 0 50px rgba(0, 212, 255, 0.12), inset 0 0 50px rgba(0, 212, 255, 0.03); }
-  50% { box-shadow: 0 0 70px rgba(0, 212, 255, 0.22), inset 0 0 70px rgba(0, 212, 255, 0.06); }
-}
-.map-area::before {
-  content: ''; position: absolute; inset: 0;
-  background:
-    linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
-  pointer-events: none;
+@keyframes tip-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 15px rgba(11, 196, 233, 0.4), inset 0 0 10px rgba(11, 196, 233, 0.1);
+    text-shadow: 0 0 10px rgba(11, 196, 233, 0.8), 0 0 20px rgba(11, 196, 233, 0.4);
+  }
+  50% { 
+    box-shadow: 0 0 25px rgba(11, 196, 233, 0.7), inset 0 0 15px rgba(11, 196, 233, 0.2);
+    text-shadow: 0 0 15px rgba(11, 196, 233, 1), 0 0 30px rgba(11, 196, 233, 0.6);
+  }
 }
 
 .map-legend {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 6px 12px;
-  background: linear-gradient(135deg, var(--bg-soft) 0%, rgba(0, 212, 255, 0.02) 100%);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.08);
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 10;
+  padding: 14px 18px;
+  background: linear-gradient(180deg, rgba(6, 16, 28, 0.95) 0%, rgba(4, 10, 20, 0.92) 100%);
+  border: 1px solid rgba(11, 196, 233, 0.5);
+  border-radius: 0;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(11, 196, 233, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+  pointer-events: auto;
 }
-.legend-title {
-  font-size: 12px; color: var(--text-dim);
+.map-legend::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #0bc4e9, #7dd87d, #f5c542, #e8554f);
+  box-shadow: 0 0 10px rgba(11, 196, 233, 0.5);
+}
+.legend-title { 
+  font-size: 13px; 
+  color: #ffffff; 
+  text-shadow: 0 0 10px rgba(11, 196, 233, 0.6); 
+  font-weight: 700;
   letter-spacing: 1px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(11, 196, 233, 0.2);
+  font-family: "微软雅黑", sans-serif;
 }
-.legend-items {
-  display: flex; gap: 12px;
+.legend-gradient-bar {
+  width: 100%;
+  height: 12px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, 
+    #0bc4e9 0%, #0bc4e9 48%, 
+    #7dd87d 48%, #7dd87d 55%, 
+    #f5c542 55%, #f5c542 60%, 
+    #e8554f 60%, #e8554f 100%);
+  box-shadow: 0 0 10px rgba(11, 196, 233, 0.3), inset 0 0 5px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(11, 196, 233, 0.3);
 }
-.legend-item {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 11px; color: var(--text-dim);
+.legend-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #8adeff;
+  margin-top: -2px;
+  font-family: 'Consolas', monospace;
 }
-.legend-dot {
-  width: 12px; height: 12px; border-radius: 3px;
-  background: var(--primary);
+.legend-items { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.legend-item { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  font-size: 12px; 
+  color: #8adeff; 
 }
-.legend-item:nth-child(1) .legend-dot { background: var(--primary); box-shadow: 0 0 10px var(--glow); }
-.legend-item:nth-child(2) .legend-dot { background: var(--primary-glow, var(--primary)); box-shadow: 0 0 10px var(--glow-soft); }
-.legend-item:nth-child(3) .legend-dot { background: var(--secondary); box-shadow: 0 0 10px var(--glow-purple); }
-.legend-item:nth-child(4) .legend-dot { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow, var(--glow-soft)); }
+.legend-bar { 
+  width: 20px; 
+  height: 10px; 
+  border-radius: 2px;
+  box-shadow: 0 0 8px currentColor;
+  flex-shrink: 0;
+}
+.legend-bar.bar-0 { background: #0bc4e9; color: #0bc4e9; }
+.legend-bar.bar-1 { background: #0bc4e9; color: #0bc4e9; }
+.legend-bar.bar-2 { background: #7dd87d; color: #7dd87d; }
+.legend-bar.bar-3 { background: #f5c542; color: #f5c542; }
+.legend-bar.bar-4 { background: #e8554f; color: #e8554f; }
 
-.gauge-row {
-  display: flex; gap: 10px; height: 130px; min-height: 110px;
-}
-.gauge-item {
-  flex: 1; min-height: 110px;
-  background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.03) 0%, transparent 70%);
-  border-radius: 6px;
-}
+.gauge-row { display: flex; gap: 14px; height: 100%; min-height: 0; }
+.gauge-item { flex: 1; min-height: 0; }
 
-.alert-list {
-  display: flex; flex-direction: column; gap: 4px;
-  max-height: 80px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-.alert-item {
-  display: flex; align-items: center; gap: 6px;
-  padding: 4px 8px;
-  background: linear-gradient(135deg, var(--bg-soft) 0%, rgba(0, 212, 255, 0.02) 100%);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  transition: all 0.3s;
-  cursor: pointer;
-}
-.alert-item:hover { 
-  background: var(--bg-card); 
-  transform: translateX(2px); 
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.12);
-}
-.alert-item.danger { border-left: 2px solid #ef4444; box-shadow: -2px 0 8px rgba(239, 68, 68, 0.2); }
-.alert-item.warning { border-left: 2px solid var(--warning); box-shadow: -2px 0 8px rgba(251, 191, 36, 0.2); }
-.alert-item.info { border-left: 2px solid var(--primary); box-shadow: -2px 0 8px var(--glow-soft); }
-.alert-icon { font-size: 12px; flex-shrink: 0; }
-.alert-msg {
-  font-size: 10px; color: var(--text);
-  line-height: 1.3;
-}
-
-.tech-tab-label { font-size: 12px; }
-
+/* 滚动条 - 增强版 */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); box-shadow: 0 0 8px var(--glow); }
 
+/* 响应式 */
 @media (max-width: 1500px) {
-  .national-body {
-    grid-template-columns: 26% 1fr 26%;
-  }
-  .national-title { font-size: 26px; }
-  .kpi-card-lg-value { font-size: 24px; }
+  .national-title { font-size: 24px; letter-spacing: 3px; }
+  .kpi-lg-value { font-size: 24px; }
+  .national-body { grid-template-columns: 26% 1fr 26%; padding: 8px 14px 14px; }
 }
-
-@media (max-width: 1400px) {
-  .national-body {
-    grid-template-columns: 26% 1fr 26%;
-  }
-  .national-title { font-size: 24px; }
-  .kpi-card-lg-value { font-size: 22px; }
-  .chart-area { min-height: 120px; }
-}
-
 @media (max-width: 1200px) {
   .app-root { height: auto; min-height: 100vh; overflow-y: auto; }
-  .national-body {
-    grid-template-columns: 1fr;
-  }
-  .national-title { font-size: 22px; }
-  .kpi-grid { grid-template-columns: 1fr 1fr; }
-  .map-area { min-height: 320px; }
-}
-
-@media (max-width: 1024px) {
-  .national-body {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-  }
+  .national-body { grid-template-columns: 1fr; }
   .left-col, .right-col { flex-direction: row; flex-wrap: wrap; }
-  .tech-panel { flex: 1; min-width: 280px; }
-  .map-area { min-height: 340px; }
-  .national-title { font-size: 22px; letter-spacing: 2px; }
-  .title-bracket { font-size: 24px; }
-  .time-clock { display: none; }
+  .left-col .tech-panel, .right-col .tech-panel { flex: 1 1 300px; }
 }
-
 @media (max-width: 768px) {
-  .app-root { padding: 0; }
-  .national-header { flex-direction: column; gap: 8px; padding: 12px 16px; }
-  .header-deco { display: none; }
-  .national-tabs { flex-wrap: wrap; gap: 6px; }
+  .national-title { font-size: 18px; letter-spacing: 2px; }
+  .kpi-lg-value { font-size: 20px; }
+  .national-header { padding: 10px 16px 6px; }
+  .national-tabs { padding: 6px 12px; }
   .tech-tab { padding: 6px 14px; font-size: 12px; }
-  .national-body { padding: 8px 12px 16px; gap: 8px; }
-  .tech-panel { padding: 10px; min-width: 100%; }
-  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
-  .map-area { min-height: 280px; }
-  .map-corner { display: none; }
+  .national-body { padding: 6px 12px 12px; gap: 8px; }
+  .left-col, .right-col { flex-direction: column; }
+  .header-deco { display: none; }
+  .tech-panel-top-border { display: none; }
 }
 
-@media (max-width: 480px) {
-  .national-title { font-size: 18px; letter-spacing: 1px; }
-  .title-bracket { display: none; }
-  .kpi-grid { grid-template-columns: 1fr; }
-  .kpi-card-lg { padding: 10px; }
-  .kpi-card-lg-value { font-size: 20px; }
-  .map-area { min-height: 240px; }
-  .map-corner { display: none; }
+/* 额外的粒子动画层 */
+.bg-particles-float {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 15% 25%, rgba(11, 196, 233, 0.5) 50%, transparent 100%),
+    radial-gradient(1px 1px at 45% 65%, rgba(0, 168, 215, 0.4) 50%, transparent 100%),
+    radial-gradient(1px 1px at 75% 15%, rgba(89, 235, 232, 0.35) 50%, transparent 100%),
+    radial-gradient(1px 1px at 85% 55%, rgba(14, 252, 255, 0.45) 50%, transparent 100%);
+  background-size: 350px 350px, 420px 420px, 380px 380px, 450px 450px;
+  animation: float-up 18s linear infinite;
+  opacity: 0.5;
+}
+@keyframes float-up {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+
+/* 浅色模式粒子效果禁用 */
+.app-root.theme-light .bg-particles-float { display: none; }
+
+/* 浅色模式面板增强 */
+.app-root.theme-light .tech-panel {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(8, 145, 178, 0.12);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+}
+.app-root.theme-light .tech-panel:hover {
+  border-color: rgba(8, 145, 178, 0.25);
+  box-shadow: 0 8px 28px rgba(8, 145, 178, 0.08);
+}
+.app-root.theme-light .tech-panel-header::after { display: none; }
+.app-root.theme-light .panel-title { text-shadow: none; }
+
+/* 浅色模式KPI卡片 */
+.app-root.theme-light .kpi-card-lg {
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.04), rgba(0, 168, 215, 0.02));
+  border: 1px solid rgba(8, 145, 178, 0.1);
+}
+.app-root.theme-light .kpi-card-lg:hover {
+  border-color: rgba(8, 145, 178, 0.2);
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.08);
+}
+.app-root.theme-light .kpi-card-sm {
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.02), transparent);
+  border: 1px solid rgba(8, 145, 178, 0.08);
+}
+.app-root.theme-light .kpi-card-sm:hover {
+  border-color: rgba(8, 145, 178, 0.18);
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.06);
+}
+.app-root.theme-light .gender-item {
+  background: rgba(8, 145, 178, 0.02);
+  border: 1px solid rgba(8, 145, 178, 0.08);
+}
+.app-root.theme-light .gender-item:hover {
+  background: rgba(8, 145, 178, 0.04);
+  border-color: rgba(8, 145, 178, 0.15);
+}
+
+/* 浅色模式地图 */
+.app-root.theme-light .map-area {
+  background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(238,241,247,0.9));
+  border: 1px solid rgba(8, 145, 178, 0.15);
+  animation: none;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
+}
+.app-root.theme-light .map-area::after { display: none; }
+.app-root.theme-light .map-grid {
+  background-image:
+    linear-gradient(rgba(8, 145, 178, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(8, 145, 178, 0.03) 1px, transparent 1px);
+  opacity: 0.5;
+}
+.app-root.theme-light .map-corner {
+  border-color: rgba(8, 145, 178, 0.4);
+  box-shadow: none;
+}
+.app-root.theme-light .map-data-strip {
+  background: linear-gradient(180deg, transparent, rgba(241, 245, 249, 0.98));
+  border-top: 1px solid rgba(8, 145, 178, 0.1);
+}
+.app-root.theme-light .map-data-strip b { text-shadow: none; }
+.app-root.theme-light .map-radar {
+  border-color: rgba(8, 145, 178, 0.3);
+  box-shadow: none;
+}
+.app-root.theme-light .map-radar::before {
+  box-shadow: none;
+}
+
+/* 浅色模式标签页 */
+.app-root.theme-light .tech-tab:hover {
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.1);
+}
+.app-root.theme-light .tech-tab.active {
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.2);
+}
+
+/* 浅色模式图例 */
+.app-root.theme-light .map-legend {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(8, 145, 178, 0.15);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+}
+.app-root.theme-light .legend-title {
+  background: none;
+  -webkit-text-fill-color: var(--text);
+  color: var(--text);
+  text-shadow: none;
+  border-bottom-color: rgba(8, 145, 178, 0.15);
+}
+.app-root.theme-light .legend-gradient-bar {
+  box-shadow: 0 0 4px rgba(8, 145, 178, 0.2);
+  border-color: rgba(8, 145, 178, 0.2);
+}
+.app-root.theme-light .legend-scale {
+  color: var(--text-dim);
+}
+.app-root.theme-light .legend-item {
+  color: var(--text-dim);
 }
 </style>
