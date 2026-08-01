@@ -1,7 +1,11 @@
-import { initPreferences } from '@vben/preferences';
+import { initPreferences, updatePreferences } from '@vben/preferences';
 import { unmountGlobalLoading } from '@vben/utils';
 
-import { overridesPreferences, preferencesExtension } from './preferences';
+import {
+  DEFAULT_HOME_PATH,
+  overridesPreferences,
+  preferencesExtension,
+} from './preferences';
 
 /**
  * 应用初始化完成之后再进行页面加载渲染
@@ -19,6 +23,12 @@ async function initApplication() {
     namespace,
     overrides: overridesPreferences,
   });
+
+  // 强制以代码配置为准，覆盖 localStorage 旧缓存中的 defaultHomePath。
+  // preferences 的缓存合并策略为「缓存优先」（defu），旧版本缓存的 /analytics
+  // 会覆盖 preferences.ts 中的 /vision/national。此处每次启动强制写回正确值，
+  // 同时 updatePreferences 会把新值写回缓存，老用户下次读取到的也是新值。
+  updatePreferences({ app: { defaultHomePath: DEFAULT_HOME_PATH } });
 
   // 启动应用并挂载
   // vue应用主要逻辑及视图

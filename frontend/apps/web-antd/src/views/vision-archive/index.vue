@@ -1143,6 +1143,16 @@ const handleResetFilter = () => {
   filter.school = '';
 };
 
+// 按 Esc 退出大屏：若有下拉筛选框打开则优先关闭，否则退出到分析页
+const handleKeydown = (e) => {
+  if (e.key !== 'Escape') return;
+  if (openDropdown.value) {
+    openDropdown.value = null;
+    return;
+  }
+  router.push('/analytics');
+};
+
 // ============================================================
 //  数据
 // ============================================================
@@ -1285,19 +1295,15 @@ const currentMetric = computed(() => ({ name: currentNationData.value.metric }))
 // ============================================================
 //  方法
 // ============================================================
+// 可视化大屏始终使用深色主题，不受系统深浅色模式影响
 const applySystemTheme = () => {
-  isLight.value = !document.documentElement.classList.contains('dark');
+  isLight.value = false;
   setTimeout(() => renderAllCharts(), 300);
 };
 
 const observeTheme = () => {
-  themeObserver = new MutationObserver(() => {
-    const newIsLight = !document.documentElement.classList.contains('dark');
-    if (newIsLight !== isLight.value) {
-      isLight.value = newIsLight;
-    }
-  });
-  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  // 不再监听系统主题变化，保持深色背景不受系统颜色影响
+  themeObserver = null;
 };
 
 const normalizeRegionName = (name = '') => {
@@ -1852,6 +1858,7 @@ onMounted(() => {
   loadMap();
   renderAllCharts();
   window.addEventListener('resize', resizeAll);
+  window.addEventListener('keydown', handleKeydown);
   document.addEventListener('click', handleDocumentClick);
   setTimeout(() => resizeAll(), 500);
   setTimeout(() => resizeAll(), 1500);
@@ -1860,6 +1867,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (timer) clearInterval(timer);
   window.removeEventListener('resize', resizeAll);
+  window.removeEventListener('keydown', handleKeydown);
   document.removeEventListener('click', handleDocumentClick);
   if (themeObserver) { themeObserver.disconnect(); themeObserver = null; }
   disposeAll();

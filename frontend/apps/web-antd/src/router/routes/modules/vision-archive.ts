@@ -1,16 +1,20 @@
 import type { RouteRecordRaw } from 'vue-router';
 
-import { $t } from '#/locales';
+import { FullScreenLayout } from '#/layouts';
 
 const routes: RouteRecordRaw[] = [
   // ==========================================
   // 可视化管理（保留）
+  // 大屏类页面使用 FullScreenLayout 全屏展示，脱离 BasicLayout 的侧边栏/顶栏/标签页
   // ==========================================
   {
+    component: FullScreenLayout,
     meta: {
       icon: 'lucide:eye',
       order: -1,
       title: '可视化管理',
+      // 顶级路由生效：不挂载到 BasicLayout 下，实现真正的全屏大屏
+      noBasicLayout: true,
     },
     name: 'VisionArchive',
     path: '/vision',

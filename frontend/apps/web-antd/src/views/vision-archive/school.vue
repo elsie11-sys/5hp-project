@@ -510,19 +510,15 @@ const chartInstances = {};
 let timer = null;
 let themeObserver = null;
 
+// 可视化大屏始终使用深色主题，不受系统深浅色模式影响
 const applySystemTheme = () => {
-  isLight.value = !document.documentElement.classList.contains('dark');
+  isLight.value = false;
   setTimeout(() => renderAllCharts(), 300);
 };
 
 const observeTheme = () => {
-  themeObserver = new MutationObserver(() => {
-    const newIsLight = !document.documentElement.classList.contains('dark');
-    if (newIsLight !== isLight.value) {
-      isLight.value = newIsLight;
-    }
-  });
-  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  // 不再监听系统主题变化，保持深色背景不受系统颜色影响
+  themeObserver = null;
 };
 
 const updateDateTime = () => {

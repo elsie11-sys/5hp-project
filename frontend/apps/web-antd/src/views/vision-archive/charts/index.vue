@@ -469,19 +469,14 @@ import * as echarts from 'echarts';
 const isLight = ref(false);
 let themeObserver = null;
 
+// 可视化大屏始终使用深色主题，不受系统深浅色模式影响
 const applySystemTheme = () => {
-  isLight.value = !document.documentElement.classList.contains('dark');
+  isLight.value = false;
 };
 
 const observeTheme = () => {
-  themeObserver = new MutationObserver(() => {
-    isLight.value = !document.documentElement.classList.contains('dark');
-    nextTick(() => {
-      const handler = getCurrentInitHandler();
-      if (handler) handler();
-    });
-  });
-  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  // 不再监听系统主题变化，保持深色背景不受系统颜色影响
+  themeObserver = null;
 };
 
 const getCurrentInitHandler = () => {

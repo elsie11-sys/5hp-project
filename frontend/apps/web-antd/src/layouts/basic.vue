@@ -130,6 +130,12 @@ async function handleLogout() {
   await authStore.logout(false);
 }
 
+// 点击左上角 Logo：跳转到默认首页（全国总览大屏 /vision/national）
+// 用于退出大屏后重新进入大屏
+function handleClickLogo() {
+  router.push(preferences.app.defaultHomePath);
+}
+
 function handleNoticeClear() {
   notifications.value = [];
 }
@@ -217,7 +223,10 @@ watch(
 </script>
 
 <template>
-  <BasicLayout @clear-preferences-and-logout="handleLogout">
+  <BasicLayout
+    @click-logo="handleClickLogo"
+    @clear-preferences-and-logout="handleLogout"
+  >
     <template #user-dropdown>
       <UserDropdown
         :avatar
