@@ -1,322 +1,187 @@
-<template>
-  <div class="menu-manage">
-    <!-- 搜索栏 -->
-    <div class="search-bar">
-      <div class="search-item">
-        <label class="search-label">菜单名称</label>
-        <input
-          type="text"
-          v-model="menuSearch"
-          placeholder="请输入菜单名称"
-          class="search-input"
-          @keyup.enter="handleSearch"
-        />
-      </div>
-      <div class="search-item">
-        <label class="search-label">状态</label>
-        <select v-model="statusFilter" class="search-select">
-          <option value="">菜单状态</option>
-          <option :value="1">正常</option>
-          <option :value="0">停用</option>
-        </select>
-      </div>
-      <div class="search-actions">
-        <button class="btn btn-primary" @click="handleSearch">
-          <span class="icon">🔍</span> 搜索
-        </button>
-        <button class="btn btn-default" @click="handleReset">
-          <span class="icon">↺</span> 重置
-        </button>
-      </div>
-    </div>
+<script lang="ts" setup>
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { MenuDto as SystemMenu } from '#/api/vision-archive/system';
 
-    <!-- 操作栏 -->
-    <div class="toolbar">
-      <div class="toolbar-left">
-        <button class="btn btn-primary" @click="handleAddMenu(null)">
-          <span class="icon">➕</span> 新增
-        </button>
-        <button class="btn btn-default" @click="toggleExpandAll">
-          <span class="icon">{{ isAllExpanded ? '⤡' : '⤢' }}</span>
-          {{ isAllExpanded ? '折叠全部' : '展开全部' }}
-        </button>
-      </div>
-    </div>
+import { Page, useVbenDrawer } from '@vben/common-ui';
+import { IconifyIcon, Plus } from '@vben/icons';
 
-    <!-- 菜单表格 -->
-    <div class="table-wrapper">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th class="col-menu-name">菜单名称</th>
-            <th class="col-icon">图标</th>
-            <th class="col-sort">排序</th>
-            <th class="col-permission">权限标识</th>
-            <th class="col-component">组件路径</th>
-            <th class="col-status">状态</th>
-            <th class="col-created">创建时间</th>
-            <th class="col-actions">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- 使用递归组件渲染树形结构 -->
-          <menu-tree-node
-            :nodes="filteredMenuTree"
-            :level="0"
-            :is-expanded="isExpanded"
-            :toggle-expand="toggleExpand"
-            @edit="handleEditMenu"
-            @add="handleAddMenu"
-            @delete="handleDeleteMenu"
-          />
+import { Button, message, Modal } from 'ant-design-vue';
 
-          <!-- 空状态 -->
-          <tr v-if="filteredMenuTree.length === 0 && !loading">
-            <td colspan="8" class="empty-cell">
-              <div class="empty-state">
-                <div class="empty-icon">📭</div>
-                <div class="empty-text">暂无菜单数据</div>
-                <div class="empty-desc">点击"新增"按钮创建第一个菜单</div>
-              </div>
-            </td>
-          </tr>
+import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';
+import { menuApi } from '#/api/vision-archive/system';
 
-          <!-- 加载状态 -->
-          <tr v-if="loading">
-            <td colspan="8" class="loading-cell">
-              <div class="loading-state">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">加载中...</div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+import { useColumns, useGridFormSchema } from './data';
+import Form from './modules/form.vue';
 
-    <!-- ===== 新增菜单弹窗 ===== -->
-    <Modal v-model:open="showAddModal" title="新增菜单" :footer="null" width="600px" @cancel="closeAddModal">
-      <div class="modal-form">
-        <div class="form-group">
-          <label class="form-label required">菜单名称</label>
-          <input
-            v-model="addForm.name"
-            type="text"
-            placeholder="请输入菜单名称"
-            class="form-input"
-          />
-        </div>
+const [FormDrawer, formDrawerApi] = useVbenDrawer({
+  connectedComponent: Form,
+  destroyOnClose: true,
+});
 
-        <div class="form-row">
-          <div class="form-group half">
-            <label class="form-label required">菜单类型</label>
-            <select v-model="addForm.type" class="form-select">
-              <option :value="1">目录</option>
-              <option :value="2">菜单</option>
-              <option :value="3">按钮</option>
-            </select>
-          </div>
-          <div class="form-group half">
-            <label class="form-label required">状态</label>
-            <select v-model="addForm.status" class="form-select">
-              <option :value="1">正常</option>
-              <option :value="0">停用</option>
-            </select>
-          </div>
-        </div>
+function confirm(content: string, title: string) {
+  return new Promise<void>((resolve, reject) => {
+    Modal.confirm({
+      content,
+      title,
+      onCancel() {
+        reject(new Error('取消'));
+      },
+      onOk() {
+        resolve();
+      },
+    });
+  });
+}
 
-        <div class="form-row">
-          <div class="form-group half">
-            <label class="form-label">上级菜单</label>
-            <select v-model="addForm.parentId" class="form-select">
-              <option
-                v-for="opt in parentMenuOptions"
-                :key="opt.value ?? 'root'"
-                :value="opt.value"
-              >
-                {{ opt.label }}
-              </option>
-            </select>
-          </div>
-          <div class="form-group half">
-            <label class="form-label required">排序</label>
-            <input
-              v-model.number="addForm.sort"
-              type="number"
-              placeholder="请输入排序号"
-              class="form-input"
-            />
-          </div>
-        </div>
+async function onStatusChange(newStatus: number, row: SystemMenu) {
+  const text = newStatus === 1 ? '正常' : '停用';
+  try {
+    await confirm(`确定要${text}菜单【${row.name}】吗？`, '状态切换');
+    await menuApi.update(row.id, { status: newStatus } as any);
+    message.success('状态更新成功');
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-        <div class="form-row">
-          <div class="form-group half">
-            <label class="form-label">图标</label>
-            <select v-model="addForm.icon" class="form-select">
-              <option value="">请选择图标</option>
-              <option v-for="icon in ICON_OPTIONS" :key="icon.value" :value="icon.value">
-                {{ icon.label }}
-              </option>
-            </select>
-          </div>
-          <div class="form-group half">
-            <label class="form-label">权限标识</label>
-            <input
-              v-model="addForm.permission"
-              type="text"
-              placeholder="如：system:user:list"
-              class="form-input"
-            />
-          </div>
-        </div>
+function onEdit(row: SystemMenu) {
+  formDrawerApi.setData(row).open();
+}
 
-        <div class="form-group" v-if="addForm.type !== 3">
-          <label class="form-label">组件路径</label>
-          <input
-            v-model="addForm.component"
-            type="text"
-            placeholder="如：system/user/index"
-            class="form-input"
-          />
-        </div>
+function onAppend(row: SystemMenu) {
+  formDrawerApi.setData({ parentId: row.id }).open();
+}
 
-        <div class="form-actions">
-          <button class="btn btn-default" @click="closeAddModal">取消</button>
-          <button class="btn btn-primary" @click="submitAddMenu" :disabled="submitting">
-            {{ submitting ? '提交中...' : '确定' }}
-          </button>
-        </div>
-      </div>
-    </Modal>
+async function onDelete(row: SystemMenu) {
+  await menuApi.delete(row.id);
+  message.success('删除成功');
+  onRefresh();
+}
 
-    <!-- ===== 编辑菜单弹窗 ===== -->
-    <Modal v-model:open="showEditModal" title="编辑菜单" :footer="null" width="600px" @cancel="closeEditModal">
-      <div class="modal-form">
-        <div class="form-group">
-          <label class="form-label required">菜单名称</label>
-          <input
-            v-model="editForm.name"
-            type="text"
-            placeholder="请输入菜单名称"
-            class="form-input"
-          />
-        </div>
+function onRefresh() {
+  gridApi.query();
+}
 
-        <div class="form-row">
-          <div class="form-group half">
-            <label class="form-label required">菜单类型</label>
-            <select v-model="editForm.type" class="form-select">
-              <option :value="1">目录</option>
-              <option :value="2">菜单</option>
-              <option :value="3">按钮</option>
-            </select>
-          </div>
-          <div class="form-group half">
-            <label class="form-label required">状态</label>
-            <select v-model="editForm.status" class="form-select">
-              <option :value="1">正常</option>
-              <option :value="0">停用</option>
-            </select>
-          </div>
-        </div>
+function onCreate() {
+  formDrawerApi.setData({}).open();
+}
 
-        <div class="form-row">
-          <div class="form-group half">
-            <label class="form-label">上级菜单</label>
-            <select v-model="editForm.parentId" class="form-select">
-              <option
-                v-for="opt in parentMenuOptions"
-                :key="opt.value ?? 'root'"
-                :value="opt.value"
-              >
-                {{ opt.label }}
-              </option>
-            </select>
-          </div>
-          <div class="form-group half">
-            <label class="form-label required">排序</label>
-            <input
-              v-model.number="editForm.sort"
-              type="number"
-              placeholder="请输入排序号"
-              class="form-input"
-            />
-          </div>
-        </div>
+/** 客户端过滤菜单树（按名称/状态） */
+function filterTree(tree: SystemMenu[], formValues: { name?: string; status?: number }): SystemMenu[] {
+  const name = formValues?.name?.trim()?.toLowerCase();
+  const status = formValues?.status;
+  const walk = (nodes: SystemMenu[]): SystemMenu[] => {
+    const result: SystemMenu[] = [];
+    for (const node of nodes) {
+      const children = node.children?.length ? walk(node.children) : [];
+      const nameMatch = !name || node.name.toLowerCase().includes(name);
+      const statusMatch = status === undefined || node.status === status;
+      if (nameMatch && statusMatch) {
+        result.push({ ...node, children });
+      } else if (children.length > 0) {
+        result.push({ ...node, children });
+      }
+    }
+    return result;
+  };
+  return walk(tree);
+}
 
-        <div class="form-row">
-          <div class="form-group half">
-            <label class="form-label">图标</label>
-            <select v-model="editForm.icon" class="form-select">
-              <option value="">请选择图标</option>
-              <option v-for="icon in ICON_OPTIONS" :key="icon.value" :value="icon.value">
-                {{ icon.label }}
-              </option>
-            </select>
-          </div>
-          <div class="form-group half">
-            <label class="form-label">权限标识</label>
-            <input
-              v-model="editForm.permission"
-              type="text"
-              placeholder="如：system:user:list"
-              class="form-input"
-            />
-          </div>
-        </div>
-
-        <div class="form-group" v-if="editForm.type !== 3">
-          <label class="form-label">组件路径</label>
-          <input
-            v-model="editForm.component"
-            type="text"
-            placeholder="如：system/user/index"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-actions">
-          <button class="btn btn-default" @click="closeEditModal">取消</button>
-          <button class="btn btn-primary" @click="submitEditMenu" :disabled="submitting">
-            {{ submitting ? '提交中...' : '确定' }}
-          </button>
-        </div>
-      </div>
-    </Modal>
-  </div>
-</template>
-
-<script setup lang="ts">
-import { Modal } from 'ant-design-vue';
-import MenuTreeNode from './MenuTreeNode.vue';
-import { useMenuManage } from './useMenuManage';
-
-const {
-  menuSearch,
-  statusFilter,
-  loading,
-  submitting,
-  showAddModal,
-  showEditModal,
-  filteredMenuTree,
-  addForm,
-  editForm,
-  isAllExpanded,
-  isExpanded,
-  toggleExpand,
-  parentMenuOptions,
-  ICON_OPTIONS,
-  handleSearch,
-  handleReset,
-  toggleExpandAll,
-  handleAddMenu,
-  submitAddMenu,
-  handleEditMenu,
-  submitEditMenu,
-  handleDeleteMenu,
-  closeAddModal,
-  closeEditModal,
-} = useMenuManage();
+const [Grid, gridApi] = useVbenVxeGrid({
+  formOptions: {
+    schema: useGridFormSchema(),
+    submitOnChange: true,
+  },
+  gridOptions: {
+    columns: useColumns(onStatusChange),
+    height: 'auto',
+    keepSource: true,
+    pagerConfig: {
+      enabled: false,
+    },
+    proxyConfig: {
+      ajax: {
+        query: async ({ formValues }) => {
+          const tree = await menuApi.getTree();
+          const fv = formValues as { name?: string; status?: number } | undefined;
+          if (!fv?.name && fv?.status === undefined) {
+            return tree;
+          }
+          return filterTree(tree, fv);
+        },
+      },
+    },
+    rowConfig: {
+      keyField: 'id',
+    },
+    toolbarConfig: {
+      custom: true,
+      export: false,
+      refresh: true,
+      search: true,
+      zoom: true,
+    },
+    treeConfig: {
+      parentField: 'parentId',
+      rowField: 'id',
+      transform: false,
+    },
+  } as VxeTableGridOptions<SystemMenu>,
+});
 </script>
 
-<style scoped src="./MenuManage.css"></style>
+<template>
+  <Page auto-content-height>
+    <FormDrawer @success="onRefresh" />
+    <Grid table-title="菜单列表">
+      <template #toolbar-tools>
+        <Button type="primary" @click="onCreate">
+          <Plus class="size-5" />
+          新增菜单
+        </Button>
+      </template>
+      <template #title="{ row }">
+        <div class="flex w-full items-center gap-1">
+          <div class="size-4 shrink-0">
+            <IconifyIcon
+              v-if="row.type === 3"
+              icon="lucide:lock"
+              class="size-full"
+            />
+            <IconifyIcon
+              v-else-if="row.icon"
+              :icon="row.icon"
+              class="size-full"
+            />
+          </div>
+          <span class="flex-auto">{{ row.name }}</span>
+        </div>
+      </template>
+      <template #icon="{ row }">
+        <IconifyIcon
+          v-if="row.icon"
+          :icon="row.icon"
+          class="size-4"
+        />
+      </template>
+      <template #action="{ row }">
+        <VbenTableAction
+          :actions="[
+            { text: '修改', icon: 'lucide:pencil', onClick: () => onEdit(row) },
+            { text: '新增', icon: 'lucide:plus', onClick: () => onAppend(row) },
+          ]"
+          :dropdown-actions="[
+            {
+              text: '删除',
+              icon: 'lucide:trash-2',
+              danger: true,
+              popConfirm: { title: '确认删除此菜单?', confirm: () => onDelete(row) },
+            },
+          ]"
+          align="center"
+        />
+      </template>
+    </Grid>
+  </Page>
+</template>

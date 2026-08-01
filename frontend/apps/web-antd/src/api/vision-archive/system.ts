@@ -78,16 +78,7 @@ const ROLE_NAME_TO_ID: Record<string, number> = {
   '班主任':     7,
 };
 
-const ORG_NAME_TO_ID: Record<string, number> = {
-  '国家教育部':     101,
-  '江苏省教育厅':   102,
-  '浙江省教育厅':   103,
-  '南京市教育局':   104,
-  '苏州市教育局':   105,
-  '鼓楼区教育局':   106,
-  '南京市第一中学': 201,
-  '南京市金陵中学': 202,
-};
+const ORG_NAME_TO_ID: Record<string, number> = {};
 
 const GENDER_TO_ID: Record<string, number> = {
   '':       0,
@@ -114,9 +105,26 @@ const STATUS_ID_TO_TEXT: Record<number, { text: string; cls: string }> = {
 const ROLE_ID_TO_NAME: Record<number, string> = Object.fromEntries(
   Object.entries(ROLE_NAME_TO_ID).map(([k, v]) => [v, k]),
 );
-const ORG_ID_TO_NAME: Record<number, string> = Object.fromEntries(
-  Object.entries(ORG_NAME_TO_ID).map(([k, v]) => [v, k]),
-);
+const ORG_ID_TO_NAME: Record<number, string> = {};
+
+/** 用实际组织数据初始化/更新 ID<->名称 映射 */
+export function setOrgMapping(orgTree: Array<{ id: number; name: string; children?: any[] }>) {
+  Object.keys(ORG_NAME_TO_ID).forEach((k) => delete ORG_NAME_TO_ID[k]);
+  Object.keys(ORG_ID_TO_NAME).forEach((k) => delete ORG_ID_TO_NAME[+k]);
+  const walk = (nodes: any[]) => {
+    for (const n of nodes) {
+      ORG_NAME_TO_ID[n.name] = n.id;
+      ORG_ID_TO_NAME[n.id] = n.name;
+      if (n.children?.length) walk(n.children);
+    }
+  };
+  walk(orgTree);
+}
+
+/** 获取当前组织下拉选项 */
+export function getOrgOptions() {
+  return Object.keys(ORG_NAME_TO_ID).map((k) => ({ label: k, value: k }));
+}
 
 /** 前端表单 -> 后端 DTO */
 export function mapFormToDto(form: FrontendUserForm): BackendUserDto {
@@ -169,7 +177,7 @@ export function mapDtoToDisplay(dto: BackendUserDto) {
  */
 export const userApi = {
   /** 分页查询用户列表 */
-  async getUserList(params: { page?: number; pageSize?: number; keyword?: string } = {}): Promise<PagedResult<BackendUserDto>> {
+  async getUserList(params: { page?: number; pageSize?: number; keyword?: string; orgIds?: string } = {}): Promise<PagedResult<BackendUserDto>> {
     const res = await requestClient.get<PagedResult<BackendUserDto>>('/user/paged', { params });
     return res;
   },
@@ -453,7 +461,7 @@ export const ROLE_LEVEL_OPTIONS = [
 
 /** 角色下拉数据（保留兼容） */
 export const ROLE_OPTIONS = Object.keys(ROLE_NAME_TO_ID).map((k) => ({ label: k, value: k }));
-export const ORG_OPTIONS = Object.keys(ORG_NAME_TO_ID).map((k) => ({ label: k, value: k }));
+export { getOrgOptions as ORG_OPTIONS };
 
 // 保留旧函数名兼容
 export const getRoleList = () => roleApi.getPagedList();

@@ -21,13 +21,23 @@ public class SysMenuController : ControllerBase
     }
 
     /// <summary>
+    /// 获取菜单列表（支持搜索条件）
+    /// </summary>
+    [HttpGet("list")]
+    public async Task<IActionResult> GetList([FromQuery] MenuQuery query)
+    {
+        var tree = await _menuService.GetMenuTreeAsync(query);
+        return Ok(tree);
+    }
+
+    /// <summary>
     /// 获取菜单树
     /// </summary>
     [HttpGet("tree")]
-    public async Task<IActionResult> GetMenuTree()
+    public async Task<IActionResult> GetMenuTree([FromQuery] MenuQuery? query = null)
     {
-        var tree = await _menuService.GetMenuTreeAsync();
-        return Ok(new { success = true, data = tree });
+        var tree = await _menuService.GetMenuTreeAsync(query);
+        return Ok(tree);
     }
 
     /// <summary>
@@ -37,7 +47,7 @@ public class SysMenuController : ControllerBase
     public async Task<IActionResult> GetAllMenus()
     {
         var menus = await _menuService.GetAllMenusAsync();
-        return Ok(new { success = true, data = menus });
+        return Ok(menus);
     }
 
     /// <summary>
@@ -49,9 +59,9 @@ public class SysMenuController : ControllerBase
         var menu = await _menuService.GetMenuByIdAsync(id);
         if (menu == null)
         {
-            return NotFound(new { success = false, message = $"菜单 ID {id} 不存在" });
+            return NotFound($"菜单 ID {id} 不存在");
         }
-        return Ok(new { success = true, data = menu });
+        return Ok(menu);
     }
 
     /// <summary>
@@ -63,12 +73,12 @@ public class SysMenuController : ControllerBase
         try
         {
             var menu = await _menuService.CreateMenuAsync(form);
-            return Ok(new { success = true, data = menu, message = "创建成功" });
+            return Ok(menu);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "创建菜单失败");
-            return BadRequest(new { success = false, message = ex.Message });
+            return BadRequest(ex.Message);
         }
     }
 
@@ -81,16 +91,16 @@ public class SysMenuController : ControllerBase
         try
         {
             var menu = await _menuService.UpdateMenuAsync(id, form);
-            return Ok(new { success = true, data = menu, message = "更新成功" });
+            return Ok(menu);
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { success = false, message = ex.Message });
+            return NotFound(ex.Message);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "更新菜单失败");
-            return BadRequest(new { success = false, message = ex.Message });
+            return BadRequest(ex.Message);
         }
     }
 
@@ -105,14 +115,14 @@ public class SysMenuController : ControllerBase
             var result = await _menuService.DeleteMenuAsync(id);
             if (!result)
             {
-                return NotFound(new { success = false, message = $"菜单 ID {id} 不存在" });
+                return NotFound($"菜单 ID {id} 不存在");
             }
-            return Ok(new { success = true, message = "删除成功" });
+            return Ok();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "删除菜单失败");
-            return BadRequest(new { success = false, message = ex.Message });
+            return BadRequest(ex.Message);
         }
     }
 
@@ -125,12 +135,12 @@ public class SysMenuController : ControllerBase
         try
         {
             var (count, message) = await _menuService.BatchDeleteMenusAsync(request.Ids);
-            return Ok(new { success = true, data = new { deletedCount = count }, message });
+            return Ok(new { deletedCount = count, message });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "批量删除菜单失败");
-            return BadRequest(new { success = false, message = ex.Message });
+            return BadRequest(ex.Message);
         }
     }
 }

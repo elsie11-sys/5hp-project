@@ -61,7 +61,7 @@ public interface IMenuService
     /// <summary>
     /// 获取菜单树
     /// </summary>
-    Task<List<MenuDto>> GetMenuTreeAsync();
+    Task<List<MenuDto>> GetMenuTreeAsync(MenuQuery? query = null);
 
     /// <summary>
     /// 获取所有菜单（扁平列表）

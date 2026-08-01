@@ -46,9 +46,10 @@ public class SystemUserController : ControllerBase
     public async Task<IActionResult> GetPagedUsers(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] string? keyword = null)
+        [FromQuery] string? keyword = null,
+        [FromQuery] string? orgIds = null)
     {
-        var result = await _userService.GetPagedUsersAsync(page, pageSize, keyword);
+        var result = await _userService.GetPagedUsersAsync(page, pageSize, keyword, orgIds);
         return Ok(new { items = result.Items, total = result.Total });
     }
 
@@ -142,6 +143,31 @@ public class SystemUserController : ControllerBase
     }
 
     // GET: api/user/template   —— 下载 Excel 导入模板
+    // GET: api/user/export?keyword=xxx&orgIds=1,2,3
+    [HttpGet("export")]
+    public async Task<IActionResult> Export([FromQuery] string? keyword = null, [FromQuery] string? orgIds = null)
+    {
+        var items = await _userService.ExportUsersAsync(keyword, orgIds);
+
+        var rows = items.Select(u => new
+        {
+            用户编号 = u.Id,
+            账号     = u.Username,
+            姓名     = u.RealName,
+            性别     = u.Gender == 1 ? "男" : u.Gender == 2 ? "女" : "未知",
+            角色     = u.RoleId,
+            机构ID   = u.OrgId,
+            手机号码 = u.PhoneNumber,
+            邮箱     = u.Email,
+            状态     = u.Status == 1 ? "启用" : "禁用"
+        });
+
+        using var ms = new MemoryStream();
+        await MiniExcel.SaveAsAsync(ms, rows);
+        return File(ms.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            $"用户导出_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
+    }
+
     [HttpGet("template")]
     public async Task<IActionResult> DownloadTemplate()
     {

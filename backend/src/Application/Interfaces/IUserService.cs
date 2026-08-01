@@ -10,7 +10,7 @@ public interface IUserService
     Task<List<UserDto>> GetAllUsersAsync();
 
     // 【新增】分页查询用户（用于前端表格）
-    Task<(List<UserDto> Items, int Total)> GetPagedUsersAsync(int page, int pageSize, string? keyword);
+    Task<(List<UserDto> Items, int Total)> GetPagedUsersAsync(int page, int pageSize, string? keyword, string? orgIds = null);
 
     // 根据 ID 获取用户
     Task<UserDto?> GetUserByIdAsync(long id);
@@ -32,5 +32,8 @@ public interface IUserService
 
     // 【完善】批量创建：每行单独校验 + 跳过重复用户，返回 ImportResult
     Task<ImportResult> BulkCreateAsync(IReadOnlyList<UserImportRow> rows);
+
+    // 【新增】导出用户数据（支持按 keyword / orgIds 过滤），返回全量 DTO 列表
+    Task<List<UserDto>> ExportUsersAsync(string? keyword = null, string? orgIds = null);
 }
 

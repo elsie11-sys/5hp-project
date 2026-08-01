@@ -3,156 +3,143 @@ import type { Recordable } from '@vben/types';
 import { requestClient } from '#/api/request';
 
 export namespace SystemMenuApi {
-  /** 徽标颜色集合 */
-  export const BadgeVariants = [
-    'default',
-    'destructive',
-    'primary',
-    'success',
-    'warning',
-  ] as const;
-  /** 徽标类型集合 */
-  export const BadgeTypes = ['dot', 'normal'] as const;
   /** 菜单类型集合 */
   export const MenuTypes = [
-    'catalog',
-    'menu',
-    'embedded',
-    'link',
-    'button',
+    { label: '目录', value: 1 },
+    { label: '菜单', value: 2 },
+    { label: '按钮', value: 3 },
   ] as const;
+
+  /** 菜单状态 */
+  export const MenuStatus = [
+    { label: '正常', value: 1 },
+    { label: '停用', value: 0 },
+  ] as const;
+
   /** 系统菜单 */
   export interface SystemMenu {
     [key: string]: any;
-    /** 后端权限标识 */
-    authCode: string;
-    /** 子级 */
-    children?: SystemMenu[];
-    /** 组件 */
-    component?: string;
     /** 菜单ID */
-    id: string;
-    /** 菜单元数据 */
-    meta?: {
-      /** 激活时显示的图标 */
-      activeIcon?: string;
-      /** 作为路由时，需要激活的菜单的Path */
-      activePath?: string;
-      /** 固定在标签栏 */
-      affixTab?: boolean;
-      /** 在标签栏固定的顺序 */
-      affixTabOrder?: number;
-      /** 徽标内容(当徽标类型为normal时有效) */
-      badge?: string;
-      /** 徽标类型 */
-      badgeType?: (typeof BadgeTypes)[number];
-      /** 徽标颜色 */
-      badgeVariants?: (typeof BadgeVariants)[number];
-      /** 在菜单中隐藏下级 */
-      hideChildrenInMenu?: boolean;
-      /** 在面包屑中隐藏 */
-      hideInBreadcrumb?: boolean;
-      /** 在菜单中隐藏 */
-      hideInMenu?: boolean;
-      /** 在标签栏中隐藏 */
-      hideInTab?: boolean;
-      /** 菜单图标 */
-      icon?: string;
-      /** 内嵌Iframe的URL */
-      iframeSrc?: string;
-      /** 是否缓存页面 */
-      keepAlive?: boolean;
-      /** 外链页面的URL */
-      link?: string;
-      /** 同一个路由最大打开的标签数 */
-      maxNumOfOpenTab?: number;
-      /** 无需基础布局 */
-      noBasicLayout?: boolean;
-      /** 是否在新窗口打开 */
-      openInNewWindow?: boolean;
-      /** 菜单排序 */
-      order?: number;
-      /** 额外的路由参数 */
-      query?: Recordable<any>;
-      /** 菜单标题 */
-      title?: string;
-    };
+    id: string | number;
     /** 菜单名称 */
     name: string;
-    /** 路由路径 */
-    path: string;
+    /** 权限字符 */
+    code?: string;
+    /** 图标 */
+    icon?: string;
+    /** 类型：1=目录 2=菜单 3=按钮 */
+    type: number;
     /** 父级ID */
-    pid: string;
-    /** 重定向 */
-    redirect?: string;
-    /** 菜单类型 */
-    type: (typeof MenuTypes)[number];
+    parentId?: number | null;
+    /** 排序 */
+    sort: number;
+    /** 状态：1=正常 0=停用 */
+    status: number;
+    /** 路由路径 */
+    path?: string;
+    /** 组件路径 */
+    component?: string;
+    /** 权限标识 */
+    permission?: string;
+    /** 是否外链：0=否 1=是 */
+    isExternal?: number;
+    /** 路由参数 */
+    routeParams?: string;
+    /** 是否缓存：0=不缓存 1=缓存 */
+    isKeepAlive?: number;
+    /** 显示状态：0=隐藏 1=显示 */
+    isVisible?: number;
+    /** 备注 */
+    remark?: string;
+    /** 创建时间 */
+    createdAt?: string;
+    /** 更新时间 */
+    updatedAt?: string;
+    /** 子菜单 */
+    children?: SystemMenu[];
+  }
+
+  /** 菜单查询参数 */
+  export interface MenuQuery {
+    name?: string;
+    status?: number;
   }
 }
 
 /**
- * 获取菜单数据列表
+ * 获取菜单列表
  */
-async function getMenuList() {
+async function getMenuList(params?: SystemMenuApi.MenuQuery) {
   return requestClient.get<Array<SystemMenuApi.SystemMenu>>(
-    '/system/menu/list',
+    '/menu/list',
+    { params },
   );
 }
 
-async function isMenuNameExists(
-  name: string,
-  id?: SystemMenuApi.SystemMenu['id'],
-) {
-  return requestClient.get<boolean>('/system/menu/name-exists', {
-    params: { id, name },
-  });
+/**
+ * 获取菜单树
+ */
+async function getMenuTree(params?: SystemMenuApi.MenuQuery) {
+  return requestClient.get<Array<SystemMenuApi.SystemMenu>>(
+    '/menu/tree',
+    { params },
+  );
 }
 
-async function isMenuPathExists(
-  path: string,
-  id?: SystemMenuApi.SystemMenu['id'],
-) {
-  return requestClient.get<boolean>('/system/menu/path-exists', {
-    params: { id, path },
-  });
+/**
+ * 获取所有菜单（扁平列表）
+ */
+async function getAllMenus() {
+  return requestClient.get<Array<SystemMenuApi.SystemMenu>>('/menu/all');
+}
+
+/**
+ * 根据ID获取菜单
+ */
+async function getMenuById(id: number) {
+  return requestClient.get<SystemMenuApi.SystemMenu>(`/menu/${id}`);
 }
 
 /**
  * 创建菜单
- * @param data 菜单数据
  */
 async function createMenu(
-  data: Omit<SystemMenuApi.SystemMenu, 'children' | 'id'>,
+  data: Omit<SystemMenuApi.SystemMenu, 'id' | 'children'>,
 ) {
-  return requestClient.post('/system/menu', data);
+  return requestClient.post('/menu', data);
 }
 
 /**
  * 更新菜单
- *
- * @param id 菜单 ID
- * @param data 菜单数据
  */
 async function updateMenu(
-  id: string,
-  data: Omit<SystemMenuApi.SystemMenu, 'children' | 'id'>,
+  id: number,
+  data: Omit<SystemMenuApi.SystemMenu, 'id' | 'children'>,
 ) {
-  return requestClient.put(`/system/menu/${id}`, data);
+  return requestClient.put(`/menu/${id}`, data);
 }
 
 /**
  * 删除菜单
- * @param id 菜单 ID
  */
-async function deleteMenu(id: string) {
-  return requestClient.delete(`/system/menu/${id}`);
+async function deleteMenu(id: number) {
+  return requestClient.delete(`/menu/${id}`);
+}
+
+/**
+ * 批量删除菜单
+ */
+async function batchDeleteMenus(ids: number[]) {
+  return requestClient.post('/menu/batch-delete', { ids });
 }
 
 export {
+  batchDeleteMenus,
   createMenu,
   deleteMenu,
+  getAllMenus,
+  getMenuById,
   getMenuList,
-  isMenuNameExists,
-  isMenuPathExists,
+  getMenuTree,
   updateMenu,
 };

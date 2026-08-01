@@ -1,86 +1,56 @@
 import type { OnActionClickFn, VxeTableGridColumns } from '#/adapter/vxe-table';
 import type { SystemMenuApi } from '#/api/system/menu';
 
-import { $t } from '#/locales';
-
-export function getMenuTypeOptions() {
-  return [
-    {
-      color: 'processing',
-      label: $t('system.menu.typeCatalog'),
-      value: 'catalog',
-    },
-    { color: 'default', label: $t('system.menu.typeMenu'), value: 'menu' },
-    { color: 'error', label: $t('system.menu.typeButton'), value: 'button' },
-    {
-      color: 'success',
-      label: $t('system.menu.typeEmbedded'),
-      value: 'embedded',
-    },
-    { color: 'warning', label: $t('system.menu.typeLink'), value: 'link' },
-  ];
-}
-
 export function useColumns(
   onActionClick: OnActionClickFn<SystemMenuApi.SystemMenu>,
 ): VxeTableGridColumns<SystemMenuApi.SystemMenu> {
   return [
     {
       align: 'left',
-      field: 'meta.title',
+      field: 'name',
       fixed: 'left',
       slots: { default: 'title' },
-      title: $t('system.menu.menuTitle'),
+      title: '菜单名称',
       treeNode: true,
-      width: 250,
+      width: 200,
     },
     {
       align: 'center',
-      cellRender: { name: 'CellTag', options: getMenuTypeOptions() },
-      field: 'type',
-      title: $t('system.menu.type'),
-      width: 100,
+      field: 'icon',
+      title: '图标',
+      width: 80,
+      slots: { default: 'icon' },
     },
     {
-      field: 'authCode',
-      title: $t('system.menu.authCode'),
-      width: 200,
+      align: 'center',
+      field: 'sort',
+      title: '排序',
+      width: 80,
     },
     {
       align: 'left',
-      field: 'path',
-      title: $t('system.menu.path'),
+      field: 'permission',
+      title: '权限标识',
       width: 200,
     },
-
     {
       align: 'left',
       field: 'component',
-      formatter: ({ row }) => {
-        switch (row.type) {
-          case 'catalog':
-          case 'menu': {
-            return row.component ?? '';
-          }
-          case 'embedded': {
-            return row.meta?.iframeSrc ?? '';
-          }
-          case 'link': {
-            return row.meta?.link ?? '';
-          }
-        }
-        return '';
-      },
-      minWidth: 200,
-      title: $t('system.menu.component'),
+      title: '组件路径',
+      width: 200,
     },
     {
       cellRender: { name: 'CellTag' },
       field: 'status',
-      title: $t('system.menu.status'),
-      width: 100,
+      title: '状态',
+      width: 80,
     },
-
+    {
+      align: 'left',
+      field: 'createdAt',
+      title: '创建时间',
+      width: 160,
+    },
     {
       align: 'right',
       cellRender: {
@@ -91,19 +61,55 @@ export function useColumns(
         name: 'CellOperation',
         options: [
           {
-            code: 'append',
-            text: '新增下级',
+            code: 'edit',
+            icon: 'carbon:edit',
+            text: '修改',
           },
-          'edit', // 默认的编辑按钮
-          'delete', // 默认的删除按钮
+          {
+            code: 'append',
+            icon: 'carbon:add',
+            text: '新增',
+          },
+          {
+            code: 'delete',
+            icon: 'carbon:trash-can',
+            text: '删除',
+          },
         ],
       },
       field: 'operation',
       fixed: 'right',
       headerAlign: 'center',
       showOverflow: false,
-      title: $t('system.menu.operation'),
-      width: 200,
+      title: '操作',
+      width: 220,
+    },
+  ];
+}
+
+export function useSearchFormSchema() {
+  return [
+    {
+      component: 'Input',
+      componentProps: {
+        allowClear: true,
+        placeholder: '请输入菜单名称',
+      },
+      fieldName: 'name',
+      label: '菜单名称',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        placeholder: '菜单状态',
+        options: SystemMenuApi.MenuStatus.map((item) => ({
+          label: item.label,
+          value: item.value,
+        })),
+      },
+      fieldName: 'status',
+      label: '菜单状态',
     },
   ];
 }

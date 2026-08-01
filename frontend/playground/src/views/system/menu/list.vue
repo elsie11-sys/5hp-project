@@ -6,16 +6,17 @@ import type {
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { IconifyIcon, Plus } from '@vben/icons';
-import { $t } from '@vben/locales';
-
-import { MenuBadge } from '@vben-core/menu-ui';
 
 import { Button, message } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { deleteMenu, getMenuList, SystemMenuApi } from '#/api/system/menu';
+import {
+  deleteMenu,
+  getMenuList,
+  SystemMenuApi,
+} from '#/api/system/menu';
 
-import { useColumns } from './data';
+import { useColumns, useSearchFormSchema } from './data';
 import Form from './modules/form.vue';
 
 const [FormDrawer, formDrawerApi] = useVbenDrawer({
@@ -24,6 +25,10 @@ const [FormDrawer, formDrawerApi] = useVbenDrawer({
 });
 
 const [Grid, gridApi] = useVbenVxeGrid({
+  formOptions: {
+    schema: useSearchFormSchema(),
+    submitOnChange: true,
+  },
   gridOptions: {
     columns: useColumns(onActionClick),
     height: 'auto',
@@ -33,8 +38,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     proxyConfig: {
       ajax: {
-        query: async (_params) => {
-          return await getMenuList();
+        query: async ({ formValues }) => {
+          return await getMenuList(formValues);
         },
       },
     },
@@ -45,14 +50,15 @@ const [Grid, gridApi] = useVbenVxeGrid({
       custom: true,
       export: false,
       refresh: true,
+      search: true,
       zoom: true,
     },
     treeConfig: {
-      parentField: 'pid',
+      parentField: 'parentId',
       rowField: 'id',
       transform: false,
     },
-  } as VxeTableGridOptions,
+  } as VxeTableGridOptions<SystemMenuApi.SystemMenu>,
 });
 
 function onActionClick({
@@ -81,26 +87,29 @@ function onActionClick({
 function onRefresh() {
   gridApi.query();
 }
+
 function onEdit(row: SystemMenuApi.SystemMenu) {
   formDrawerApi.setData(row).open();
 }
+
 function onCreate() {
-  formDrawerApi.setData({}).open();
+  formDrawerApi.setData({ type: 1, status: 1, sort: 0, isKeepAlive: 1, isVisible: 1, isExternal: 0 }).open();
 }
+
 function onAppend(row: SystemMenuApi.SystemMenu) {
-  formDrawerApi.setData({ pid: row.id }).open();
+  formDrawerApi.setData({ parentId: row.id, type: 2, status: 1, sort: 0, isKeepAlive: 1, isVisible: 1, isExternal: 0 }).open();
 }
 
 function onDelete(row: SystemMenuApi.SystemMenu) {
   const hideLoading = message.loading({
-    content: $t('ui.actionMessage.deleting', [row.name]),
+    content: `正在删除菜单 "${row.name}"...`,
     duration: 0,
     key: 'action_process_msg',
   });
-  deleteMenu(row.id)
+  deleteMenu(row.id as number)
     .then(() => {
       message.success({
-        content: $t('ui.actionMessage.deleteSuccess', [row.name]),
+        content: `删除菜单 "${row.name}" 成功`,
         key: 'action_process_msg',
       });
       onRefresh();
@@ -110,6 +119,7 @@ function onDelete(row: SystemMenuApi.SystemMenu) {
     });
 }
 </script>
+
 <template>
   <Page auto-content-height>
     <FormDrawer @success="onRefresh" />
@@ -117,46 +127,51 @@ function onDelete(row: SystemMenuApi.SystemMenu) {
       <template #toolbar-tools>
         <Button type="primary" @click="onCreate">
           <Plus class="size-5" />
-          {{ $t('ui.actionTitle.create', [$t('system.menu.name')]) }}
+          新增菜单
         </Button>
       </template>
       <template #title="{ row }">
         <div class="flex w-full items-center gap-1">
           <div class="size-5 shrink-0">
             <IconifyIcon
-              v-if="row.type === 'button'"
+              v-if="row.type === 3"
               icon="carbon:security"
               class="size-full"
             />
             <IconifyIcon
-              v-else-if="row.meta?.icon"
-              :icon="row.meta?.icon || 'carbon:circle-dash'"
+              v-else-if="row.icon"
+              :icon="row.icon"
               class="size-full"
             />
           </div>
-          <span class="flex-auto">{{ $t(row.meta?.title) }}</span>
-          <div class="items-center justify-end"></div>
+          <span class="flex-auto">{{ row.name }}</span>
         </div>
-        <MenuBadge
-          v-if="row.meta?.badgeType"
-          class="menu-badge"
-          :badge="row.meta.badge"
-          :badge-type="row.meta.badgeType"
-          :badge-variants="row.meta.badgeVariants"
+      </template>
+      <template #icon="{ row }">
+        <IconifyIcon
+          v-if="row.icon"
+          :icon="row.icon"
+          class="size-5"
         />
       </template>
     </Grid>
   </Page>
 </template>
-<style lang="scss" scoped>
-.menu-badge {
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
 
-  & > :deep(div) {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
+<style scoped>
+:deep(.table-operations) {
+  font-size: 14px;
+}
+
+:deep(.table-operations .ant-btn-link) {
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
+    sans-serif;
+}
+
+:deep(.table-operations .ant-btn-link .anticon) {
+  font-size: 14px;
+  margin-right: 2px;
 }
 </style>

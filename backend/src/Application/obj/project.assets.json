@@ -719,11 +719,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\5HP_Project\\backend\\src\\Application\\Application.csproj",
+      "projectUniqueName": "e:\\5HP_Project\\backend\\src\\Application\\Application.csproj",
       "projectName": "Application",
-      "projectPath": "E:\\5HP_Project\\backend\\src\\Application\\Application.csproj",
+      "projectPath": "e:\\5HP_Project\\backend\\src\\Application\\Application.csproj",
       "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
-      "outputPath": "E:\\5HP_Project\\backend\\src\\Application\\obj\\",
+      "outputPath": "e:\\5HP_Project\\backend\\src\\Application\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\16413\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -738,8 +738,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj": {
-              "projectPath": "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj"
+            "e:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj": {
+              "projectPath": "e:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj"
             }
           }
         }

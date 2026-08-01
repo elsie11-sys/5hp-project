@@ -2,6 +2,7 @@ using Application.DTOs;
 using Application.Interfaces;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Application.Services;
 
@@ -17,10 +18,21 @@ public class MenuService : IMenuService
         _context = context;
     }
 
-    public async Task<List<MenuDto>> GetMenuTreeAsync()
+    public async Task<List<MenuDto>> GetMenuTreeAsync(MenuQuery? query = null)
     {
-        var allMenus = await _context.Menus
-            .AsNoTracking()
+        IQueryable<SysMenu> menus = _context.Menus.AsNoTracking();
+
+        // 应用查询条件
+        if (!string.IsNullOrWhiteSpace(query?.Name))
+        {
+            menus = menus.Where(m => m.Name.Contains(query.Name));
+        }
+        if (query?.Status.HasValue == true)
+        {
+            menus = menus.Where(m => m.Status == query.Status.Value);
+        }
+
+        var allMenus = await menus
             .OrderBy(m => m.Sort)
             .ThenBy(m => m.Id)
             .Select(m => MapToDto(m))
@@ -80,6 +92,11 @@ public class MenuService : IMenuService
             Path = form.Path,
             Component = form.Component,
             Permission = form.Permission,
+            IsExternal = form.IsExternal,
+            RouteParams = form.RouteParams,
+            IsKeepAlive = form.IsKeepAlive,
+            IsVisible = form.IsVisible,
+            Remark = form.Remark,
             CreatedAt = DateTime.Now,
         };
 
@@ -109,6 +126,11 @@ public class MenuService : IMenuService
         entity.Path = form.Path;
         entity.Component = form.Component;
         entity.Permission = form.Permission;
+        entity.IsExternal = form.IsExternal;
+        entity.RouteParams = form.RouteParams;
+        entity.IsKeepAlive = form.IsKeepAlive;
+        entity.IsVisible = form.IsVisible;
+        entity.Remark = form.Remark;
         entity.UpdatedAt = DateTime.Now;
 
         await _context.SaveChangesAsync();
@@ -191,6 +213,11 @@ public class MenuService : IMenuService
             Path = m.Path,
             Component = m.Component,
             Permission = m.Permission,
+            IsExternal = m.IsExternal,
+            RouteParams = m.RouteParams,
+            IsKeepAlive = m.IsKeepAlive,
+            IsVisible = m.IsVisible,
+            Remark = m.Remark,
             CreatedAt = m.CreatedAt,
             UpdatedAt = m.UpdatedAt
         };

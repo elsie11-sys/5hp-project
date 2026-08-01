@@ -2,14 +2,19 @@ import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
 import type { ComponentPropsMap, ComponentType } from './component';
 
-import { h } from 'vue';
+import {
+  defineComponent,
+  h,
+  resolveComponent,
+} from 'vue';
 
+import { VbenTableAction as VbenTableActionCore } from '@vben/common-ui';
 import {
   setupVbenVxeTable,
   useVbenVxeGrid as useGrid,
 } from '@vben/plugins/vxe-table';
 
-import { Button, Image } from 'ant-design-vue';
+import { Button, Image, Switch, Tag } from 'ant-design-vue';
 
 import { useVbenForm } from './form';
 
@@ -45,22 +50,84 @@ setupVbenVxeTable({
 
     // 表格配置项可以用 cellRender: { name: 'CellImage' },
     vxeUI.renderer.add('CellImage', {
-      renderTableDefault(renderOpts, params) {
-        const { props } = renderOpts;
-        const { column, row } = params;
+      renderTableDefault({ props }, { column, row }) {
         return h(Image, { src: row[column.field], ...props });
       },
     });
 
     // 表格配置项可以用 cellRender: { name: 'CellLink' },
     vxeUI.renderer.add('CellLink', {
-      renderTableDefault(renderOpts) {
-        const { props } = renderOpts;
+      renderTableDefault({ attrs }) {
         return h(
           Button,
           { size: 'small', type: 'link' },
-          { default: () => props?.text },
+          { default: () => attrs?.text },
         );
+      },
+    });
+
+    // 表格配置项可以用 cellRender: { name: 'CellSwitch', attrs: { beforeChange } },
+    vxeUI.renderer.add('CellSwitch', {
+      renderTableDefault({ attrs, props }, { column, row }) {
+        const valueField = attrs?.valueField || props?.valueField || 'status';
+        const loadingKey = `__loading_${column.field}`;
+        async function onChange(newVal: any) {
+          row[loadingKey] = true;
+          try {
+            const result = await attrs?.beforeChange?.(newVal, row);
+            if (result !== false) {
+              row[valueField] = newVal;
+            }
+          } finally {
+            row[loadingKey] = false;
+          }
+        }
+        return h(Switch, {
+          checked: !!row[valueField],
+          checkedValue: 1,
+          unCheckedValue: 0,
+          checkedChildren: attrs?.checkedChildren || props?.checkedChildren,
+          unCheckedChildren: attrs?.unCheckedChildren || props?.unCheckedChildren,
+          loading: row[loadingKey] ?? false,
+          'onUpdate:checked': onChange,
+        });
+      },
+    });
+
+    // 表格配置项可以用 cellRender: { name: 'CellTag', attrs: { colorMap, textMap } },
+    vxeUI.renderer.add('CellTag', {
+      renderTableDefault({ attrs, props }, { column, row }) {
+        const value = row[column.field];
+        const tagProps: Record<string, any> = {};
+        if (attrs?.colorField || props?.colorField) {
+          tagProps.color = row[attrs?.colorField || props?.colorField];
+        } else if (attrs?.colorMap || props?.colorMap) {
+          tagProps.color = (attrs?.colorMap || props?.colorMap)[value];
+        }
+        const textMap = attrs?.textMap || props?.textMap;
+        return h(Tag, tagProps, {
+          default: () => (textMap ? textMap[value] ?? String(value) : String(value)),
+        });
+      },
+    });
+
+    // 表格配置项可以用 cellRender: { name: 'CellOperation', options: [...], attrs: { onClick } },
+    vxeUI.renderer.add('CellOperation', {
+      renderTableDefault({ attrs, options, props }, { row }) {
+        const onClick = attrs?.onClick || props?.onClick;
+        const buttons = (options || []).map((opt: any) => {
+          return h(
+            Button,
+            {
+              danger: opt.danger,
+              size: 'small',
+              type: 'link',
+              onClick: () => onClick?.({ code: opt.code, row }),
+            },
+            { default: () => opt.text },
+          );
+        });
+        return h('div', { class: 'flex items-center justify-center gap-1' }, buttons);
       },
     });
 
@@ -68,6 +135,20 @@ setupVbenVxeTable({
     // vxeUI.formats.add
   },
   useVbenForm,
+});
+
+export const VbenTableAction = defineComponent({
+  name: 'VbenTableAction',
+  props: {
+    actions: { type: Array, default: () => [] },
+    dropdownActions: { type: Array, default: () => [] },
+    align: { type: String, default: 'center' },
+    outside: { type: Boolean, default: false },
+  },
+  setup(props, { slots, attrs }) {
+    return () =>
+      h(VbenTableActionCore, { hasPermission: true, ...props, ...attrs }, slots);
+  },
 });
 
 export const useVbenVxeGrid = <T extends Record<string, any>>(

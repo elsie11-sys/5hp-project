@@ -1,317 +1,636 @@
+<script lang="ts" setup>
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { BackendUserDto as SystemUser } from '#/api/vision-archive/system';
+
+import { computed, onMounted, ref, watch } from 'vue';
+
+import { Page, useVbenDrawer } from '@vben/common-ui';
+import { IconifyIcon, Plus } from '@vben/icons';
+
+import { Button, Dropdown, Input, Menu, message, Modal, Popconfirm, Tree as ATree, Upload } from 'ant-design-vue';
+
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { mapDtoToDisplay, orgApi, setOrgMapping, userApi } from '#/api/vision-archive/system';
+
+import { useColumns, useGridFormSchema } from './data';
+import UserForm from './modules/form.vue';
+
+const orgList = ref<any[]>([]);
+const orgSearchText = ref('');
+const expandedKeys = ref<Array<number | string>>([]);
+const selectedKeys = ref<Array<number | string>>([]);
+const selectedOrgId = ref<number | string>('');
+const selectedRowIds = ref<Array<number | string>>([]);
+
+function getAllKeys(nodes: any[]): Array<number | string> {
+  const keys: Array<number | string> = [];
+  for (const node of nodes) {
+    if (node.children && node.children.length) {
+      keys.push(node.id);
+      keys.push(...getAllKeys(node.children));
+    }
+  }
+  return keys;
+}
+
+/** 递归收集选中节点及其所有子节点的 ID（用于按组织筛选用户） */
+function getDescendantKeys(targetId: number | string): Array<number | string> {
+  const collect = (node: any): Array<number | string> => {
+    const keys: Array<number | string> = [node.id];
+    if (node.children && node.children.length) {
+      for (const child of node.children) {
+        keys.push(...collect(child));
+      }
+    }
+    return keys;
+  };
+  const find = (list: any[]): any => {
+    for (const node of list) {
+      if (node.id === targetId) return node;
+      if (node.children && node.children.length) {
+        const found = find(node.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+  const target = find(orgList.value);
+  return target ? collect(target) : [];
+}
+
+/** 动态构建 orgId → orgName 映射（基于实际组织数据） */
+const orgIdToName = computed<Record<string, string>>(() => {
+  const map: Record<string, string> = {};
+  const walk = (nodes: any[]) => {
+    for (const node of nodes) {
+      map[String(node.id)] = node.name;
+      if (node.children?.length) walk(node.children);
+    }
+  };
+  walk(orgList.value);
+  return map;
+});
+
+const filteredOrgList = computed(() => {
+  if (!orgSearchText.value) return orgList.value;
+  const filter = (nodes: any[]): any[] =>
+    nodes
+      .map((node) => {
+        const children = filter(node.children || []);
+        const match =
+          node.name?.includes(orgSearchText.value) ||
+          node.code?.includes(orgSearchText.value);
+        if (match || children.length) {
+          return { ...node, children };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  return filter(orgList.value);
+});
+
+function expandAll() {
+  expandedKeys.value = getAllKeys(filteredOrgList.value);
+}
+
+function collapseAll() {
+  expandedKeys.value = [];
+}
+
+function onOrgMenuClick(info: any) {
+  const key = info?.key || info;
+  if (key === 'expand') expandAll();
+  else if (key === 'collapse') collapseAll();
+}
+
+const [FormDrawer, formDrawerApi] = useVbenDrawer({
+  connectedComponent: UserForm,
+  destroyOnClose: true,
+});
+
+const hasSelection = computed(() => selectedRowIds.value.length > 0);
+const hasSingleSelection = computed(() => selectedRowIds.value.length === 1);
+
+function confirm(content: string, title: string) {
+  return new Promise<void>((resolve, reject) => {
+    Modal.confirm({
+      content,
+      title,
+      onCancel() {
+        reject(new Error('取消'));
+      },
+      onOk() {
+        resolve();
+      },
+    });
+  });
+}
+
+async function onStatusChange(newStatus: number, row: SystemUser) {
+  const text = newStatus === 1 ? '启用' : '禁用';
+  try {
+    await confirm(`确定要${text}用户【${row.realName || row.username}】吗？`, '状态切换');
+    const display = mapDtoToDisplay(row) as any;
+    display.status = newStatus === 1 ? 'active' : 'inactive';
+    await userApi.updateUser(row.id, display);
+    message.success('状态更新成功');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function onEdit(row: SystemUser) {
+  formDrawerApi.setData(row).open();
+}
+
+function onDetail(row: SystemUser) {
+  message.info(`用户详情：${row.username}（${row.realName}）`);
+}
+
+async function onResetPassword(row: SystemUser) {
+  try {
+    await confirm(`确定要将用户【${row.realName || row.username}】的密码重置为 123456 吗？`, '重置密码');
+    await userApi.resetPassword(row.id);
+    message.success('密码已重置为 123456');
+  } catch {
+    // 用户取消
+  }
+}
+
+async function onDelete(row: SystemUser) {
+  await userApi.deleteUser(row.id);
+  message.success('删除成功');
+  onRefresh();
+}
+
+async function onBatchDelete() {
+  const ids = getSelectedIds();
+  if (!ids.length) return;
+  try {
+    await confirm(`确定要删除选中的 ${ids.length} 个用户吗？`, '批量删除');
+    const res = await userApi.batchDelete(ids);
+    message.success(`成功删除 ${res.deletedCount} 个用户`);
+    selectedRowIds.value = [];
+    onRefresh();
+  } catch {
+    // 用户取消
+  }
+}
+
+function onBatchEdit() {
+  const ids = getSelectedIds();
+  if (ids.length !== 1) return;
+  const grid = gridApi.grid;
+  const record = grid?.getCheckboxRecords?.().find((r: any) => r.id === ids[0])
+    ?? grid?.getTableData?.().fullData?.find((r: any) => r.id === ids[0]);
+  if (record) {
+    formDrawerApi.setData(record).open();
+  }
+}
+
+function onRefresh() {
+  gridApi.query();
+}
+
+function onCreate() {
+  formDrawerApi.setData({}).open();
+}
+
+async function handleImport(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const res = await userApi.importUsers(formData);
+    message.success(`导入完成：成功 ${res.successCount} 条，失败 ${res.failedCount} 条`);
+    if (res.errors?.length) {
+      Modal.warning({
+        title: '导入错误详情',
+        content: (() => {
+          const div = document.createElement('div');
+          res.errors.slice(0, 10).forEach((e) => {
+            const p = document.createElement('p');
+            p.textContent = `第 ${e.row} 行：${e.message}`;
+            div.appendChild(p);
+          });
+          if (res.errors.length > 10) {
+            const p = document.createElement('p');
+            p.textContent = `...还有 ${res.errors.length - 10} 条错误`;
+            div.appendChild(p);
+          }
+          return div;
+        }) as any,
+      });
+    }
+    onRefresh();
+  } catch {
+    // 错误已由请求拦截器提示
+  }
+  return false; // 阻止 Upload 自动上传
+}
+
+function handleExport() {
+  const params = new URLSearchParams();
+  if (selectedOrgId.value) {
+    params.append('orgIds', getDescendantKeys(selectedOrgId.value).join(','));
+  }
+  const qs = params.toString();
+  // 生成精确到微秒的时间戳：toISOString 精确到毫秒，再用 performance.now() 的小数部分补 3 位微秒
+  const now = new Date();
+  const ms = now.getMilliseconds().toString().padStart(3, '0');
+  const micro = Math.floor((performance.now() % 1) * 1000)
+    .toString()
+    .padStart(3, '0');
+  const ts = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}_${ms}${micro}`;
+  const a = document.createElement('a');
+  a.href = `/api/user/export${qs ? '?' + qs : ''}`;
+  a.download = `用户导出_${ts}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  message.success('导出已开始');
+}
+
+const [Grid, gridApi] = useVbenVxeGrid({
+  formOptions: {
+    schema: useGridFormSchema(),
+    submitOnChange: true,
+  },
+  gridEvents: {
+    checkboxChange() {
+      selectedRowIds.value = getSelectedIds();
+    },
+    checkboxAll() {
+      selectedRowIds.value = getSelectedIds();
+    },
+  },
+  gridOptions: {
+    columns: [
+      { type: 'checkbox', width: 50 },
+      ...(useColumns(onStatusChange) as any[]),
+    ],
+    height: 'auto',
+    keepSource: true,
+    showOverflow: true,
+    columnConfig: {
+      resizable: true,
+    },
+    proxyConfig: {
+      ajax: {
+        query: async ({ page }, formValues) => {
+          const fv = (formValues || {}) as {
+            account?: string;
+            phone?: string;
+            status?: number;
+          };
+          const res = await userApi.getUserList({
+            page: page.currentPage,
+            pageSize: page.pageSize,
+            keyword: fv.account || '',
+            status: fv.status,
+            orgIds: selectedOrgId.value
+              ? getDescendantKeys(selectedOrgId.value).join(',')
+              : undefined,
+          } as any);
+          return {
+            items: res.items.map((item) => {
+              const display = mapDtoToDisplay(item);
+              const orgName =
+                orgIdToName.value[String(item.orgId)] ?? display.org;
+              return {
+                ...item,
+                roleName: display.role,
+                orgName,
+              };
+            }),
+            total: res.total,
+          };
+        },
+      },
+    },
+    rowConfig: {
+      keyField: 'id',
+    },
+    pagerConfig: {
+      enabled: true,
+      pageSize: 10,
+      pageSizes: [10, 20, 50, 100],
+    },
+    toolbarConfig: {
+      custom: true,
+      export: false,
+      refresh: true,
+      search: true,
+      zoom: true,
+    },
+  } as VxeTableGridOptions<SystemUser>,
+});
+
+function getSelectedIds(): Array<number | string> {
+  const grid = gridApi.grid;
+  if (!grid) return [];
+  const records = grid.getCheckboxRecords?.() || [];
+  return records.map((r: any) => r.id);
+}
+
+async function loadOrgList() {
+  try {
+    const res = await orgApi.getTree();
+    orgList.value = res as any;
+    setOrgMapping(orgList.value);
+    expandedKeys.value = getAllKeys(orgList.value);
+  } catch {
+    orgList.value = [];
+  }
+}
+
+function onTreeExpand(keys: Array<number | string>) {
+  expandedKeys.value = keys;
+}
+
+function onTreeSelect(keys: Array<number | string>) {
+  selectedKeys.value = keys;
+  selectedOrgId.value = keys[0] ?? '';
+  gridApi.query();
+}
+
+watch(orgSearchText, () => {
+  if (orgSearchText.value) {
+    expandedKeys.value = getAllKeys(filteredOrgList.value);
+  } else {
+    expandedKeys.value = getAllKeys(orgList.value);
+  }
+});
+
+onMounted(async () => {
+  await loadOrgList();
+});
+</script>
 <template>
-  <div class="user-manage">
-    <!-- 操作栏 -->
-    <div class="toolbar">
-      <button class="btn btn-primary" @click="handleAddUser">
-        <span class="icon">➕</span> 新增用户
-      </button>
-      <!-- 修复：直接控制 showImportModal，移除不存在的 handleImportUser -->
-      <button class="btn btn-success" @click="showImportModal = true">
-        <span class="icon">📤</span> 批量导入
-      </button>
-      <button class="btn btn-danger" @click="handleBatchDelete">
-        <span class="icon">🗑️</span> 批量删除
-      </button>
-      <div class="search-box">
-        <input 
-          type="text" 
-          v-model="userSearch" 
-          placeholder="搜索用户名/姓名..." 
-          @keyup.enter="handleUserSearch"
-        />
-        <button class="btn btn-sm btn-primary" @click="handleUserSearch">搜索</button>
-      </div>
-    </div>
-
-    <!-- 用户表格 -->
-    <div class="table-wrapper">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th><input type="checkbox" @change="toggleSelectAll" :checked="isAllSelected" /></th>
-            <th>用户ID</th>
-            <th>用户名</th>
-            <th>姓名</th>
-            <th>角色</th>
-            <th>所属机构</th>
-            <th>手机号</th>
-            <th>邮箱</th>
-            <th>状态</th>
-            <th>最后登录</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- 优化：增加 || [] 兜底，防止 paginatedUsers 为 undefined 时页面白屏 -->
-          <tr v-for="user in (paginatedUsers || [])" :key="user.id">
-            <td><input type="checkbox" v-model="selectedIds" :value="user.id" /></td>
-            <td class="user-id">{{ user.id }}</td>
-            <td class="username">{{ user.username }}</td>
-            <td>{{ user.name }}</td>
-            <td><span class="role-tag" :class="user.roleClass">{{ user.role }}</span></td>
-            <td>{{ user.org }}</td>
-            <td>{{ user.phone }}</td>
-            <td>{{ user.email }}</td>
-            <td><span class="status-tag" :class="user.statusClass">{{ user.statusText }}</span></td>
-            <td>{{ user.lastLogin }}</td>
-            <td>
-              <div class="action-btns">
-                <button class="btn-icon edit" @click="handleEditUser(user)" title="编辑">✏️</button>
-                <button class="btn-icon reset" @click="handleResetPassword(user)" title="重置密码">🔑</button>
-                <button class="btn-icon delete" @click="handleDeleteUser(user)" title="删除">🗑️</button>
-              </div>
-            </td>
-          </tr>
-          <!-- 增加空数据提示 -->
-          <tr v-if="!paginatedUsers || paginatedUsers.length === 0">
-            <td colspan="11" style="text-align: center; padding: 40px 0; color: #999;">暂无数据</td>
-          </tr>
-        </tbody>
-      </table>
-      
-      <div class="table-pagination">
-        <!-- 核心修复：将 filteredUsers.length 改为 totalUsers (总条数) -->
-        <span>共 {{ totalUsers }} 条</span>
-        <div class="pagination-btns">
-          <button class="page-btn" @click="prevPage" :disabled="currentPage === 1">上一页</button>
-          <!-- 优化：增加 || [] 兜底 -->
-          <button 
-            v-for="page in (pageNumbers || [])" 
-            :key="page"
-            class="page-btn" 
-            :class="{ active: currentPage === page }"
-            @click="goToPage(page)"
+  <Page auto-content-height>
+    <FormDrawer @success="onRefresh" />
+    <div class="flex h-full gap-2">
+      <!-- 左侧组织列表 -->
+      <div class="w-56 shrink-0 rounded-md bg-card">
+        <div class="flex items-center justify-between border-b border-border px-3 py-2">
+          <span class="text-sm font-medium text-foreground">组织列表</span>
+          <Dropdown trigger="click">
+            <Button type="text" size="small" class="px-1" @click.prevent>
+              <IconifyIcon icon="lucide:more-vertical" class="size-4 text-foreground/60" />
+            </Button>
+            <template #overlay>
+              <Menu @click="onOrgMenuClick">
+                <Menu.Item key="expand">展开全部</Menu.Item>
+                <Menu.Item key="collapse">折叠全部</Menu.Item>
+              </Menu>
+            </template>
+          </Dropdown>
+        </div>
+        <div class="px-3 py-2">
+          <Input
+            v-model:value="orgSearchText"
+            placeholder="搜索组织"
+            allow-clear
+            size="small"
           >
-            {{ page }}
-          </button>
-          <button class="page-btn" @click="nextPage" :disabled="currentPage === totalPages">下一页</button>
+            <template #prefix>
+              <IconifyIcon icon="lucide:search" class="size-3.5 text-foreground/40" />
+            </template>
+          </Input>
         </div>
+        <div class="org-tree-wrap overflow-auto px-1 pb-2">
+          <ATree
+            :expanded-keys="expandedKeys"
+            :selected-keys="selectedKeys"
+            :tree-data="filteredOrgList"
+            :field-names="{ children: 'children', title: 'name', key: 'id' }"
+            block-node
+            @expand="onTreeExpand"
+            @select="onTreeSelect"
+          />
+        </div>
+      </div>
+
+      <!-- 右侧表格区 -->
+      <div class="min-w-0 flex-1 overflow-hidden">
+        <Grid table-title="账号列表">
+          <template #toolbar-tools>
+            <div class="flex items-center gap-2">
+              <Button type="primary" @click="onCreate">
+                <Plus class="mr-1 size-4" />
+                新增
+              </Button>
+              <Button
+                class="btn-success"
+                :disabled="!hasSingleSelection"
+                @click="onBatchEdit"
+              >
+                <IconifyIcon icon="lucide:pencil" class="mr-1 size-4" />
+                修改
+              </Button>
+              <Button
+                class="btn-danger-outline"
+                :disabled="!hasSelection"
+                @click="onBatchDelete"
+              >
+                <IconifyIcon icon="lucide:trash-2" class="mr-1 size-4" />
+                删除
+              </Button>
+              <Upload
+                :before-upload="handleImport"
+                accept=".xlsx,.xls,.csv"
+                :show-upload-list="false"
+              >
+                <Button>
+                  <IconifyIcon icon="lucide:upload" class="mr-1 size-4" />
+                  导入
+                </Button>
+              </Upload>
+              <Button @click="handleExport">
+                <IconifyIcon icon="lucide:download" class="mr-1 size-4" />
+                导出
+              </Button>
+            </div>
+          </template>
+          <template #action="{ row }">
+            <div class="flex items-center justify-center gap-1">
+              <Button
+                size="small"
+                type="link"
+                title="修改"
+                @click="onEdit(row)"
+              >
+                <IconifyIcon icon="lucide:pencil" class="size-4" />
+              </Button>
+              <Button
+                size="small"
+                type="link"
+                title="详情"
+                @click="onDetail(row)"
+              >
+                <IconifyIcon icon="lucide:eye" class="size-4" />
+              </Button>
+              <Button
+                size="small"
+                type="link"
+                danger
+                title="重置密码"
+                @click="onResetPassword(row)"
+              >
+                <IconifyIcon icon="lucide:key-round" class="size-4" />
+              </Button>
+              <Popconfirm
+                title="确认删除此用户?"
+                @confirm="onDelete(row)"
+              >
+                <Button
+                  size="small"
+                  type="link"
+                  danger
+                  title="删除"
+                >
+                  <IconifyIcon icon="lucide:trash-2" class="size-4" />
+                </Button>
+              </Popconfirm>
+            </div>
+          </template>
+        </Grid>
       </div>
     </div>
-
-    <!-- ===== 新增用户弹窗 ===== -->
-    <Modal v-model:open="showAddModal" title="新增用户" :footer="null" width="560px" @cancel="closeAddModal">
-      <div class="modal-form">
-        <div class="form-group">
-          <label class="form-label required">用户名</label>
-          <input v-model="addForm.username" type="text" placeholder="请输入用户名" class="form-input" />
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group half">
-            <label class="form-label required">姓名</label>
-            <input v-model="addForm.name" type="text" placeholder="请输入姓名" class="form-input" />
-          </div>
-          <div class="form-group half">
-            <label class="form-label required">用户性别</label>
-            <select v-model="addForm.gender" class="form-select">
-              <option value="">请选择性别</option>
-              <option value="male">男</option>
-              <option value="female">女</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label required">角色</label>
-          <select v-model="addForm.role" class="form-select">
-            <option value="">请选择角色</option>
-            <option value="国家管理员">国家管理员</option>
-            <option value="省级管理员">省级管理员</option>
-            <option value="市级管理员">市级管理员</option>
-            <option value="县级管理员">县级管理员</option>
-            <option value="学校管理员">学校管理员</option>
-            <option value="校医">校医</option>
-            <option value="班主任">班主任</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label required">所属机构</label>
-          <select v-model="addForm.org" class="form-select">
-            <option value="">请选择所属机构</option>
-            <option value="国家教育部">国家教育部</option>
-            <option value="江苏省教育厅">江苏省教育厅</option>
-            <option value="浙江省教育厅">浙江省教育厅</option>
-            <option value="南京市教育局">南京市教育局</option>
-            <option value="苏州市教育局">苏州市教育局</option>
-            <option value="鼓楼区教育局">鼓楼区教育局</option>
-            <option value="南京市第一中学">南京市第一中学</option>
-            <option value="南京市金陵中学">南京市金陵中学</option>
-          </select>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group half">
-            <label class="form-label required">手机号</label>
-            <input v-model="addForm.phone" type="text" placeholder="请输入手机号" class="form-input" />
-          </div>
-          <div class="form-group half">
-            <label class="form-label required">邮箱</label>
-            <input v-model="addForm.email" type="text" placeholder="请输入邮箱" class="form-input" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group half">
-            <label class="form-label required">用户密码</label>
-            <input v-model="addForm.password" type="password" placeholder="请输入初始密码" class="form-input" />
-          </div>
-          <div class="form-group half">
-            <label class="form-label required">状态</label>
-            <select v-model="addForm.status" class="form-select">
-              <option value="active">启用</option>
-              <option value="inactive">禁用</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button class="btn btn-default" @click="closeAddModal">取消</button>
-          <!-- 优化：增加 submitting 防重复点击 -->
-          <button class="btn btn-primary" @click="submitAddUser" :disabled="submitting">
-            {{ submitting ? '提交中...' : '确定' }}
-          </button>
-        </div>
-      </div>
-    </Modal>
-
-    <!-- ===== 编辑用户弹窗 ===== -->
-    <Modal v-model:open="showEditModal" title="编辑用户" :footer="null" width="560px" @cancel="closeEditModal">
-      <div class="modal-form">
-        <div class="form-group">
-          <label class="form-label">用户ID</label>
-          <input v-model="editForm.id" type="text" class="form-input" disabled />
-        </div>
-        <div class="form-group">
-          <label class="form-label required">用户名</label>
-          <input v-model="editForm.username" type="text" placeholder="请输入用户名" class="form-input" />
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group half">
-            <label class="form-label required">姓名</label>
-            <input v-model="editForm.name" type="text" placeholder="请输入姓名" class="form-input" />
-          </div>
-          <div class="form-group half">
-            <label class="form-label required">用户性别</label>
-            <select v-model="editForm.gender" class="form-select">
-              <option value="">请选择性别</option>
-              <option value="male">男</option>
-              <option value="female">女</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label required">角色</label>
-          <select v-model="editForm.role" class="form-select">
-            <option value="">请选择角色</option>
-            <option value="国家管理员">国家管理员</option>
-            <option value="省级管理员">省级管理员</option>
-            <option value="市级管理员">市级管理员</option>
-            <option value="县级管理员">县级管理员</option>
-            <option value="学校管理员">学校管理员</option>
-            <option value="校医">校医</option>
-            <option value="班主任">班主任</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label required">所属机构</label>
-          <select v-model="editForm.org" class="form-select">
-            <option value="">请选择所属机构</option>
-            <option value="国家教育部">国家教育部</option>
-            <option value="江苏省教育厅">江苏省教育厅</option>
-            <option value="浙江省教育厅">浙江省教育厅</option>
-            <option value="南京市教育局">南京市教育局</option>
-            <option value="苏州市教育局">苏州市教育局</option>
-            <option value="鼓楼区教育局">鼓楼区教育局</option>
-            <option value="南京市第一中学">南京市第一中学</option>
-            <option value="南京市金陵中学">南京市金陵中学</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <div class="form-group half">
-            <label class="form-label required">手机号</label>
-            <input v-model="editForm.phone" type="text" placeholder="请输入手机号" class="form-input" />
-          </div>
-          <div class="form-group half">
-            <label class="form-label required">邮箱</label>
-            <input v-model="editForm.email" type="text" placeholder="请输入邮箱" class="form-input" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label required">状态</label>
-          <select v-model="editForm.status" class="form-select">
-            <option value="active">启用</option>
-            <option value="inactive">禁用</option>
-          </select>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-default" @click="closeEditModal">取消</button>
-          <button class="btn btn-primary" @click="submitEditUser" :disabled="submitting">
-            {{ submitting ? '提交中...' : '确定' }}
-          </button>
-        </div>
-      </div>
-    </Modal>
-
-    <!-- ===== 批量导入弹窗 ===== -->
-    <Modal v-model:open="showImportModal" title="批量导入用户" :footer="null" width="560px" @cancel="closeImportModal">
-      <div class="import-content">
-        <div class="import-tip">
-          <div class="tip-icon">📋</div>
-          <div class="tip-text">
-            <p><strong>导入说明：</strong></p>
-            <p>1. 请下载导入模板，按照模板格式填写用户信息</p>
-            <p>2. 支持 .xlsx, .xls 格式文件</p>
-            <p>3. 文件大小不超过 5MB</p>
-          </div>
-        </div>
-        <div class="import-actions">
-          <button class="btn btn-info" @click="downloadTemplate">
-            <span class="icon">📥</span> 下载模板
-          </button>
-          <div class="upload-wrapper">
-            <input type="file" accept=".xlsx,.xls" @change="handleFileUpload" id="fileInput" style="display: none;" />
-            <label for="fileInput" class="btn btn-success">
-              <span class="icon">📤</span> 选择文件
-            </label>
-            <span v-if="uploadFileName" class="file-name">{{ uploadFileName }}</span>
-          </div>
-        </div>
-        <div class="import-actions">
-          <!-- 修复：将 !uploadFile 改为 !uploadFileName，因为 hook 中未暴露 uploadFile -->
-          <button class="btn btn-primary" @click="submitImport" :disabled="!uploadFileName || submitting">
-            {{ submitting ? '导入中...' : '✅ 导入' }}
-          </button>
-          <button class="btn btn-default" @click="closeImportModal">取消</button>
-        </div>
-      </div>
-    </Modal>
-  </div>
+  </Page>
 </template>
 
-<script setup lang="ts">
-import { Modal } from 'ant-design-vue';
-import { useUserManage } from './useUserManage';
+<style scoped>
+.org-tree-wrap {
+  max-height: calc(100vh - 280px);
+}
+.org-tree-wrap :deep(.ant-tree) {
+  background: transparent;
+  font-size: 13px;
+}
+.org-tree-wrap :deep(.ant-tree-node-content-wrapper) {
+  border-radius: 4px;
+  padding: 2px 6px !important;
+  transition: background-color 0.15s ease;
+}
+.org-tree-wrap :deep(.ant-tree-node-content-wrapper:hover) {
+  background-color: hsl(var(--muted) / 0.5);
+}
+.org-tree-wrap :deep(.ant-tree-node-selected .ant-tree-node-content-wrapper) {
+  background-color: hsl(var(--primary) / 0.12) !important;
+  color: hsl(var(--primary));
+  font-weight: 500;
+}
+.org-tree-wrap :deep(.ant-tree-switcher) {
+  cursor: pointer;
+}
+.org-tree-wrap :deep(.ant-tree-switcher-close),
+.org-tree-wrap :deep(.ant-tree-switcher-open) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-success {
+  color: #52c41a;
+  border-color: #b7eb8f;
+  background: #f6ffed;
+}
+.btn-success:hover,
+.btn-success:focus {
+  color: #389e0d;
+  border-color: #52c41a;
+  background: #d9f7be;
+}
+.btn-success:disabled {
+  color: rgba(0, 0, 0, 0.25);
+  border-color: #d9d9d9;
+  background: #f5f5f5;
+}
+.btn-danger-outline {
+  color: #ff4d4f;
+  border-color: #ffa39e;
+  background: #fff1f0;
+}
+.btn-danger-outline:hover,
+.btn-danger-outline:focus {
+  color: #cf1322;
+  border-color: #ff4d4f;
+  background: #ffccc7;
+}
+.btn-danger-outline:disabled {
+  color: rgba(0, 0, 0, 0.25);
+  border-color: #d9d9d9;
+  background: #f5f5f5;
+}
 
-// 重新对齐解构变量，确保与 useUserManage.ts 完全一致，移除不存在的变量
-const {
-  // 状态
-  userSearch, selectedIds, currentPage, totalUsers, loading, submitting,
-  showAddModal, showEditModal, showImportModal, uploadFileName,
-  // 数据与表单
-  addForm, editForm, isAllSelected, paginatedUsers, pageNumbers, totalPages,
-  // 核心方法
-  goToPage, handleUserSearch, handleAddUser, submitAddUser,
-  handleEditUser, submitEditUser, handleDeleteUser, handleBatchDelete,
-  handleResetPassword, handleFileUpload, submitImport, toggleSelectAll,
-  // 弹窗控制
-  closeAddModal, closeEditModal, closeImportModal,
-  // 其他
-  downloadTemplate, prevPage, nextPage
-} = useUserManage();
-</script>
+/* ========== 分页样式优化 ========== */
+.grid-container :deep(.vxe-pager) {
+  background: #1f2937;
+  border-radius: 0 0 6px 6px;
+  padding: 6px 12px;
+  min-height: 36px;
+  font-size: 13px;
+}
 
-<style scoped src="./UserManage.css"></style>
+.grid-container :deep(.vxe-pager .vxe-pager--total) {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  margin-right: 8px;
+}
+
+.grid-container :deep(.vxe-pager .vxe-pager--btn) {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  min-width: 28px;
+  height: 28px;
+  margin: 0 2px;
+  border-radius: 4px;
+  padding: 0 6px;
+}
+.grid-container :deep(.vxe-pager .vxe-pager--btn:hover) {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+.grid-container :deep(.vxe-pager .vxe-pager--btn.is--active) {
+  color: #fff;
+  background: #3b82f6;
+  font-weight: 600;
+}
+.grid-container :deep(.vxe-pager .vxe-pager--btn.is--disabled) {
+  color: rgba(255, 255, 255, 0.25);
+  cursor: not-allowed;
+  background: transparent;
+}
+
+.grid-container :deep(.vxe-pager .vxe-pager--sizes) {
+  margin: 0 8px;
+}
+.grid-container :deep(.vxe-pager .vxe-pager--sizes select),
+.grid-container :deep(.vxe-pager .vxe-pager--jump input) {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 13px;
+  padding: 2px 6px;
+  height: 28px;
+}
+.grid-container :deep(.vxe-pager .vxe-pager--sizes select:focus),
+.grid-container :deep(.vxe-pager .vxe-pager--jump input:focus) {
+  outline: none;
+  border-color: #3b82f6;
+}
+.grid-container :deep(.vxe-pager .vxe-pager--jump) {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.grid-container :deep(.vxe-pager .vxe-pager--jump input) {
+  width: 48px;
+  text-align: center;
+}
+</style>

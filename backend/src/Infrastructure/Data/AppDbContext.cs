@@ -148,7 +148,7 @@ public partial class AppDbContext : DbContext, IApplicationDbContext
                 .IsRequired()
                 .HasMaxLength(50);
             entity.Property(m => m.Code).HasColumnName("code").HasMaxLength(50);
-            entity.Property(m => m.Icon).HasColumnName("icon").HasMaxLength(20);
+            entity.Property(m => m.Icon).HasColumnName("icon").HasMaxLength(50);
             entity.Property(m => m.Type).HasColumnName("type");
             entity.Property(m => m.ParentId).HasColumnName("parent_id");
             entity.Property(m => m.Sort).HasColumnName("sort");
@@ -156,42 +156,45 @@ public partial class AppDbContext : DbContext, IApplicationDbContext
             entity.Property(m => m.Path).HasColumnName("path").HasMaxLength(200);
             entity.Property(m => m.Component).HasColumnName("component").HasMaxLength(200);
             entity.Property(m => m.Permission).HasColumnName("permission").HasMaxLength(100);
+            entity.Property(m => m.IsExternal).HasColumnName("is_external").HasDefaultValue(0);
+            entity.Property(m => m.RouteParams).HasColumnName("route_params").HasMaxLength(500);
+            entity.Property(m => m.IsKeepAlive).HasColumnName("is_keep_alive").HasDefaultValue(1);
+            entity.Property(m => m.IsVisible).HasColumnName("is_visible").HasDefaultValue(1);
+            entity.Property(m => m.Remark).HasColumnName("remark").HasMaxLength(500);
             entity.Property(m => m.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
             entity.Property(m => m.UpdatedAt).HasColumnName("updated_at");
 
             entity.ToTable("sys_menu");
 
             entity.HasData(
-                // 一级目录
-                new { Id = 1L, Name = "数据查看权限", Code = "DATA_VIEW", Icon = "📊", Type = 1, ParentId = (long?)null, Sort = 1, Status = 1 },
-                new { Id = 7L, Name = "数据操作权限", Code = "DATA_OPERATE", Icon = "📝", Type = 1, ParentId = (long?)null, Sort = 2, Status = 1 },
-                new { Id = 13L, Name = "报表权限", Code = "REPORT", Icon = "📋", Type = 1, ParentId = (long?)null, Sort = 3, Status = 1 },
-                new { Id = 16L, Name = "预警权限", Code = "ALERT", Icon = "🔔", Type = 1, ParentId = (long?)null, Sort = 4, Status = 1 },
-                new { Id = 19L, Name = "系统管理权限", Code = "SYSTEM", Icon = "⚙️", Type = 1, ParentId = (long?)null, Sort = 5, Status = 1 },
-                // 数据查看
-                new { Id = 2L, Name = "查看全国数据", Code = "VIEW_NATIONAL", Icon = (string?)null, Type = 2, ParentId = 1L, Sort = 1, Status = 1 },
-                new { Id = 3L, Name = "查看省级数据", Code = "VIEW_PROVINCE", Icon = (string?)null, Type = 2, ParentId = 1L, Sort = 2, Status = 1 },
-                new { Id = 4L, Name = "查看市级数据", Code = "VIEW_CITY", Icon = (string?)null, Type = 2, ParentId = 1L, Sort = 3, Status = 1 },
-                new { Id = 5L, Name = "查看县级数据", Code = "VIEW_DISTRICT", Icon = (string?)null, Type = 2, ParentId = 1L, Sort = 4, Status = 1 },
-                new { Id = 6L, Name = "查看校级数据", Code = "VIEW_SCHOOL", Icon = (string?)null, Type = 2, ParentId = 1L, Sort = 5, Status = 1 },
-                // 数据操作
-                new { Id = 8L, Name = "新增数据", Code = "DATA_ADD", Icon = (string?)null, Type = 2, ParentId = 7L, Sort = 1, Status = 1 },
-                new { Id = 9L, Name = "编辑数据", Code = "DATA_EDIT", Icon = (string?)null, Type = 2, ParentId = 7L, Sort = 2, Status = 1 },
-                new { Id = 10L, Name = "删除数据", Code = "DATA_DELETE", Icon = (string?)null, Type = 2, ParentId = 7L, Sort = 3, Status = 1 },
-                new { Id = 11L, Name = "审核数据", Code = "DATA_AUDIT", Icon = (string?)null, Type = 2, ParentId = 7L, Sort = 4, Status = 1 },
-                new { Id = 12L, Name = "导入导出", Code = "DATA_IMPORT_EXPORT", Icon = (string?)null, Type = 2, ParentId = 7L, Sort = 5, Status = 1 },
-                // 报表
-                new { Id = 14L, Name = "生成报表", Code = "REPORT_GENERATE", Icon = (string?)null, Type = 2, ParentId = 13L, Sort = 1, Status = 1 },
-                new { Id = 15L, Name = "导出报表", Code = "REPORT_EXPORT", Icon = (string?)null, Type = 2, ParentId = 13L, Sort = 2, Status = 1 },
-                // 预警
-                new { Id = 17L, Name = "查看预警", Code = "ALERT_VIEW", Icon = (string?)null, Type = 2, ParentId = 16L, Sort = 1, Status = 1 },
-                new { Id = 18L, Name = "发布预警", Code = "ALERT_PUBLISH", Icon = (string?)null, Type = 2, ParentId = 16L, Sort = 2, Status = 1 },
-                // 系统管理
-                new { Id = 20L, Name = "用户管理", Code = "SYS_USER", Icon = (string?)null, Type = 2, ParentId = 19L, Sort = 1, Status = 1 },
-                new { Id = 21L, Name = "角色管理", Code = "SYS_ROLE", Icon = (string?)null, Type = 2, ParentId = 19L, Sort = 2, Status = 1 },
-                new { Id = 22L, Name = "组织管理", Code = "SYS_ORG", Icon = (string?)null, Type = 2, ParentId = 19L, Sort = 3, Status = 1 },
-                new { Id = 23L, Name = "字典管理", Code = "SYS_DICT", Icon = (string?)null, Type = 2, ParentId = 19L, Sort = 4, Status = 1 },
-                new { Id = 24L, Name = "日志查看", Code = "SYS_LOG", Icon = (string?)null, Type = 2, ParentId = 19L, Sort = 5, Status = 1 }
+                // 系统管理 - 一级目录
+                new { Id = 1L, Name = "系统管理", Code = "SYSTEM", Icon = "settings", Type = 1, ParentId = (long?)null, Sort = 1, Status = 1, IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                // 系统管理子菜单
+                new { Id = 2L, Name = "用户管理", Code = "system:user", Icon = "user", Type = 2, ParentId = 1L, Sort = 1, Status = 1, Path = "/system/user", Component = "system/user/index", Permission = "system:user:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                new { Id = 3L, Name = "角色管理", Code = "system:role", Icon = "team", Type = 2, ParentId = 1L, Sort = 2, Status = 1, Path = "/system/role", Component = "system/role/index", Permission = "system:role:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                new { Id = 4L, Name = "菜单管理", Code = "system:menu", Icon = "menu", Type = 2, ParentId = 1L, Sort = 3, Status = 1, Path = "/system/menu", Component = "system/menu/index", Permission = "system:menu:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                new { Id = 5L, Name = "部门管理", Code = "system:dept", Icon = "apartment", Type = 2, ParentId = 1L, Sort = 4, Status = 1, Path = "/system/dept", Component = "system/dept/index", Permission = "system:dept:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                new { Id = 6L, Name = "岗位管理", Code = "system:post", Icon = "idcard", Type = 2, ParentId = 1L, Sort = 5, Status = 1, Path = "/system/post", Component = "system/post/index", Permission = "system:post:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                new { Id = 7L, Name = "字典管理", Code = "system:dict", Icon = "book", Type = 2, ParentId = 1L, Sort = 6, Status = 1, Path = "/system/dict", Component = "system/dict/index", Permission = "system:dict:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                new { Id = 8L, Name = "参数设置", Code = "system:config", Icon = "setting", Type = 2, ParentId = 1L, Sort = 7, Status = 1, Path = "/system/config", Component = "system/config/index", Permission = "system:config:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                new { Id = 9L, Name = "通知公告", Code = "system:notice", Icon = "notification", Type = 2, ParentId = 1L, Sort = 8, Status = 1, Path = "/system/notice", Component = "system/notice/index", Permission = "system:notice:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                new { Id = 10L, Name = "日志管理", Code = "system:log", Icon = "file-text", Type = 2, ParentId = 1L, Sort = 9, Status = 1, Path = "/system/log", Component = "system/log/index", Permission = "system:log:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                // 系统监控 - 一级目录
+                new { Id = 11L, Name = "系统监控", Code = "MONITOR", Icon = "dashboard", Type = 1, ParentId = (long?)null, Sort = 2, Status = 1, IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                new { Id = 12L, Name = "在线用户", Code = "monitor:online", Icon = "user", Type = 2, ParentId = 11L, Sort = 1, Status = 1, Path = "/monitor/online", Component = "monitor/online/index", Permission = "monitor:online:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                // 系统工具 - 一级目录
+                new { Id = 13L, Name = "系统工具", Code = "TOOLS", Icon = "tool", Type = 1, ParentId = (long?)null, Sort = 3, Status = 1, IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                new { Id = 14L, Name = "表单构建", Code = "tools:form", Icon = "form", Type = 2, ParentId = 13L, Sort = 1, Status = 1, Path = "/tools/form", Component = "tools/form/index", Permission = "tools:form:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                // 数据查看 - 一级目录
+                new { Id = 15L, Name = "数据管理", Code = "DATA", Icon = "database", Type = 1, ParentId = (long?)null, Sort = 4, Status = 1, IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                new { Id = 16L, Name = "大屏管理", Code = "screen", Icon = "fullscreen", Type = 2, ParentId = 15L, Sort = 1, Status = 1, Path = "/screen", Component = "screen/index", Permission = "screen:list", IsExternal = 0, IsKeepAlive = 1, IsVisible = 1 },
+                // 系统管理按钮权限
+                new { Id = 100L, Name = "用户新增", Code = "", Type = 3, ParentId = 2L, Sort = 1, Status = 1, Permission = "system:user:add", IsExternal = 0, IsKeepAlive = 0, IsVisible = 1 },
+                new { Id = 101L, Name = "用户修改", Code = "", Type = 3, ParentId = 2L, Sort = 2, Status = 1, Permission = "system:user:edit", IsExternal = 0, IsKeepAlive = 0, IsVisible = 1 },
+                new { Id = 102L, Name = "用户删除", Code = "", Type = 3, ParentId = 2L, Sort = 3, Status = 1, Permission = "system:user:delete", IsExternal = 0, IsKeepAlive = 0, IsVisible = 1 },
+                new { Id = 103L, Name = "角色新增", Code = "", Type = 3, ParentId = 3L, Sort = 1, Status = 1, Permission = "system:role:add", IsExternal = 0, IsKeepAlive = 0, IsVisible = 1 },
+                new { Id = 104L, Name = "角色修改", Code = "", Type = 3, ParentId = 3L, Sort = 2, Status = 1, Permission = "system:role:edit", IsExternal = 0, IsKeepAlive = 0, IsVisible = 1 },
+                new { Id = 105L, Name = "角色删除", Code = "", Type = 3, ParentId = 3L, Sort = 3, Status = 1, Permission = "system:role:delete", IsExternal = 0, IsKeepAlive = 0, IsVisible = 1 }
             );
         });
 

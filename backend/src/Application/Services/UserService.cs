@@ -39,13 +39,28 @@ public class UserService : IUserService
     }
 
     // 新增分页查询方法
-    public async Task<(List<UserDto> Items, int Total)> GetPagedUsersAsync(int page, int pageSize, string? keyword)
+    public async Task<(List<UserDto> Items, int Total)> GetPagedUsersAsync(int page, int pageSize, string? keyword, string? orgIds = null)
     {
         var query = _context.Users.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             query = query.Where(u => u.Username.Contains(keyword) || u.RealName.Contains(keyword));
+        }
+
+        if (!string.IsNullOrWhiteSpace(orgIds))
+        {
+            var idList = new List<long>();
+            foreach (var s in orgIds.Split(','))
+            {
+                if (long.TryParse(s.Trim(), out var id))
+                    idList.Add(id);
+            }
+
+            if (idList.Count > 0)
+            {
+                query = query.Where(u => idList.Contains(u.OrgId));
+            }
         }
 
         var total = await query.CountAsync();
@@ -69,6 +84,47 @@ public class UserService : IUserService
             .ToListAsync();
 
         return (items, total);
+    }
+
+    public async Task<List<UserDto>> ExportUsersAsync(string? keyword = null, string? orgIds = null)
+    {
+        var query = _context.Users.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            query = query.Where(u => u.Username.Contains(keyword) || u.RealName.Contains(keyword));
+        }
+
+        if (!string.IsNullOrWhiteSpace(orgIds))
+        {
+            var idList = new List<long>();
+            foreach (var s in orgIds.Split(','))
+            {
+                if (long.TryParse(s.Trim(), out var id))
+                    idList.Add(id);
+            }
+
+            if (idList.Count > 0)
+            {
+                query = query.Where(u => idList.Contains(u.OrgId));
+            }
+        }
+
+        return await query
+            .OrderByDescending(u => u.Id)
+            .Select(u => new UserDto
+            {
+                Id = u.Id,
+                Username = u.Username,
+                RealName = u.RealName,
+                Gender = u.Gender,
+                RoleId = u.RoleId,
+                OrgId = u.OrgId,
+                PhoneNumber = u.PhoneNumber,
+                Email = u.Email,
+                Status = u.Status
+            })
+            .ToListAsync();
     }
 
     public async Task<UserDto> CreateUserAsync(UserDto userDto)

@@ -23,12 +23,12 @@ const routes: RouteRecordRaw[] = [
       },
       
       {
-        name: 'VisionPermission',
-        path: '/vision-system/permission',
-        component: () => import('#/views/vision-archive/system/permission/index.vue'),
+        name: 'VisionRole',
+        path: '/vision-system/role',
+        component: () => import('#/views/vision-archive/system/role/index.vue'),
         meta: {
           icon: 'lucide:lock',
-          title: '权限管理',
+          title: '角色管理',
         },
       },
       {

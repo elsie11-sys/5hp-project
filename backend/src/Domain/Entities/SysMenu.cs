@@ -27,9 +27,9 @@ public class SysMenu
     public string? Code { get; set; }
 
     /// <summary>
-    /// 图标（emoji）
+    /// 图标
     /// </summary>
-    [MaxLength(20)]
+    [MaxLength(50)]
     public string? Icon { get; set; }
 
     /// <summary>
@@ -48,7 +48,7 @@ public class SysMenu
     public int Sort { get; set; }
 
     /// <summary>
-    /// 状态（1:启用 0:停用）
+    /// 状态（1:正常 0:停用）
     /// </summary>
     public int Status { get; set; } = 1;
 
@@ -69,6 +69,33 @@ public class SysMenu
     /// </summary>
     [MaxLength(100)]
     public string? Permission { get; set; }
+
+    /// <summary>
+    /// 是否外链（0:否 1:是）
+    /// </summary>
+    public int IsExternal { get; set; } = 0;
+
+    /// <summary>
+    /// 路由参数（JSON格式）
+    /// </summary>
+    [MaxLength(500)]
+    public string? RouteParams { get; set; }
+
+    /// <summary>
+    /// 是否缓存（0:不缓存 1:缓存）
+    /// </summary>
+    public int IsKeepAlive { get; set; } = 1;
+
+    /// <summary>
+    /// 显示状态（0:隐藏 1:显示）
+    /// </summary>
+    public int IsVisible { get; set; } = 1;
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    [MaxLength(500)]
+    public string? Remark { get; set; }
 
     /// <summary>
     /// 创建时间

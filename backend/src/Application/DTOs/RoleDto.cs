@@ -75,6 +75,11 @@ public class MenuDto
     public string? Path { get; set; }
     public string? Component { get; set; }
     public string? Permission { get; set; }
+    public int IsExternal { get; set; }
+    public string? RouteParams { get; set; }
+    public int IsKeepAlive { get; set; }
+    public int IsVisible { get; set; }
+    public string? Remark { get; set; }
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public List<MenuDto>? Children { get; set; }
@@ -96,6 +101,20 @@ public class MenuForm
     public string? Path { get; set; }
     public string? Component { get; set; }
     public string? Permission { get; set; }
+    public int IsExternal { get; set; } = 0;
+    public string? RouteParams { get; set; }
+    public int IsKeepAlive { get; set; } = 1;
+    public int IsVisible { get; set; } = 1;
+    public string? Remark { get; set; }
+}
+
+/// <summary>
+/// 菜单查询参数
+/// </summary>
+public class MenuQuery
+{
+    public string? Name { get; set; }
+    public int? Status { get; set; }
 }
 
 /// <summary>
