@@ -2,6 +2,7 @@
   <div class="app-root" :class="{ 'theme-light': isLight }">
     <!-- 背景 -->
     <div class="bg-decor" aria-hidden="true">
+      <img class="school-bg-img" :src="schoolImage" alt="" @error="onImageError" />
       <div class="bg-grid"></div>
       <div class="bg-glow bg-glow-1"></div>
       <div class="bg-glow bg-glow-2"></div>
@@ -59,111 +60,60 @@
 
     <main class="school-body">
       <aside class="left-col">
-        <section class="tech-panel">
+        <section class="tech-panel excellent-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">学校概览</span>
-            <span class="panel-tag">{{ schoolLevel }}</span>
+            <span class="panel-title">优秀榜</span>
           </header>
           <div class="tech-panel-body">
-            <div class="school-info">
-              <div class="info-avatar">
-                <span class="avatar-icon">🏫</span>
-              </div>
-              <div class="info-detail">
-                <div class="info-name">{{ schoolName }}</div>
-                <div class="info-code">编码：{{ routeCode }}</div>
-                <div class="info-meta">
-                  <span>👨‍🎓 {{ schoolData.students }}人</span>
-                  <span>🏛️ {{ schoolData.classes }}个班级</span>
-                  <span>📚 {{ schoolData.grades }}个年级</span>
-                </div>
-              </div>
-            </div>
-            <div class="divider"></div>
-            <div class="teacher-row">
-              <div class="teacher-item">
-                <span class="teacher-avatar">👩‍🏫</span>
-                <span class="teacher-name">健康教师</span>
-                <span class="teacher-count">{{ schoolData.teachers }}人</span>
-              </div>
-              <div class="teacher-item">
-                <span class="teacher-avatar">👨‍⚕️</span>
-                <span class="teacher-name">校医</span>
-                <span class="teacher-count">{{ schoolData.doctors }}人</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="tech-panel">
-          <header class="tech-panel-header">
-            <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentMetric.name }}核心指标</span>
-            <span class="panel-tag">{{ currentMetric.name }}专题</span>
-          </header>
-          <div class="tech-panel-body">
-            <div class="kpi-grid">
-              <div class="kpi-row-large">
-                <div class="kpi-card-lg">
-                  <div class="kpi-card-deco"></div>
-                  <div class="kpi-card-hex"><span></span><span></span><span></span></div>
-                  <div class="kpi-lg-label">{{ currentMetric.name }}率</div>
-                  <div class="kpi-lg-value">
-                    <span class="num">{{ schoolData.rate }}</span><span class="unit">%</span>
-                  </div>
-                  <div :class="['kpi-lg-trend', schoolData.trend > 0 ? 'up' : 'down']">
-                    <span class="trend-arrow">{{ schoolData.trend > 0 ? '▲' : '▼' }}</span>
-                    {{ Math.abs(schoolData.trend) }}% 同比
+            <div class="excellent-card" v-if="currentExcellent">
+              <div class="excellent-card-avatar">
+                <div class="hex-ring">
+                  <div class="hex-inner">
+                    <span class="hex-icon">{{ currentExcellent.avatar }}</span>
                   </div>
                 </div>
-                <div class="kpi-card-lg">
-                  <div class="kpi-card-deco"></div>
-                  <div class="kpi-card-hex"><span></span><span></span><span></span></div>
-                  <div class="kpi-lg-label">全区{{ currentMetric.name }}率</div>
-                  <div class="kpi-lg-value">
-                    <span class="num">{{ schoolData.districtRate }}</span><span class="unit">%</span>
-                  </div>
-                  <div :class="['kpi-lg-trend', schoolData.rate > schoolData.districtRate ? 'up' : 'down']">
-                    <span class="trend-arrow">{{ schoolData.rate > schoolData.districtRate ? '▲' : '▼' }}</span>
-                    高于全区 {{ Math.abs(Math.round((schoolData.rate - schoolData.districtRate) * 10) / 10) }}%
-                  </div>
-                </div>
+                <div class="avatar-glow"></div>
               </div>
-              <div class="kpi-row-gender">
-                <div class="gender-item male">
-                  <span class="gender-icon">♂</span>
-                  <div class="gender-info">
-                    <span class="gender-label">男生{{ currentMetric.name }}率</span>
-                    <span class="gender-value">{{ schoolData.maleRate }}%</span>
-                  </div>
-                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: schoolData.maleRate + '%' }"></div></div>
-                </div>
-                <div class="gender-item female">
-                  <span class="gender-icon">♀</span>
-                  <div class="gender-info">
-                    <span class="gender-label">女生{{ currentMetric.name }}率</span>
-                    <span class="gender-value">{{ schoolData.femaleRate }}%</span>
-                  </div>
-                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: schoolData.femaleRate + '%' }"></div></div>
-                </div>
+              <div class="excellent-card-info">
+                <div class="excellent-card-name">{{ currentExcellent.name }} · {{ currentExcellent.class }}</div>
+                <table class="excellent-detail-table">
+                  <thead>
+                    <tr v-if="activeTab === 'vision'">
+                      <th></th><th>左眼</th><th>右眼</th><th>双眼</th>
+                    </tr>
+                    <tr v-else-if="activeTab === 'oral'">
+                      <th></th><th>龋齿</th><th>牙周</th><th>总计</th>
+                    </tr>
+                    <tr v-else-if="activeTab === 'mental'">
+                      <th></th><th>心理</th><th>预警</th><th>评分</th>
+                    </tr>
+                    <tr v-else-if="activeTab === 'weight'">
+                      <th></th><th>BMI</th><th>状态</th><th>变化</th>
+                    </tr>
+                    <tr v-else>
+                      <th></th><th>骨密度</th><th>等级</th><th>趋势</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="label-cell">第一次</td>
+                      <td>{{ currentExcellent.firstCheck.v1 }}</td>
+                      <td>{{ currentExcellent.firstCheck.v2 }}</td>
+                      <td>{{ currentExcellent.firstCheck.v3 }}</td>
+                    </tr>
+                    <tr>
+                      <td class="label-cell">第二次</td>
+                      <td>{{ currentExcellent.secondCheck.v1 }}</td>
+                      <td>{{ currentExcellent.secondCheck.v2 }}</td>
+                      <td>{{ currentExcellent.secondCheck.v3 }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-              <div class="kpi-row-small">
-                <div class="kpi-card-sm">
-                  <div class="kpi-sm-label">应测人数</div>
-                  <div class="kpi-sm-value">{{ schoolData.shouldTest }}</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: schoolData.testCoverage + '%' }"></div></div>
-                </div>
-                <div class="kpi-card-sm">
-                  <div class="kpi-sm-label">已测人数</div>
-                  <div class="kpi-sm-value">{{ schoolData.tested }}</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: schoolData.testCoverage + '%' }"></div></div>
-                </div>
-                <div class="kpi-card-sm">
-                  <div class="kpi-sm-label">覆盖率</div>
-                  <div class="kpi-sm-value">{{ schoolData.testCoverage }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: schoolData.testCoverage + '%' }"></div></div>
-                </div>
+              <div class="excellent-card-pager">
+                <div v-for="(_, i) in excellentList" :key="i" 
+                     :class="['pager-dot', { active: i === currentIndex }]"></div>
               </div>
             </div>
           </div>
@@ -172,26 +122,21 @@
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">班级{{ currentMetric.name }}率排名</span>
-            <span class="panel-tag">TOP {{ Math.min(10, classList.length) }}</span>
+            <span class="panel-title">{{ currentMetric.name }}率年级分布</span>
+            <span class="panel-tag">{{ currentMetric.name }}人数</span>
           </header>
-          <div class="tech-panel-body">
-            <div ref="classRankingRef" class="chart-area"></div>
+          <div class="tech-panel-body chart-body">
+            <div ref="gradeChartRef" class="chart-area"></div>
           </div>
         </section>
 
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">预警提醒</span>
+            <span class="panel-title">{{ currentMetric.name }}人群分档</span>
           </header>
-          <div class="tech-panel-body">
-            <div class="alert-list">
-              <div v-for="(alert, i) in alertList" :key="i" :class="['alert-item', alert.level]">
-                <span class="alert-icon">{{ alert.icon }}</span>
-                <span class="alert-msg">{{ alert.message }}</span>
-              </div>
-            </div>
+          <div class="tech-panel-body chart-body">
+            <div ref="visionGradeRef" class="chart-area"></div>
           </div>
         </section>
       </aside>
@@ -206,14 +151,65 @@
           </div>
         </div>
 
-        <section class="tech-panel main-chart-panel">
+        <section class="tech-panel school-info-panel" 
+                 @mouseenter="showSchoolInfo = true" 
+                 @mouseleave="showSchoolInfo = false">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentMetric.name }}年级分布</span>
-            <span class="panel-tag">全校 {{ currentMetric.name }}专题</span>
+            <span class="panel-title">{{ schoolName }}</span>
+            <span class="panel-tag">{{ schoolLevel }}</span>
           </header>
-          <div class="tech-panel-body chart-body">
-            <div ref="gradeChartRef" class="chart-area"></div>
+          <div class="tech-panel-body school-info-body">
+            <div class="school-info-default" v-if="!showSchoolInfo">
+              <div class="info-hint-banner">
+                <span class="hint-icon">ⓘ</span>
+                <span>悬停查看学校详细数据</span>
+              </div>
+            </div>
+            <div class="school-info-detail" v-else>
+              <div class="hero-kpi-row">
+                <div class="hero-kpi-card">
+                  <div class="hero-kpi-icon">👨‍🎓</div>
+                  <div class="hero-kpi-content">
+                    <div class="hero-kpi-value">{{ schoolData.students }}</div>
+                    <div class="hero-kpi-label">学生总数</div>
+                  </div>
+                </div>
+                <div class="hero-kpi-card">
+                  <div class="hero-kpi-icon">🏛️</div>
+                  <div class="hero-kpi-content">
+                    <div class="hero-kpi-value">{{ schoolData.classes }}</div>
+                    <div class="hero-kpi-label">班级总数</div>
+                  </div>
+                </div>
+                <div class="hero-kpi-card">
+                  <div class="hero-kpi-icon">📚</div>
+                  <div class="hero-kpi-content">
+                    <div class="hero-kpi-value">{{ schoolData.grades }}</div>
+                    <div class="hero-kpi-label">年级总数</div>
+                  </div>
+                </div>
+                <div class="hero-kpi-card highlight">
+                  <div class="hero-kpi-icon">🎯</div>
+                  <div class="hero-kpi-content">
+                    <div class="hero-kpi-value">{{ schoolData.rate }}%</div>
+                    <div class="hero-kpi-label">{{ currentMetric.name }}率</div>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-teacher-row">
+                <div class="teacher-item">
+                  <span class="teacher-avatar">👩‍🏫</span>
+                  <span class="teacher-name">健康教师</span>
+                  <span class="teacher-count">{{ schoolData.teachers }}人</span>
+                </div>
+                <div class="teacher-item">
+                  <span class="teacher-avatar">👨‍⚕️</span>
+                  <span class="teacher-name">校医</span>
+                  <span class="teacher-count">{{ schoolData.doctors }}人</span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -232,12 +228,14 @@
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentMetric.name }}率与区域对比</span>
+            <span class="panel-title">预警提醒</span>
           </header>
           <div class="tech-panel-body">
-            <div class="gauge-row">
-              <div ref="schoolGaugeRef" class="gauge-item"></div>
-              <div ref="districtGaugeRef" class="gauge-item"></div>
+            <div class="alert-list">
+              <div v-for="(alert, i) in alertList" :key="i" :class="['alert-item', alert.level]">
+                <span class="alert-icon">{{ alert.icon }}</span>
+                <span class="alert-msg">{{ alert.message }}</span>
+              </div>
             </div>
           </div>
         </section>
@@ -245,20 +243,58 @@
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentMetric.name }}率性别年级对比</span>
+            <span class="panel-title">{{ currentMetric.name }}数据列表</span>
           </header>
           <div class="tech-panel-body">
-            <div ref="genderGradeChartRef" class="chart-area"></div>
+            <table class="data-table">
+              <thead>
+                <tr v-if="activeTab === 'vision'">
+                  <th>姓名</th><th>左眼</th><th>右眼</th><th>班级</th><th>检测日期</th>
+                </tr>
+                <tr v-else-if="activeTab === 'oral'">
+                  <th>姓名</th><th>龋齿数</th><th>牙周</th><th>班级</th><th>检测日期</th>
+                </tr>
+                <tr v-else-if="activeTab === 'mental'">
+                  <th>姓名</th><th>心理状态</th><th>预警等级</th><th>班级</th><th>检测日期</th>
+                </tr>
+                <tr v-else-if="activeTab === 'weight'">
+                  <th>姓名</th><th>BMI</th><th>体重状态</th><th>班级</th><th>检测日期</th>
+                </tr>
+                <tr v-else>
+                  <th>姓名</th><th>骨密度</th><th>发育等级</th><th>班级</th><th>检测日期</th>
+                </tr>
+              </thead>
+            </table>
+            <div class="table-scroll-wrapper">
+              <table class="data-table scroll-table">
+                <tbody>
+                  <tr v-for="(item, i) in tabDataList" :key="'a'+i">
+                    <td>{{ item.name }}</td>
+                    <td :class="item.status1">{{ item.value1 }}</td>
+                    <td :class="item.status2">{{ item.value2 }}</td>
+                    <td>{{ item.class }}</td>
+                    <td>{{ item.date }}</td>
+                  </tr>
+                  <tr v-for="(item, i) in tabDataList" :key="'b'+i">
+                    <td>{{ item.name }}</td>
+                    <td :class="item.status1">{{ item.value1 }}</td>
+                    <td :class="item.status2">{{ item.value2 }}</td>
+                    <td>{{ item.class }}</td>
+                    <td>{{ item.date }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentMetric.name }}防控措施效果</span>
+            <span class="panel-title">防控效果评估</span>
           </header>
-          <div class="tech-panel-body">
-            <div ref="interventionChartRef" class="chart-area"></div>
+          <div class="tech-panel-body chart-body">
+            <div ref="preventionEffectRef" class="chart-area"></div>
           </div>
         </section>
       </aside>
@@ -270,6 +306,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import * as echarts from 'echarts';
+import schoolAerialImg from './images/schoolf_bg2.jpg';
 
 const router = useRouter();
 const route = useRoute();
@@ -418,6 +455,14 @@ const schoolLevel = computed(() => {
   return '学校';
 });
 
+const schoolImage = computed(() => {
+  return schoolAerialImg;
+});
+
+const onImageError = (e) => {
+  e.target.style.display = 'none';
+};
+
 const tabs = [
   { key: 'vision', label: '视力健康', icon: '👁️' },
   { key: 'oral', label: '口腔健康', icon: '🦷' },
@@ -435,11 +480,59 @@ const metricConfig = {
 };
 
 const activeTab = ref('vision');
+const showSchoolInfo = ref(false);
+
+const schoolBgTableData = computed(() => {
+  const dataMap = {
+    vision: [
+      { class: '一年级一班', v1: '0.8', v2: '0.6', v3: '正常', date: '2024/12/15' },
+      { class: '二年级二班', v1: '1.2', v2: '1.0', v3: '正常', date: '2024/12/14' },
+      { class: '三年级三班', v1: '0.5', v2: '0.4', v3: '轻度', date: '2024/12/13' },
+      { class: '四年级四班', v1: '1.5', v2: '1.2', v3: '正常', date: '2024/12/12' },
+    ],
+    oral: [
+      { class: '一年级一班', v1: '0颗', v2: '正常', v3: '正常', date: '2024/12/15' },
+      { class: '二年级二班', v1: '2颗', v2: '正常', v3: '轻度', date: '2024/12/14' },
+      { class: '三年级三班', v1: '5颗', v2: '异常', v3: '中度', date: '2024/12/13' },
+      { class: '四年级四班', v1: '1颗', v2: '正常', v3: '正常', date: '2024/12/12' },
+    ],
+    mental: [
+      { class: '一年级一班', v1: '良好', v2: '低风险', v3: '85', date: '2024/12/15' },
+      { class: '二年级二班', v1: '焦虑', v2: '中风险', v3: '72', date: '2024/12/14' },
+      { class: '三年级三班', v1: '良好', v2: '低风险', v3: '90', date: '2024/12/13' },
+      { class: '四年级四班', v1: '抑郁', v2: '高风险', v3: '55', date: '2024/12/12' },
+    ],
+    weight: [
+      { class: '一年级一班', v1: '18.5', v2: '正常', v3: '→', date: '2024/12/15' },
+      { class: '二年级二班', v1: '22.3', v2: '超重', v3: '↑', date: '2024/12/14' },
+      { class: '三年级三班', v1: '15.2', v2: '偏瘦', v3: '↓', date: '2024/12/13' },
+      { class: '四年级四班', v1: '20.1', v2: '正常', v3: '→', date: '2024/12/12' },
+    ],
+    bone: [
+      { class: '一年级一班', v1: '98%', v2: '正常', v3: '→', date: '2024/12/15' },
+      { class: '二年级二班', v1: '92%', v2: '偏低', v3: '↓', date: '2024/12/14' },
+      { class: '三年级三班', v1: '105%', v2: '正常', v3: '↑', date: '2024/12/13' },
+      { class: '四年级四班', v1: '88%', v2: '偏低', v3: '↓', date: '2024/12/12' },
+    ],
+  };
+  return dataMap[activeTab.value] || dataMap.vision;
+});
 const isLight = ref(false);
 const currentDate = ref('');
 const currentTime = ref('');
 
 const currentMetric = computed(() => metricConfig[activeTab.value]);
+
+const gradeCategories = computed(() => {
+  const map = {
+    vision: ['正常视力', '低度近视', '中度近视', '高度近视'],
+    oral: ['无龋齿', '轻度龋齿', '中度龋齿', '重度龋齿'],
+    mental: ['心理良好', '轻度焦虑', '中度焦虑', '重度焦虑'],
+    weight: ['体重正常', '偏瘦', '超重', '肥胖'],
+    bone: ['骨密度正常', '骨密度偏低', '骨密度偏低', '严重偏低'],
+  };
+  return map[activeTab.value] || map.vision;
+});
 
 const seed = computed(() => {
   const code = routeCode.value;
@@ -498,16 +591,179 @@ const alertList = computed(() => {
   return list;
 });
 
-const classRankingRef = ref(null);
+// 优秀榜数据
+const excellentList = computed(() => {
+  const s = seed.value;
+  const names = ['吕佳怡', '张子涵', '李明哲', '王欣怡', '刘思琪'];
+  const classes = ['五年级四班', '三年级二班', '六年级一班', '四年级三班', '二年级一班'];
+  const avatars = ['👧', '👦', '👧', '👦', '👧'];
+  
+  const genVisionCheck = (i, offset) => {
+    const l = (4.8 + Math.sin(s + i * 3 + offset) * 0.4).toFixed(1);
+    const r = (4.9 + Math.cos(s + i * 2 + offset) * 0.3).toFixed(1);
+    const combined = ((parseFloat(l) + parseFloat(r)) / 2).toFixed(1);
+    return { v1: l, v2: r, v3: combined };
+  };
+  const genOralCheck = (i, offset) => {
+    return {
+      v1: Math.max(0, Math.round(Math.abs(Math.sin(s + i + offset)))) + '颗',
+      v2: Math.random() > 0.6 ? '异常' : '正常',
+      v3: Math.max(0, Math.round(Math.abs(Math.sin(s + i + offset)))) + '颗'
+    };
+  };
+  const genMentalCheck = (i, offset) => {
+    const score = Math.round(70 + (s + i * 11 + offset * 7) % 30);
+    return {
+      v1: score >= 80 ? '良好' : '正常',
+      v2: score >= 60 ? '正常' : '预警',
+      v3: score + '分'
+    };
+  };
+  const genWeightCheck = (i, offset) => {
+    const bmi = (18.5 + (s + i + offset) % 5 + Math.random()).toFixed(1);
+    const status = parseFloat(bmi) >= 24 ? '超重' : parseFloat(bmi) < 18.5 ? '偏瘦' : '正常';
+    const change = offset === 0 ? '--' : (Math.random() > 0.5 ? '+' : '-') + (Math.random() * 0.5).toFixed(1);
+    return { v1: bmi, v2: status, v3: change };
+  };
+  const genBoneCheck = (i, offset) => {
+    const density = (80 + (s + i * 3 + offset * 5) % 15 + Math.random() * 5).toFixed(1);
+    const level = parseFloat(density) >= 90 ? '优' : parseFloat(density) >= 80 ? '良' : '需改善';
+    const trend = offset === 0 ? '--' : Math.random() > 0.5 ? '↑' : '↓';
+    return { v1: density + '%', v2: level, v3: trend };
+  };
+
+  const genCheck = (i, offset) => {
+    if (activeTab.value === 'vision') return genVisionCheck(i, offset);
+    if (activeTab.value === 'oral') return genOralCheck(i, offset);
+    if (activeTab.value === 'mental') return genMentalCheck(i, offset);
+    if (activeTab.value === 'weight') return genWeightCheck(i, offset);
+    return genBoneCheck(i, offset);
+  };
+
+  return names.map((name, i) => {
+    const firstCheck = genCheck(i, 0);
+    const secondCheck = genCheck(i, 1);
+    return {
+      name,
+      class: classes[i],
+      avatar: avatars[i],
+      firstCheck,
+      secondCheck,
+    };
+  });
+});
+
+// 优秀榜轮播
+const currentIndex = ref(0);
+const currentExcellent = computed(() => {
+  const list = excellentList.value;
+  if (!list.length) return null;
+  return list[currentIndex.value % list.length];
+});
+
+let excellentTimer = null;
+const startExcellentRotation = () => {
+  if (excellentTimer) clearInterval(excellentTimer);
+  excellentTimer = setInterval(() => {
+    currentIndex.value = (currentIndex.value + 1) % excellentList.value.length;
+  }, 3000);
+};
+
+// 数据列表（根据tab显示不同字段）
+const tabDataList = computed(() => {
+  const s = seed.value;
+  const surnames = ['马', '孙', '李', '陈', '刘'];
+  const names = ['子轩', '欣怡', '浩然', '雨桐', '佳琪'];
+  const classes = ['五年级', '四年级', '三年级', '六年级', '二年级'];
+  const dates = ['2024/04/15', '2024/04/14', '2024/04/16', '2024/04/13', '2024/04/12'];
+  
+  if (activeTab.value === 'vision') {
+    return surnames.map((surname, i) => {
+      const leftVal = (Math.random() * 2 + 4.5).toFixed(1);
+      const rightVal = (Math.random() * 2 + 4.5).toFixed(1);
+      const leftNum = parseFloat(leftVal);
+      const rightNum = parseFloat(rightVal);
+      return {
+        name: surname + names[i],
+        value1: leftVal,
+        value2: rightVal,
+        status1: leftNum >= 5.0 ? 'normal' : leftNum >= 4.5 ? 'mild' : 'severe',
+        status2: rightNum >= 5.0 ? 'normal' : rightNum >= 4.5 ? 'mild' : 'severe',
+        class: classes[i],
+        date: dates[i],
+      };
+    });
+  } else if (activeTab.value === 'oral') {
+    return surnames.map((surname, i) => {
+      const caries = Math.max(0, Math.round((s + i) % 4));
+      const periodontal = Math.random() > 0.7 ? '异常' : '正常';
+      return {
+        name: surname + names[i],
+        value1: caries + '颗',
+        value2: periodontal,
+        status1: caries > 2 ? 'severe' : caries > 0 ? 'mild' : 'normal',
+        status2: periodontal === '异常' ? 'severe' : 'normal',
+        class: classes[i],
+        date: dates[i],
+      };
+    });
+  } else if (activeTab.value === 'mental') {
+    return surnames.map((surname, i) => {
+      const score = Math.round(60 + (s + i * 7) % 40);
+      const level = score >= 80 ? '良好' : score >= 60 ? '正常' : '预警';
+      return {
+        name: surname + names[i],
+        value1: level,
+        value2: score >= 80 ? '低风险' : score >= 60 ? '中风险' : '高风险',
+        status1: score >= 80 ? 'normal' : score >= 60 ? 'mild' : 'severe',
+        status2: score >= 80 ? 'normal' : score >= 60 ? 'mild' : 'severe',
+        class: classes[i],
+        date: dates[i],
+      };
+    });
+  } else if (activeTab.value === 'weight') {
+    return surnames.map((surname, i) => {
+      const bmi = (18 + (s + i) % 8 + Math.random()).toFixed(1);
+      const bmiNum = parseFloat(bmi);
+      let status = '正常';
+      if (bmiNum < 18.5) status = '偏瘦';
+      else if (bmiNum >= 24) status = '超重';
+      return {
+        name: surname + names[i],
+        value1: bmi,
+        value2: status,
+        status1: bmiNum >= 24 || bmiNum < 18.5 ? 'mild' : 'normal',
+        status2: status === '超重' ? 'severe' : status === '偏瘦' ? 'mild' : 'normal',
+        class: classes[i],
+        date: dates[i],
+      };
+    });
+  } else {
+    return surnames.map((surname, i) => {
+      const density = (75 + (s + i * 3) % 20 + Math.random() * 5).toFixed(1);
+      const level = parseFloat(density) >= 90 ? '优' : parseFloat(density) >= 80 ? '良' : '需改善';
+      return {
+        name: surname + names[i],
+        value1: density + '%',
+        value2: level,
+        status1: parseFloat(density) >= 90 ? 'normal' : parseFloat(density) >= 80 ? 'mild' : 'severe',
+        status2: level === '优' ? 'normal' : level === '良' ? 'mild' : 'severe',
+        class: classes[i],
+        date: dates[i],
+      };
+    });
+  }
+});
+
 const gradeChartRef = ref(null);
+const visionGradeRef = ref(null);
 const trendChartRef = ref(null);
-const schoolGaugeRef = ref(null);
-const districtGaugeRef = ref(null);
-const genderGradeChartRef = ref(null);
-const interventionChartRef = ref(null);
+const distributionChartRef = ref(null);
+const preventionEffectRef = ref(null);
 
 const chartInstances = {};
 let timer = null;
+let radarTimer = null;
 let themeObserver = null;
 
 // 可视化大屏始终使用深色主题，不受系统深浅色模式影响
@@ -590,7 +846,7 @@ const getClassRankingOption = () => {
         return `<div style="font-weight:600">${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div>`;
       },
     },
-    grid: { left: 10, right: 50, top: 5, bottom: 5, containLabel: true },
+    grid: { left: 10, right: 55, top: 8, bottom: 8, containLabel: true },
     xAxis: { type: 'value', show: false, max: maxRate + 5 },
     yAxis: {
       type: 'category', data: data.map(d => d.name), inverse: true,
@@ -608,7 +864,8 @@ const getClassRankingOption = () => {
           shadowBlur: isLight.value ? 4 : 8, shadowColor: `${c.primary}44`,
         },
       })),
-      barWidth: 10,
+      barWidth: 8,
+      barCategoryGap: '70%',
       label: { show: true, position: 'right', color: c.primary, fontSize: 10, fontWeight: 'bold', formatter: '{c}%' },
     }],
   };
@@ -827,18 +1084,250 @@ const getInterventionOption = () => {
   };
 };
 
+// 视力人群分档图
+const getVisionGradeOption = () => {
+  const c = getColors();
+  const s = seed.value;
+  const d = schoolData.value;
+  const beforeNormal = Math.round(d.students * 0.35 + (s % 15));
+  const beforeMild = Math.round(d.students * 0.30 + (s % 12));
+  const beforeMedium = Math.round(d.students * 0.22 + (s % 10));
+  const beforeHigh = Math.round(d.students * 0.13 + (s % 5));
+
+  const afterNormal = Math.round(beforeNormal * 1.3 + (s % 10));
+  const afterMild = Math.round(beforeMild * 0.75);
+  const afterMedium = Math.round(beforeMedium * 0.55);
+  const afterHigh = Math.round(beforeHigh * 0.35);
+
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      ...getTooltip('axis'),
+      axisPointer: { type: 'shadow' },
+    },
+    legend: {
+      top: 0,
+      right: 0,
+      textStyle: { color: c.textDim, fontSize: 10 },
+      itemWidth: 12,
+      itemHeight: 8,
+      data: ['调控前', '调控后'],
+    },
+    grid: { left: 30, right: 10, top: 25, bottom: 25, containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: gradeCategories.value,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: c.text, fontSize: 10 },
+    },
+    yAxis: {
+      type: 'value',
+      name: '单位/人',
+      nameTextStyle: { color: c.textDim, fontSize: 9, padding: [0, 0, 0, -20] },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: c.splitLine } },
+      axisLabel: { color: c.textDim, fontSize: 10 },
+    },
+    series: [
+      {
+        name: '调控前',
+        type: 'bar',
+        data: [beforeNormal, beforeMild, beforeMedium, beforeHigh].map((v) => ({
+          value: v,
+          itemStyle: {
+            color: c.primary,
+            borderRadius: [4, 4, 0, 0],
+          },
+        })),
+        barWidth: 14,
+        barGap: '20%',
+        label: { show: true, position: 'top', color: c.text, fontSize: 9, fontWeight: 'bold' },
+      },
+      {
+        name: '调控后',
+        type: 'bar',
+        data: [afterNormal, afterMild, afterMedium, afterHigh].map((v) => ({
+          value: v,
+          itemStyle: {
+            color: c.success,
+            borderRadius: [4, 4, 0, 0],
+          },
+        })),
+        barWidth: 14,
+        label: { show: true, position: 'top', color: c.text, fontSize: 9, fontWeight: 'bold' },
+      },
+    ],
+  };
+};
+
+// 防控效果评估图（雷达图）
+const getPreventionEffectOption = () => {
+  const c = getColors();
+  const s = seed.value;
+  const d = schoolData.value;
+  const score1 = Math.round(85 + (s % 10) + d.rate / 10);
+  const score2 = Math.round(80 + (s % 8) + d.rate / 15);
+  const score3 = Math.round(75 + (s % 12) + d.rate / 20);
+  const score4 = Math.round(90 + (s % 5));
+  const avgScore = Math.round((score1 + score2 + score3 + score4) / 4);
+
+  return {
+    backgroundColor: 'transparent',
+    tooltip: getTooltip(),
+    radar: {
+      indicator: [
+        { name: '视力检测', max: 100 },
+        { name: '干预措施', max: 100 },
+        { name: '家校沟通', max: 100 },
+        { name: '效果评估', max: 100 },
+      ],
+      shape: 'polygon',
+      splitNumber: 4,
+      center: ['50%', '42%'],
+      radius: '48%',
+      axisName: { color: c.text, fontSize: 10, fontWeight: 'bold' },
+      splitLine: { lineStyle: { color: c.splitLine } },
+      splitArea: { areaStyle: { color: ['rgba(11,196,233,0.02)', 'rgba(11,196,233,0.05)'] } },
+      axisLine: { lineStyle: { color: c.splitLine } },
+      axisNameGap: 10,
+    },
+    series: [{
+      type: 'radar',
+      data: [{
+        value: [score1, score2, score3, score4],
+        name: '防控效果',
+        symbol: 'circle',
+        symbolSize: 8,
+        lineStyle: { color: c.primary, width: 2, shadowColor: c.primary, shadowBlur: 10 },
+        areaStyle: { color: new echarts.graphic.RadialGradient(0.5, 0.5, 1, [
+          { offset: 0, color: 'rgba(11, 196, 233, 0.5)' },
+          { offset: 1, color: 'rgba(11, 196, 233, 0.1)' }
+        ]) },
+        itemStyle: { color: c.primary, shadowColor: c.primary, shadowBlur: 10 },
+      }],
+      animationDuration: 2000,
+      animationEasing: 'elasticOut',
+    }],
+    graphic: [{
+      type: 'text',
+      left: 'center',
+      bottom: 8,
+      style: {
+        text: '综合评分：' + avgScore + '分',
+        fill: c.primary,
+        fontSize: 12,
+        fontWeight: 'bold',
+        textShadowColor: c.glow,
+        textShadowBlur: 10,
+      }
+    }],
+  };
+};
+
+// 更新雷达图数据的动态效果
+const animateRadarData = () => {
+  const chart = chartInstances['preventionEffect'];
+  if (!chart || chart.isDisposed()) return;
+  
+  const s = seed.value;
+  const d = schoolData.value;
+  const baseScores = [
+    85 + (s % 10) + d.rate / 10,
+    80 + (s % 8) + d.rate / 15,
+    75 + (s % 12) + d.rate / 20,
+    90 + (s % 5),
+  ];
+  
+  const animatedScores = baseScores.map((base, i) => {
+    const offset = Math.sin(Date.now() / 1000 + i * 0.5) * 5;
+    return Math.max(60, Math.min(100, Math.round(base + offset)));
+  });
+  
+  const avgScore = Math.round(animatedScores.reduce((a, b) => a + b, 0) / 4);
+  const c = getColors();
+  
+  chart.setOption({
+    series: [{
+      data: [{
+        value: animatedScores,
+      }]
+    }],
+    graphic: [{
+      style: {
+        text: '综合评分：' + avgScore + '分',
+      }
+    }],
+  });
+};
+
+const getDistributionOption = () => {
+  const c = getColors();
+  const categories = gradeCategories.value;
+  const baseValues = [
+    schoolData.value.students * 0.35,
+    schoolData.value.students * 0.30,
+    schoolData.value.students * 0.22,
+    schoolData.value.students * 0.13,
+  ];
+  const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'];
+  
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: c.bg,
+      borderColor: c.border,
+      textStyle: { color: c.text, fontSize: 10 },
+      formatter: (p) => `${p.name}: ${p.value.toFixed(0)}人 (${p.percent}%)`,
+    },
+    legend: {
+      orient: 'horizontal',
+      bottom: 0,
+      textStyle: { color: c.textDim, fontSize: 8 },
+      itemWidth: 8,
+      itemHeight: 8,
+      itemGap: 6,
+    },
+    series: [{
+      type: 'pie',
+      radius: ['40%', '65%'],
+      center: ['50%', '45%'],
+      avoidLabelOverlap: true,
+      itemStyle: {
+        borderColor: c.bgDark,
+        borderWidth: 2,
+      },
+      label: {
+        show: true,
+        fontSize: 8,
+        color: c.text,
+        formatter: '{d}%',
+      },
+      labelLine: {
+        show: true,
+        length: 4,
+        length2: 4,
+      },
+      data: categories.map((name, i) => ({
+        name,
+        value: Math.round(baseValues[i]),
+        itemStyle: { color: colors[i] },
+      })),
+    }],
+  };
+};
+
 const renderAllCharts = () => {
   disposeAll();
   requestAnimationFrame(() => {
     nextTick(() => {
-      const d = schoolData.value;
-      initChart(classRankingRef, 'classRanking', getClassRankingOption());
       initChart(gradeChartRef, 'grade', getGradeOption());
+      initChart(visionGradeRef, 'visionGrade', getVisionGradeOption());
       initChart(trendChartRef, 'trend', getTrendOption());
-      initChart(schoolGaugeRef, 'schoolGauge', getGaugeOption(d.rate, `本校${currentMetric.value.name}率`, getColors().primary));
-      initChart(districtGaugeRef, 'districtGauge', getGaugeOption(d.districtRate, `全区${currentMetric.value.name}率`, getColors().secondary));
-      initChart(genderGradeChartRef, 'genderGrade', getGenderGradeOption());
-      initChart(interventionChartRef, 'intervention', getInterventionOption());
+      initChart(preventionEffectRef, 'preventionEffect', getPreventionEffectOption());
+      initChart(distributionChartRef, 'distribution', getDistributionOption());
     });
   });
 };
@@ -856,10 +1345,14 @@ onMounted(() => {
   window.addEventListener('resize', resizeAll);
   setTimeout(() => resizeAll(), 500);
   setTimeout(() => resizeAll(), 1500);
+  radarTimer = setInterval(animateRadarData, 2000);
+  startExcellentRotation();
 });
 
 onBeforeUnmount(() => {
   if (timer) clearInterval(timer);
+  if (radarTimer) clearInterval(radarTimer);
+  if (excellentTimer) clearInterval(excellentTimer);
   window.removeEventListener('resize', resizeAll);
   if (themeObserver) { themeObserver.disconnect(); themeObserver = null; }
   disposeAll();
@@ -1008,7 +1501,26 @@ watch(() => route.params.id, () => {
 }
 .bg-decor {
   position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
-  background: linear-gradient(180deg, rgba(6, 15, 28, 0.65) 0%, rgba(6, 15, 28, 0.75) 100%);
+  background: transparent;
+}
+.bg-decor .school-bg-img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  filter: brightness(0.4) saturate(1.15) contrast(1.05);
+  opacity: 1;
+}
+.bg-decor::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: 
+    linear-gradient(180deg, rgba(6, 15, 28, 0.45) 0%, rgba(6, 15, 28, 0.25) 50%, rgba(6, 15, 28, 0.55) 100%),
+    linear-gradient(90deg, rgba(6, 15, 28, 0.4) 0%, rgba(6, 15, 28, 0.1) 25%, rgba(6, 15, 28, 0.1) 75%, rgba(6, 15, 28, 0.4) 100%);
+  pointer-events: none;
 }
 .bg-grid {
   position: absolute; inset: 0;
@@ -1253,7 +1765,20 @@ watch(() => route.params.id, () => {
 }
 .left-col, .right-col, .center-col { display: flex; flex-direction: column; gap: 12px; min-height: 0; height: 100%; }
 .center-col { gap: 12px; }
-.center-col .tech-panel { flex: 1; min-height: 0; }
+
+/* 左栏面板高度分配 */
+.left-col > .tech-panel:nth-child(1) { flex: 1.2; }  /* 优秀榜 */
+.left-col > .tech-panel:nth-child(2) { flex: 1.3; }  /* 年级分布 */
+.left-col > .tech-panel:nth-child(3) { flex: 2.0; }  /* 人群分档 */
+
+/* 中间面板高度分配 */
+.center-col > .tech-panel:nth-child(1) { flex: 2.2; }  /* 学校概览（含图片） */
+.center-col > .tech-panel:nth-child(2) { flex: 1.0; }  /* 趋势对比图 */
+
+/* 右栏面板高度分配 */
+.right-col > .tech-panel:nth-child(1) { flex: 0.8; }  /* 预警提醒 */
+.right-col > .tech-panel:nth-child(2) { flex: 1.2; }  /* 视力数据列表 */
+.right-col > .tech-panel:nth-child(3) { flex: 1.4; }  /* 防控效果评估 */
 
 .center-top-bar {
   display: flex; align-items: center; justify-content: space-between;
@@ -1290,7 +1815,7 @@ watch(() => route.params.id, () => {
   background: var(--grad-deep);
   border: 1px solid var(--border);
   border-radius: 0;
-  padding: 12px 14px;
+  padding: 8px 10px;
   display: flex; flex-direction: column;
   backdrop-filter: blur(12px);
   box-shadow: var(--shadow-card);
@@ -1331,7 +1856,7 @@ watch(() => route.params.id, () => {
 
 .tech-panel-header {
   display: flex; align-items: center; gap: 8px;
-  padding-bottom: 8px; margin-bottom: 10px;
+  padding-bottom: 4px; margin-bottom: 6px;
   border-bottom: 1px solid var(--border-inner);
   flex-shrink: 0;
   position: relative;
@@ -1410,16 +1935,188 @@ watch(() => route.params.id, () => {
 .teacher-name { font-size: 11px; color: var(--text-dim); }
 .teacher-count { font-size: 16px; font-weight: bolder; color: var(--primary); font-family: "等线", 'Consolas', monospace; text-shadow: 0 0 10px var(--glow-soft); }
 
+/* 学校信息面板 - 无边框浮层 */
+.school-info-panel {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  transition: all 0.3s;
+}
+.school-info-panel::before,
+.school-info-panel::after {
+  display: none !important;
+}
+.school-info-body {
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.school-info-default {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  transition: all 0.4s ease;
+}
+.info-hint-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(11, 196, 233, 0.12);
+  border: 1px dashed var(--primary);
+  color: var(--primary);
+  font-size: 14px;
+  animation: hint-pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+.info-hint-banner .hint-icon {
+  font-size: 16px;
+}
+@keyframes hint-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+.school-info-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+  animation: fadeSlideIn 0.4s ease-out;
+  background: rgba(6, 15, 28, 0.5);
+  backdrop-filter: blur(8px);
+  border-radius: 4px;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.hero-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.hero-kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(6, 15, 28, 0.8) 0%, rgba(0, 72, 115, 0.6) 100%);
+  border: 1px solid rgba(11, 196, 233, 0.5);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.hero-kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--primary);
+}
+.hero-kpi-card:hover {
+  background: linear-gradient(135deg, rgba(6, 15, 28, 0.9) 0%, rgba(0, 72, 115, 0.8) 100%);
+  border-color: var(--primary);
+  box-shadow: 0 0 20px rgba(11, 196, 233, 0.4);
+  transform: translateY(-2px);
+}
+.hero-kpi-card.highlight {
+  background: linear-gradient(135deg, rgba(11, 196, 233, 0.25) 0%, rgba(0, 72, 115, 0.7) 100%);
+  border-color: var(--primary);
+  box-shadow: 0 0 25px rgba(11, 196, 233, 0.5);
+}
+.hero-kpi-icon {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  background: rgba(11, 196, 233, 0.15);
+  border: 1px solid rgba(11, 196, 233, 0.3);
+}
+.hero-kpi-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  font-family: 'Consolas', monospace;
+  text-shadow: 0 0 10px var(--glow);
+}
+.hero-kpi-card.highlight .hero-kpi-value {
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+.hero-kpi-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.hero-teacher-row {
+  display: flex;
+  gap: 12px;
+}
+.teacher-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(6, 15, 28, 0.7);
+  border: 1px solid rgba(11, 196, 233, 0.3);
+  backdrop-filter: blur(6px);
+  transition: all 0.3s;
+}
+.teacher-item:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(11, 196, 233, 0.2);
+}
+.teacher-avatar {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  background: rgba(11, 196, 233, 0.12);
+  border: 1px solid rgba(11, 196, 233, 0.3);
+}
+.teacher-name {
+  font-size: 13px;
+  color: var(--text);
+}
+.teacher-count {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  font-family: 'Consolas', monospace;
+  margin-left: auto;
+  text-shadow: 0 0 8px var(--glow);
+}
+
 /* KPI */
-.kpi-grid { display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; overflow: hidden; }
-.kpi-row-large { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.kpi-grid {
+  display: flex; flex-direction: column; gap: 6px;
+  height: 100%; min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(11, 196, 233, 0.6) rgba(11, 196, 233, 0.08);
+}
+.kpi-grid::-webkit-scrollbar { width: 5px; }
+.kpi-grid::-webkit-scrollbar-track { background: rgba(11, 196, 233, 0.08); border-radius: 0; }
+.kpi-grid::-webkit-scrollbar-thumb {
+  background: rgba(11, 196, 233, 0.6);
+  border-radius: 0;
+  box-shadow: 0 0 6px rgba(11, 196, 233, 0.4);
+}
+.kpi-grid::-webkit-scrollbar-thumb:hover { background: rgba(11, 196, 233, 0.9); }
+.kpi-row-large { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .kpi-card-lg {
   position: relative;
-  padding: 14px 16px;
+  padding: 6px 10px;
   background: rgba(0, 72, 115, 0.28);
   border: 1px solid var(--border);
   border-radius: 0;
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
   overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
@@ -1460,9 +2157,9 @@ watch(() => route.params.id, () => {
   100% { transform: rotate(360deg) scale(1); }
 }
 
-.kpi-lg-label { font-size: 12px; color: var(--text-dim); letter-spacing: 0.5px; z-index: 1; }
+.kpi-lg-label { font-size: 11px; color: var(--text-dim); letter-spacing: 0.5px; z-index: 1; }
 .kpi-lg-value {
-  font-size: 36px; font-weight: bolder;
+  font-size: 22px; font-weight: bolder;
   color: #00a8d7;
   font-family: "等线", "DengXian", 'Consolas', monospace;
   text-shadow: 0 0 20px var(--glow), 0 0 40px var(--glow-soft);
@@ -1471,19 +2168,19 @@ watch(() => route.params.id, () => {
   letter-spacing: 2px;
 }
 .kpi-lg-value .unit {
-  font-size: 14px; color: var(--text-dim);
+  font-size: 11px; color: var(--text-dim);
   margin-left: 4px; text-shadow: 0 0 8px var(--glow-soft);
 }
-.kpi-lg-trend { font-size: 10px; padding: 2px 10px; border-radius: 2px; z-index: 1; display: flex; align-items: center; gap: 3px; }
+.kpi-lg-trend { font-size: 9px; padding: 1px 8px; border-radius: 2px; z-index: 1; display: flex; align-items: center; gap: 3px; }
 .kpi-lg-trend.up { color: var(--danger); background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.5); box-shadow: 0 0 10px rgba(244, 63, 94, 0.3); }
 .kpi-lg-trend.down { color: var(--success); background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
 .trend-arrow { font-size: 9px; margin-right: 2px; }
 
 /* 性别 */
-.kpi-row-gender { display: flex; flex-direction: column; gap: 10px; }
+.kpi-row-gender { display: flex; flex-direction: column; gap: 4px; }
 .gender-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 12px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 8px;
   background: rgba(0, 72, 115, 0.28);
   border: 1px solid var(--border-soft);
   border-radius: 0; transition: all 0.5s;
@@ -1496,14 +2193,14 @@ watch(() => route.params.id, () => {
 .gender-item.female::before { background: var(--grad-cyan); box-shadow: 0 0 10px var(--glow-soft); }
 .gender-item:hover { border-color: var(--border); background: rgba(0, 90, 140, 0.4); transform: translateX(2px); }
 .gender-icon {
-  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; font-size: 18px; font-weight: bold;
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; font-size: 12px; font-weight: bold;
 }
 .gender-item.male .gender-icon { background: var(--primary-soft); color: var(--primary); box-shadow: 0 0 15px var(--glow-soft); }
 .gender-item.female .gender-icon { background: var(--secondary-soft); color: var(--secondary); box-shadow: 0 0 15px var(--glow-soft); }
 .gender-info { flex: 1; min-width: 0; }
-.gender-label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 2px; }
-.gender-value { display: block; font-size: 22px; font-weight: bolder; font-family: "等线", 'Consolas', monospace; }
+.gender-label { display: block; font-size: 10px; color: var(--text-dim); margin-bottom: 1px; }
+.gender-value { display: block; font-size: 14px; font-weight: bolder; font-family: "等线", 'Consolas', monospace; }
 .gender-item.male .gender-value { color: var(--primary); text-shadow: 0 0 10px var(--glow-soft); }
 .gender-item.female .gender-value { color: var(--secondary); text-shadow: 0 0 10px var(--glow-soft); }
 .gender-bar { flex: 1; height: 6px; background: rgba(11, 196, 233, 0.08); border-radius: 0; overflow: hidden; min-width: 40px; }
@@ -1512,10 +2209,10 @@ watch(() => route.params.id, () => {
 .gender-item.female .gender-bar-fill { background: var(--grad-cyan); }
 
 /* 小卡片 */
-.kpi-row-small { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.kpi-row-small { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
 .kpi-card-sm {
   position: relative;
-  padding: 12px 10px;
+  padding: 5px 5px;
   background: rgba(0, 72, 115, 0.28);
   border: 1px solid var(--border-soft);
   border-radius: 0; text-align: center; transition: all 0.5s;
@@ -1526,12 +2223,12 @@ watch(() => route.params.id, () => {
   background: var(--grad-main); opacity: 0.8;
 }
 .kpi-card-sm:hover { border-color: var(--border); background: var(--primary-soft); transform: translateY(-2px); box-shadow: 0 4px 20px var(--glow-soft); }
-.kpi-sm-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+.kpi-sm-label { font-size: 10px; color: var(--text-dim); margin-bottom: 2px; }
 .kpi-sm-value {
-  font-size: 24px; font-weight: bolder; color: #00a8d7;
+  font-size: 16px; font-weight: bolder; color: #00a8d7;
   font-family: "等线", 'Consolas', monospace;
   text-shadow: 0 0 15px var(--glow-soft);
-  margin-bottom: 8px; letter-spacing: 1px;
+  margin-bottom: 3px; letter-spacing: 1px;
 }
 .kpi-sm-bar { height: 4px; background: rgba(11, 196, 233, 0.08); border-radius: 0; overflow: hidden; }
 .kpi-sm-bar-fill { height: 100%; background: var(--grad-accent); border-radius: 0; box-shadow: 0 0 8px var(--glow-soft); }
@@ -1562,6 +2259,221 @@ watch(() => route.params.id, () => {
 .alert-item:hover { background: rgba(0, 90, 140, 0.4); transform: translateX(2px); }
 .alert-icon { font-size: 14px; flex-shrink: 0; }
 .alert-msg { font-size: 11px; color: var(--text); line-height: 1.3; }
+
+/* 优秀榜样式 */
+.excellent-panel .tech-panel-body { padding: 6px; overflow: hidden; }
+
+/* 优秀榜卡片 */
+.excellent-card {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 6px;
+  background: linear-gradient(135deg, rgba(11, 196, 233, 0.12), rgba(0, 72, 115, 0.3));
+  border: 1px solid var(--border);
+  position: relative;
+  min-height: 0;
+}
+
+.excellent-card-avatar {
+  position: relative;
+  width: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hex-ring {
+  width: 64px;
+  height: 64px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: hex-rotate 8s linear infinite;
+}
+
+.hex-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--primary);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  box-shadow: 0 0 15px var(--glow), inset 0 0 10px var(--glow-soft);
+}
+
+.hex-inner {
+  width: 46px;
+  height: 46px;
+  background: linear-gradient(135deg, rgba(11, 196, 233, 0.3), rgba(0, 72, 115, 0.5));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.hex-icon {
+  font-size: 22px;
+  animation: hex-rotate 8s linear infinite reverse;
+}
+
+@keyframes hex-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.avatar-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(11, 196, 233, 0.3) 0%, transparent 65%);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.excellent-card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.excellent-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  text-shadow: 0 0 8px var(--glow-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.excellent-detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.excellent-detail-table th {
+  color: var(--text-dim);
+  font-weight: normal;
+  padding: 1px 4px;
+  font-size: 10px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.excellent-detail-table td {
+  padding: 2px 4px;
+  color: var(--text);
+  text-align: center;
+  border-bottom: 1px solid rgba(11, 196, 233, 0.08);
+  font-family: 'Consolas', monospace;
+}
+
+.excellent-detail-table .label-cell {
+  color: var(--text-dim);
+  font-family: inherit;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.excellent-card-pager {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+}
+
+.pager-dot {
+  width: 14px;
+  height: 2px;
+  background: rgba(11, 196, 233, 0.3);
+  transition: all 0.3s;
+}
+
+.pager-dot.active {
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--glow);
+  width: 24px;
+}
+
+/* 数据列表滚动样式 */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.data-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bg);
+}
+.data-table thead tr {
+  background: rgba(11, 196, 233, 0.15);
+}
+.data-table th {
+  padding: 5px 4px;
+  text-align: left;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 10px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.table-scroll-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+.scroll-table {
+  width: 100%;
+  border-collapse: collapse;
+  animation: table-scroll 15s linear infinite;
+}
+.table-scroll:hover {
+  animation-play-state: paused;
+}
+@keyframes table-scroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+.data-table td {
+  padding: 4px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border-soft);
+  white-space: nowrap;
+  font-size: 10px;
+}
+.data-table tbody tr:hover {
+  background: rgba(11, 196, 233, 0.08);
+}
+.data-table td.normal { color: #34d399; }
+.data-table td.mild { color: #fbbf24; }
+.data-table td.severe { color: #fb7185; }
+
+/* 面板图例 */
+.panel-legend {
+  display: flex; gap: 8px;
+  margin-left: auto;
+}
+.panel-legend .legend-item {
+  display: flex; align-items: center; gap: 3px;
+  font-size: 9px;
+  color: var(--text-dim);
+}
+.panel-legend .legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
 
 /* 滚动条 */
 ::-webkit-scrollbar { width: 6px; height: 6px; }

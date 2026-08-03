@@ -1,6 +1,5 @@
 <template>
   <div class="app-root" :class="{ 'theme-light': isLight }">
-    <!-- 背景 -->
     <div class="bg-decor" aria-hidden="true">
       <div class="bg-grid"></div>
       <div class="bg-glow bg-glow-1"></div>
@@ -8,12 +7,9 @@
       <div class="bg-glow bg-glow-3"></div>
       <div class="bg-stars"></div>
     </div>
-
-    <!-- 扫描线 -->
     <div class="scan-line"></div>
     <div class="scan-line-2"></div>
-
-    <!-- 顶部装饰光带 -->
+    
     <div class="tech-topbar">
       <div class="tech-corner tech-corner-l"><span class="tc-dot"></span></div>
       <div class="tech-line"><span class="line-pulse line-pulse-1"></span><span class="line-pulse line-pulse-2"></span></div>
@@ -23,8 +19,6 @@
       <div class="tech-line"><span class="line-pulse line-pulse-3"></span><span class="line-pulse line-pulse-4"></span></div>
       <div class="tech-corner tech-corner-r"><span class="tc-dot"></span></div>
     </div>
-
-    <!-- Header -->
     <header class="national-header">
       <div class="header-deco header-deco-l">
         <span class="hd-line"></span>
@@ -32,7 +26,7 @@
       </div>
       <h1 class="national-title">
         <span class="title-bracket">【</span>
-        <span class="title-text">{{ currentProvince }}中小学生健康监测大屏</span>
+        <span class="title-text">{{ currentCity }}中小学生健康监测大屏</span>
         <span class="title-bracket">】</span>
         <span class="title-shine"></span>
       </h1>
@@ -47,8 +41,6 @@
         <span class="hd-line"></span>
       </div>
     </header>
-
-    <!-- Tab 切换 -->
     <nav class="national-tabs">
       <button v-for="t in tabs" :key="t.key"
         :class="['tech-tab', { active: activeTab === t.key }]"
@@ -58,7 +50,6 @@
         <span class="tech-tab-glow"></span>
       </button>
     </nav>
-
     <!-- 顶部筛选栏 -->
     <div class="top-filter-bar">
       <div class="filter-select" ref="provinceRef" :class="{ 'has-value': filter.province, 'is-open': openDropdown === 'province' }">
@@ -155,15 +146,12 @@
         <span class="icon">↺</span> 重置
       </button>
     </div>
-
-    <!-- 主体 -->
     <main class="national-body">
-      <!-- 左栏 -->
       <aside class="left-col">
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentProvince }}{{ currentMetric.name }}核心数据</span>
+            <span class="panel-title">{{ currentMetric.name }}核心数据</span>
             <span class="panel-tag">{{ currentMetric.name }}专题</span>
           </header>
           <div class="tech-panel-body">
@@ -172,79 +160,96 @@
                 <div class="kpi-card-lg">
                   <div class="kpi-card-deco"></div>
                   <div class="kpi-card-hex"><span></span><span></span><span></span></div>
-                  <div class="kpi-lg-label">{{ currentProvince }}{{ currentMetric.name }}率</div>
+                  <div class="kpi-lg-label">{{ currentCity }}{{ currentMetric.name }}率</div>
                   <div class="kpi-lg-value">
-                    <span class="num">{{ currentProvinceData.rate }}</span><span class="unit">%</span>
+                    <span class="num">{{ currentCityData.rate }}</span><span class="unit">%</span>
                   </div>
-                  <div :class="['kpi-lg-trend', currentProvinceData.trend > 0 ? 'up' : 'down']">
-                    <span class="trend-arrow">{{ currentProvinceData.trend > 0 ? '▲' : '▼' }}</span>
-                    {{ Math.abs(currentProvinceData.trend) }}% 同比
+                  <div :class="['kpi-lg-trend', currentCityData.trend > 0 ? 'up' : 'down']">
+                    <span class="trend-arrow">{{ currentCityData.trend > 0 ? '▲' : '▼' }}</span>
+                    {{ Math.abs(currentCityData.trend) }}% 同比
                   </div>
                 </div>
                 <div class="kpi-card-lg">
                   <div class="kpi-card-deco"></div>
                   <div class="kpi-card-hex"><span></span><span></span><span></span></div>
-                  <div class="kpi-lg-label">学生总数（万）</div>
+                  <div class="kpi-lg-label">学生总数（千）</div>
                   <div class="kpi-lg-value">
-                    <span class="num">{{ currentProvinceData.students }}</span>
+                    <span class="num">{{ currentCityData.students }}</span>
                   </div>
-                  <div class="kpi-lg-trend down">覆盖 {{ currentProvinceData.cities }} 地市</div>
+                  <div class="kpi-lg-trend down">覆盖 {{ currentCityData.districts }} 区县</div>
                 </div>
               </div>
-
               <div class="kpi-row-gender">
                 <div class="gender-item male">
                   <span class="gender-icon">♂</span>
                   <div class="gender-info">
                     <span class="gender-label">男生{{ currentMetric.name }}率</span>
-                    <span class="gender-value">{{ currentProvinceData.maleRate }}%</span>
+                    <span class="gender-value">{{ currentCityData.maleRate }}%</span>
                   </div>
-                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentProvinceData.maleRate + '%' }"></div></div>
+                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentCityData.maleRate + '%' }"></div></div>
                 </div>
                 <div class="gender-item female">
                   <span class="gender-icon">♀</span>
                   <div class="gender-info">
                     <span class="gender-label">女生{{ currentMetric.name }}率</span>
-                    <span class="gender-value">{{ currentProvinceData.femaleRate }}%</span>
+                    <span class="gender-value">{{ currentCityData.femaleRate }}%</span>
                   </div>
-                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentProvinceData.femaleRate + '%' }"></div></div>
+                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentCityData.femaleRate + '%' }"></div></div>
                 </div>
               </div>
-
               <div class="kpi-row-small">
                 <div class="kpi-card-sm">
                   <div class="kpi-sm-label">小学{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentProvinceData.primary }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.primary + '%' }"></div></div>
+                  <div class="kpi-sm-value">{{ currentCityData.primary }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentCityData.primary + '%' }"></div></div>
                 </div>
                 <div class="kpi-card-sm">
                   <div class="kpi-sm-label">初中{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentProvinceData.junior }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.junior + '%' }"></div></div>
+                  <div class="kpi-sm-value">{{ currentCityData.junior }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentCityData.junior + '%' }"></div></div>
                 </div>
                 <div class="kpi-card-sm">
                   <div class="kpi-sm-label">高中{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentProvinceData.senior }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.senior + '%' }"></div></div>
+                  <div class="kpi-sm-value">{{ currentCityData.senior }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentCityData.senior + '%' }"></div></div>
                 </div>
               </div>
             </div>
           </div>
         </section>
-
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">地市{{ currentMetric.name }}率排名</span>
-            <span class="panel-tag">TOP 10</span>
+            <span class="panel-title">区县{{ currentMetric.name }}率排名</span>
+            <span class="panel-tag">TOP {{ districtList.length > 0 ? Math.min(10, districtList.length) : 10 }}</span>
           </header>
           <div class="tech-panel-body">
-            <div ref="cityRankRef" class="chart-area"></div>
+            <div ref="rankingChartRef" class="chart-area"></div>
+          </div>
+        </section>
+        <section class="tech-panel">
+          <header class="tech-panel-header">
+            <span class="panel-bullet"></span>
+            <span class="panel-title">预警提醒</span>
+          </header>
+          <div class="tech-panel-body">
+            <div class="alert-list">
+              <div class="alert-item danger">
+                <span class="alert-icon">🔴</span>
+                <span class="alert-msg">{{ currentCityData.topDistrict }}{{ currentMetric.name }}率达{{ currentCityData.topRate }}%，高于全市平均水平</span>
+              </div>
+              <div class="alert-item warning">
+                <span class="alert-icon">🟡</span>
+                <span class="alert-msg">3个街道{{ currentMetric.name }}监测覆盖率低于40%，需加强推进</span>
+              </div>
+              <div class="alert-item info">
+                <span class="alert-icon">🔵</span>
+                <span class="alert-msg">本月{{ currentMetric.name }}检测完成率85.2%，较上月提升3.8%</span>
+              </div>
+            </div>
           </div>
         </section>
       </aside>
-
-      <!-- 地图 -->
       <section class="map-col">
         <div class="map-area">
           <div ref="mapRef" class="map-canvas"></div>
@@ -259,10 +264,10 @@
             <div class="map-corner mc-bl"></div>
             <div class="map-corner mc-br"></div>
             <div class="map-data-strip">
-              <span>经度：<b>{{ currentProvinceCenter[0].toFixed(1) }}°E</b></span>
-              <span>纬度：<b>{{ currentProvinceCenter[1].toFixed(1) }}°N</b></span>
+              <span>经度：<b>{{ currentCityCenter[0].toFixed(1) }}°E</b></span>
+              <span>纬度：<b>{{ currentCityCenter[1].toFixed(1) }}°N</b></span>
               <span>缩放：<b>{{ mapZoom.toFixed(2) }}x</b></span>
-              <span v-if="mapLoaded" class="map-drill-tip">{{ currentProvince }}地图</span>
+              <span v-if="mapLoaded" class="map-drill-tip">{{ currentCity }}地图</span>
               <span v-else>加载中…</span>
             </div>
           </div>
@@ -288,8 +293,6 @@
           </div>
         </div>
       </section>
-
-      <!-- 右栏 -->
       <aside class="right-col">
         <section class="tech-panel">
           <header class="tech-panel-header">
@@ -297,10 +300,9 @@
             <span class="panel-title">年龄/性别{{ currentMetric.name }}率对比</span>
           </header>
           <div class="tech-panel-body">
-            <div ref="ageGenderRef" class="chart-area"></div>
+            <div ref="ageGenderChartRef" class="chart-area"></div>
           </div>
         </section>
-
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
@@ -313,76 +315,270 @@
             </div>
           </div>
         </section>
-
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">示范区{{ currentMetric.name }}防控效果</span>
+            <span class="panel-title">{{ currentMetric.name }}变化趋势</span>
           </header>
           <div class="tech-panel-body">
-            <div ref="interventionRef" class="chart-area"></div>
+            <div ref="trendChartRef" class="chart-area"></div>
+          </div>
+        </section>
+        <section class="tech-panel">
+          <header class="tech-panel-header">
+            <span class="panel-bullet"></span>
+            <span class="panel-title">{{ currentMetric.name }}防控效果</span>
+          </header>
+          <div class="tech-panel-body">
+            <div ref="interventionChartRef" class="chart-area"></div>
           </div>
         </section>
       </aside>
     </main>
-
-    </div>
+    
+  </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import * as echarts from 'echarts';
 
-const route = useRoute();
 const router = useRouter();
+const route = useRoute();
 
-// ============================================================
-//  色板（深浅色主题）
-// ============================================================
 const DARK_COLOR = {
-  primary: '#0bc4e9',
-  secondary: '#59ebe8',
-  accent: '#00a8d7',
-  warning: '#fbbf24',
-  success: '#34d399',
-  danger: '#fb7185',
-  male: '#0bc4e9',
-  female: '#59ebe8',
-  text: '#e2e8f0',
-  textDim: '#94a3b8',
-  bg: 'rgba(6, 16, 28, 0.96)',
-  mapArea: 'rgba(15, 30, 65, 0.85)',
-  mapBorder: 'rgba(11, 196, 233, 0.75)',
-  mapLabel: '#e2e8f0',
-  splitLine: 'rgba(11, 196, 233, 0.12)',
-  gaugeTrack: 'rgba(11, 196, 233, 0.12)',
-  initialBar: '#475569',
-  mapColors: ['#0bc4e9', '#7dd87d', '#f5c542', '#e8554f'],
-  mapGradient: ['#0bc4e9', '#7dd87d', '#f5c542', '#e8554f'],
+  primary: '#38bdf8', secondary: '#a78bfa', accent: '#f472b6',
+  warning: '#fbbf24', success: '#34d399', danger: '#fb7185',
+  male: '#38bdf8', female: '#a78bfa',
+  text: '#e2e8f0', textDim: '#94a3b8',
+  bg: 'rgba(10, 22, 50, 0.96)', mapArea: 'rgba(15, 30, 65, 0.85)',
+  mapBorder: 'rgba(56, 189, 248, 0.75)', mapLabel: '#e2e8f0',
+  splitLine: 'rgba(56, 189, 248, 0.12)',
+  gaugeTrack: 'rgba(56, 189, 248, 0.12)', initialBar: '#475569',
+  mapColors: ['#0891b2', '#38bdf8', '#a78bfa', '#f472b6'],
 };
 
 const LIGHT_COLOR = {
-  primary: '#0891b2',
-  secondary: '#00a8d7',
-  accent: '#0bc4e9',
-  warning: '#d97706',
-  success: '#059669',
-  danger: '#dc2626',
-  male: '#0891b2',
-  female: '#00a8d7',
-  text: '#1e293b',
-  textDim: '#64748b',
-  bg: 'rgba(255, 255, 255, 0.98)',
-  mapArea: '#f1f5f9',
-  mapBorder: 'rgba(8, 145, 178, 0.35)',
-  mapLabel: '#1e293b',
+  primary: '#0891b2', secondary: '#7c3aed', accent: '#db2777',
+  warning: '#d97706', success: '#059669', danger: '#dc2626',
+  male: '#0891b2', female: '#7c3aed',
+  text: '#1e293b', textDim: '#64748b',
+  bg: 'rgba(255, 255, 255, 0.98)', mapArea: '#f1f5f9',
+  mapBorder: 'rgba(8, 145, 178, 0.35)', mapLabel: '#1e293b',
   splitLine: 'rgba(8, 145, 178, 0.1)',
-  gaugeTrack: 'rgba(8, 145, 178, 0.08)',
-  initialBar: '#cbd5e1',
-  mapColors: ['#4dd4f5', '#a8e8a8', '#f7d56e', '#ed807d'],
-  mapGradient: ['#4dd4f5', '#a8e8a8', '#f7d56e', '#ed807d'],
+  gaugeTrack: 'rgba(8, 145, 178, 0.08)', initialBar: '#cbd5e1',
+  mapColors: ['#67e8f9', '#0891b2', '#7c3aed', '#db2777'],
 };
+
+const getColors = () => (isLight.value ? LIGHT_COLOR : DARK_COLOR);
+
+const makeGrad = (c1, c2, horizontal = true) =>
+  new echarts.graphic.LinearGradient(0, 0, horizontal ? 1 : 0, horizontal ? 0 : 1, [
+    { offset: 0, color: c1 }, { offset: 1, color: c2 },
+  ]);
+
+const CITY_MAP_CONFIG = {
+  '110101': { name: '东城区', short: '东城', center: [116.42, 39.93], zoom: 2.5 },
+  '110102': { name: '西城区', short: '西城', center: [116.36, 39.92], zoom: 2.5 },
+  '110105': { name: '朝阳区', short: '朝阳', center: [116.45, 39.92], zoom: 2.3 },
+  '110108': { name: '海淀区', short: '海淀', center: [116.30, 39.98], zoom: 2.3 },
+  '110106': { name: '丰台区', short: '丰台', center: [116.28, 39.86], zoom: 2.3 },
+  '110107': { name: '石景山区', short: '石景山', center: [116.22, 39.90], zoom: 2.3 },
+  '110112': { name: '通州区', short: '通州', center: [116.65, 39.91], zoom: 2.3 },
+  '110114': { name: '昌平区', short: '昌平', center: [116.23, 40.22], zoom: 2.0 },
+  '110113': { name: '顺义区', short: '顺义', center: [116.65, 40.08], zoom: 2.0 },
+  '110115': { name: '大兴区', short: '大兴', center: [116.34, 39.73], zoom: 2.3 },
+  '120101': { name: '和平区', short: '和平', center: [117.21, 39.12], zoom: 2.5 },
+  '120102': { name: '河东区', short: '河东', center: [117.24, 39.13], zoom: 2.5 },
+  '120103': { name: '河西区', short: '河西', center: [117.22, 39.10], zoom: 2.5 },
+  '120104': { name: '南开区', short: '南开', center: [117.16, 39.13], zoom: 2.5 },
+  '120105': { name: '河北区', short: '河北', center: [117.20, 39.14], zoom: 2.5 },
+  '120106': { name: '红桥区', short: '红桥', center: [117.14, 39.17], zoom: 2.5 },
+  '370100': { name: '济南市', short: '济南', center: [117.12, 36.65], zoom: 1.8 },
+  '370200': { name: '青岛市', short: '青岛', center: [120.38, 36.07], zoom: 1.8 },
+  '370300': { name: '淄博市', short: '淄博', center: [118.05, 36.81], zoom: 1.8 },
+  '370400': { name: '枣庄市', short: '枣庄', center: [117.32, 34.81], zoom: 1.8 },
+  '370500': { name: '东营市', short: '东营', center: [118.67, 37.43], zoom: 1.8 },
+  '370600': { name: '烟台市', short: '烟台', center: [121.45, 37.46], zoom: 1.8 },
+  '370700': { name: '潍坊市', short: '潍坊', center: [119.10, 36.70], zoom: 1.8 },
+  '370800': { name: '济宁市', short: '济宁', center: [116.58, 35.42], zoom: 1.8 },
+  '370900': { name: '泰安市', short: '泰安', center: [117.09, 36.19], zoom: 1.8 },
+  '371000': { name: '威海市', short: '威海', center: [122.12, 37.51], zoom: 1.8 },
+  '371100': { name: '日照市', short: '日照', center: [119.53, 35.42], zoom: 1.8 },
+  '371300': { name: '临沂市', short: '临沂', center: [118.35, 35.10], zoom: 1.8 },
+  '371400': { name: '德州市', short: '德州', center: [116.36, 37.44], zoom: 1.8 },
+  '371500': { name: '聊城市', short: '聊城', center: [115.98, 36.45], zoom: 1.8 },
+  '371600': { name: '滨州市', short: '滨州', center: [117.97, 37.38], zoom: 1.8 },
+  '371700': { name: '菏泽市', short: '菏泽', center: [115.48, 35.23], zoom: 1.8 },
+  '130100': { name: '石家庄市', short: '石家庄', center: [114.51, 38.04], zoom: 1.8 },
+  '130200': { name: '唐山市', short: '唐山', center: [118.18, 39.63], zoom: 1.8 },
+  '140100': { name: '太原市', short: '太原', center: [112.55, 37.87], zoom: 1.8 },
+  '150100': { name: '呼和浩特市', short: '呼和浩特', center: [111.75, 40.84], zoom: 1.8 },
+  '210100': { name: '沈阳市', short: '沈阳', center: [123.43, 41.80], zoom: 1.8 },
+  '210200': { name: '大连市', short: '大连', center: [121.62, 38.92], zoom: 1.8 },
+  '220100': { name: '长春市', short: '长春', center: [125.32, 43.82], zoom: 1.8 },
+  '230100': { name: '哈尔滨市', short: '哈尔滨', center: [126.53, 45.80], zoom: 1.8 },
+  '310101': { name: '黄浦区', short: '黄浦', center: [121.49, 31.23], zoom: 2.5 },
+  '310104': { name: '徐汇区', short: '徐汇', center: [121.44, 31.18], zoom: 2.3 },
+  '310105': { name: '长宁区', short: '长宁', center: [121.42, 31.22], zoom: 2.3 },
+  '310106': { name: '静安区', short: '静安', center: [121.45, 31.23], zoom: 2.3 },
+  '310115': { name: '浦东新区', short: '浦东', center: [121.54, 31.22], zoom: 2.0 },
+  '310112': { name: '闵行区', short: '闵行', center: [121.38, 31.11], zoom: 2.0 },
+  '320100': { name: '南京市', short: '南京', center: [118.78, 32.04], zoom: 1.8 },
+  '320200': { name: '无锡市', short: '无锡', center: [120.31, 31.59], zoom: 1.8 },
+  '320500': { name: '苏州市', short: '苏州', center: [120.58, 31.30], zoom: 1.8 },
+  '330100': { name: '杭州市', short: '杭州', center: [120.15, 30.28], zoom: 1.8 },
+  '330200': { name: '宁波市', short: '宁波', center: [121.55, 29.87], zoom: 1.8 },
+  '340100': { name: '合肥市', short: '合肥', center: [117.28, 31.86], zoom: 1.8 },
+  '350100': { name: '福州市', short: '福州', center: [119.30, 26.08], zoom: 1.8 },
+  '350200': { name: '厦门市', short: '厦门', center: [118.09, 24.48], zoom: 1.8 },
+  '360100': { name: '南昌市', short: '南昌', center: [115.89, 28.68], zoom: 1.8 },
+  '410100': { name: '郑州市', short: '郑州', center: [113.65, 34.76], zoom: 1.8 },
+  '410300': { name: '洛阳市', short: '洛阳', center: [112.45, 34.62], zoom: 1.8 },
+  '420100': { name: '武汉市', short: '武汉', center: [114.31, 30.52], zoom: 1.8 },
+  '430100': { name: '长沙市', short: '长沙', center: [112.98, 28.19], zoom: 1.8 },
+  '440100': { name: '广州市', short: '广州', center: [113.27, 23.13], zoom: 1.7 },
+  '440300': { name: '深圳市', short: '深圳', center: [114.06, 22.55], zoom: 1.8 },
+  '440400': { name: '珠海市', short: '珠海', center: [113.58, 22.27], zoom: 1.8 },
+  '440600': { name: '佛山市', short: '佛山', center: [113.12, 23.02], zoom: 1.8 },
+  '450100': { name: '南宁市', short: '南宁', center: [108.37, 22.82], zoom: 1.8 },
+  '460100': { name: '海口市', short: '海口', center: [110.33, 20.03], zoom: 1.8 },
+  '500103': { name: '渝中区', short: '渝中', center: [106.55, 29.56], zoom: 2.3 },
+  '510100': { name: '成都市', short: '成都', center: [104.07, 30.67], zoom: 1.6 },
+  '520100': { name: '贵阳市', short: '贵阳', center: [106.63, 26.65], zoom: 1.8 },
+  '530100': { name: '昆明市', short: '昆明', center: [102.71, 25.04], zoom: 1.8 },
+  '610100': { name: '西安市', short: '西安', center: [108.94, 34.26], zoom: 1.8 },
+  '620100': { name: '兰州市', short: '兰州', center: [103.82, 36.06], zoom: 1.8 },
+  '630100': { name: '西宁市', short: '西宁', center: [101.78, 36.62], zoom: 1.8 },
+  '640100': { name: '银川市', short: '银川', center: [106.23, 38.48], zoom: 1.8 },
+  '650100': { name: '乌鲁木齐市', short: '乌鲁木齐', center: [87.62, 43.79], zoom: 1.8 },
+  '540100': { name: '拉萨市', short: '拉萨', center: [91.11, 29.97], zoom: 1.8 },
+};
+
+const DISTRICT_CODES_MAP = {
+  '110101': { '东华门街道': '110101001', '景山街道': '110101002', '交道口街道': '110101003', '安定门街道': '110101004', '北新桥街道': '110101005', '东四十条街道': '110101006', '朝阳门街道': '110101007', '建国门街道': '110101008', '东直门街道': '110101009', '东花市街道': '110101010' },
+  '110102': { '西长安街街道': '110102001', '新街口街道': '110102002', '月坛街道': '110102003', '展览路街道': '110102004', '德胜街道': '110102005', '什刹海街道': '110102006' },
+  '110105': { '建外街道': '110105001', '朝外街道': '110105002', '呼家楼街道': '110105003', '三里屯街道': '110105004', '团结湖街道': '110105005', '六里屯街道': '110105006' },
+  '110108': { '海淀街道': '110108001', '中关村街道': '110108002', '学院路街道': '110108003', '清河街道': '110108004', '西三旗街道': '110108005', '上地街道': '110108006' },
+  '110106': { '丰台街道': '110106001', '卢沟桥街道': '110106002', '太平桥街道': '110106003', '大红门街道': '110106004', '南苑街道': '110106005' },
+  '110107': { '八宝山街道': '110107001', '老山街道': '110107002', '八角街道': '110107003', '古城街道': '110107004', '苹果园街道': '110107005' },
+  '110112': { '中仓街道': '110112001', '新华街道': '110112002', '北苑街道': '110112003', '玉桥街道': '110112004', '永顺镇': '110112005' },
+  '110114': { '城北街道': '110114001', '城南街道': '110114002', '回龙观街道': '110114003', '天通苑北街道': '110114004' },
+  '110113': { '胜利街道': '110113001', '光明街道': '110113002', '仁和镇': '110113003', '后沙峪镇': '110113004' },
+  '110115': { '兴丰大街': '110115001', '林校路街道': '110115002', '清源街道': '110115003', '亦庄镇': '110115004' },
+  '120101': { '劝业场街道': '120101001', '小白楼街道': '120101002', '南市街道': '120101003', '新兴街道': '120101004', '南营门街道': '120101005' },
+  '120102': { '大王庄街道': '120102001', '大直沽街道': '120102002', '中山门街道': '120102003', '富民路街道': '120102004', '二号桥街道': '120102005' },
+  '120103': { '大营门街道': '120103001', '下瓦房街道': '120103002', '桃园街道': '120103003', '挂甲寺街道': '120103004', '马场街道': '120103005' },
+  '120104': { '长虹街道': '120104001', '鼓楼街道': '120104002', '兴南街道': '120104003', '广开街道': '120104004', '万兴街道': '120104005' },
+  '120105': { '光复道街道': '120105001', '望海楼街道': '120105002', '鸿顺里街道': '120105003', '三马路街道': '120105004', '江都路街道': '120105005' },
+  '120106': { '西于庄街道': '120106001', '咸阳北路街道': '120106002', '丁字沽街道': '120106003', '西沽街道': '120106004', '邵公庄街道': '120106005' },
+  '370100': { '历下区': '370102', '市中区': '370103', '槐荫区': '370104', '天桥区': '370105', '历城区': '370112', '长清区': '370113' },
+  '370200': { '市南区': '370202', '市北区': '370203', '黄岛区': '370211', '崂山区': '370212', '李沧区': '370213', '城阳区': '370214' },
+  '370300': { '张店区': '370303', '淄川区': '370302', '博山区': '370304', '临淄区': '370305', '周村区': '370306' },
+  '370400': { '市中区': '370402', '薛城区': '370403', '峄城区': '370404', '台儿庄区': '370405' },
+  '370500': { '东营区': '370502', '河口区': '370503', '广饶县': '370523', '利津县': '370522' },
+  '370600': { '芝罘区': '370602', '福山区': '370611', '牟平区': '370612', '莱山区': '370613' },
+  '370700': { '潍城区': '370702', '坊子区': '370704', '奎文区': '370705', '寒亭区': '370703' },
+  '370800': { '任城区': '370811', '兖州区': '370812', '邹城市': '370883', '曲阜市': '370881' },
+  '370900': { '泰山区': '370902', '岱岳区': '370911', '新泰市': '370982', '肥城市': '370983' },
+  '371000': { '环翠区': '371002', '文登区': '371003', '荣成市': '371082', '乳山市': '371083' },
+  '371100': { '东港区': '371102', '岚山区': '371103', '莒县': '371122', '五莲县': '371125' },
+  '371300': { '兰山区': '371302', '罗庄区': '371311', '河东区': '371312', '沂南县': '371321' },
+  '371400': { '德城区': '371402', '陵城区': '371403', '乐陵市': '371481', '禹城市': '371482' },
+  '371500': { '东昌府区': '371502', '茌平区': '371523', '临清市': '371581', '高唐县': '371526' },
+  '371600': { '滨城区': '371602', '沾化区': '371603', '邹平市': '371681', '惠民县': '371621' },
+  '371700': { '牡丹区': '371702', '定陶区': '371703', '曹县': '371721', '单县': '371722' },
+  '130100': { '长安区': '130102', '桥西区': '130104', '新华区': '130105', '井陉矿区': '130107', '裕华区': '130108' },
+  '130200': { '路南区': '130202', '路北区': '130203', '古冶区': '130204', '开平区': '130205', '丰南区': '130207' },
+  '140100': { '小店区': '140105', '迎泽区': '140106', '杏花岭区': '140107', '尖草坪区': '140108', '万柏林区': '140109' },
+  '150100': { '新城区': '150102', '回民区': '150103', '玉泉区': '150104', '赛罕区': '150105' },
+  '210100': { '和平区': '210102', '沈河区': '210103', '大东区': '210104', '皇姑区': '210105', '铁西区': '210106' },
+  '210200': { '中山区': '210202', '西岗区': '210203', '沙河口区': '210204', '甘井子区': '210211', '旅顺口区': '210212' },
+  '220100': { '南关区': '220102', '宽城区': '220103', '朝阳区': '220104', '二道区': '220105', '绿园区': '220106' },
+  '230100': { '道里区': '230102', '南岗区': '230103', '道外区': '230104', '平房区': '230108', '松北区': '230109' },
+  '310101': { '南京东路街道': '310101001', '外滩街道': '310101002', '豫园街道': '310101003', '打浦桥街道': '310101004', '老西门街道': '310101005', '小东门街道': '310101006' },
+  '310104': { '天平路街道': '310104001', '湖南路街道': '310104002', '斜土路街道': '310104003', '枫林路街道': '310104004', '田林街道': '310104005', '虹梅路街道': '310104006' },
+  '310105': { '华阳路街道': '310105001', '江苏路街道': '310105002', '新华路街道': '310105003', '周家桥街道': '310105004', '天山路街道': '310105005' },
+  '310106': { '江宁路街道': '310106001', '石门二路街道': '310106002', '南京西路街道': '310106003', '静安寺街道': '310106004', '曹家渡街道': '310106005' },
+  '310115': { '陆家嘴街道': '310115001', '潍坊新村街道': '310115002', '陆家嘴金融贸易区': '310115003', '花木街道': '310115004', '金桥街道': '310115005' },
+  '310112': { '江川路街道': '310112001', '古美路街道': '310112002', '新虹街道': '310112003', '浦锦街道': '310112004', '莘庄镇': '310112005' },
+  '320100': { '玄武区': '320102', '秦淮区': '320104', '建邺区': '320105', '鼓楼区': '320106', '浦口区': '320111', '栖霞区': '320113', '雨花台区': '320114' },
+  '320200': { '崇安区': '320202', '南长区': '320203', '北塘区': '320204', '滨湖区': '320211', '锡山区': '320205', '惠山区': '320206' },
+  '320500': { '姑苏区': '320508', '虎丘区': '320505', '吴中区': '320506', '相城区': '320507', '吴江区': '320509' },
+  '330100': { '上城区': '330102', '下城区': '330103', '江干区': '330104', '拱墅区': '330105', '西湖区': '330106', '滨江区': '330108' },
+  '330200': { '海曙区': '330203', '江北区': '330205', '北仑区': '330206', '镇海区': '330211', '鄞州区': '330212' },
+  '340100': { '瑶海区': '340102', '庐阳区': '340103', '蜀山区': '340104', '包河区': '340111', '高新区': '340191' },
+  '350100': { '鼓楼区': '350102', '台江区': '350103', '仓山区': '350104', '马尾区': '350105', '晋安区': '350111' },
+  '350200': { '思明区': '350203', '海沧区': '350205', '湖里区': '350206', '集美区': '350211', '同安区': '350212' },
+  '360100': { '东湖区': '360102', '西湖区': '360103', '青云谱区': '360104', '青山湖区': '360111', '新建区': '360112' },
+  '410100': { '中原区': '410102', '二七区': '410103', '管城回族区': '410104', '金水区': '410105', '上街区': '410106', '惠济区': '410108' },
+  '410300': { '老城区': '410302', '西工区': '410303', '瀍河回族区': '410304', '涧西区': '410305', '洛龙区': '410307' },
+  '420100': { '江岸区': '420102', '江汉区': '420103', '硚口区': '420104', '汉阳区': '420105', '武昌区': '420106', '洪山区': '420111' },
+  '430100': { '芙蓉区': '430102', '天心区': '430103', '岳麓区': '430104', '开福区': '430105', '雨花区': '430111', '望城区': '430112' },
+  '440100': { '越秀区': '440104', '海珠区': '440105', '荔湾区': '440103', '天河区': '440106', '白云区': '440111', '黄埔区': '440112' },
+  '440300': { '福田区': '440304', '罗湖区': '440303', '南山区': '440305', '宝安区': '440306', '龙岗区': '440307', '盐田区': '440308' },
+  '440400': { '香洲区': '440402', '斗门区': '440403', '金湾区': '440404' },
+  '440600': { '禅城区': '440604', '南海区': '440605', '顺德区': '440606', '三水区': '440607', '高明区': '440608' },
+  '450100': { '兴宁区': '450102', '青秀区': '450103', '江南区': '450105', '西乡塘区': '450107', '邕宁区': '450109' },
+  '460100': { '秀英区': '460105', '龙华区': '460106', '琼山区': '460107', '美兰区': '460108' },
+  '500103': { '七星岗街道': '500103001', '解放碑街道': '500103002', '两路口街道': '500103003', '上清寺街道': '500103004', '菜园坝街道': '500103005' },
+  '510100': { '锦江区': '510104', '青羊区': '510105', '金牛区': '510106', '武侯区': '510107', '成华区': '510108', '龙泉驿区': '510112' },
+  '520100': { '南明区': '520102', '云岩区': '520103', '花溪区': '520111', '乌当区': '520112', '白云区': '520113', '观山湖区': '520115' },
+  '530100': { '五华区': '530102', '盘龙区': '530103', '官渡区': '530111', '西山区': '530112', '东川区': '530113' },
+  '610100': { '新城区': '610102', '碑林区': '610103', '莲湖区': '610104', '灞桥区': '610111', '未央区': '610112', '雁塔区': '610113' },
+  '620100': { '城关区': '620102', '七里河区': '620103', '西固区': '620104', '安宁区': '620105', '红古区': '620111' },
+  '630100': { '城东区': '630102', '城中区': '630103', '城西区': '630104', '城北区': '630105' },
+  '640100': { '兴庆区': '640104', '西夏区': '640105', '金凤区': '640106', '永宁县': '640121', '贺兰县': '640122' },
+  '650100': { '天山区': '650102', '沙依巴克区': '650103', '新市区': '650104', '水磨沟区': '650105', '头屯河区': '650106' },
+  '540100': { '城关区': '540102', '堆龙德庆区': '540103', '达孜区': '540104', '林周县': '540121' },
+};
+
+const routeCode = computed(() => String(route.params.code || '370100'));
+const cityNameFromGeo = ref('');
+const currentCityConfig = computed(() => {
+  if (CITY_MAP_CONFIG[routeCode.value]) return CITY_MAP_CONFIG[routeCode.value];
+  const code = routeCode.value;
+  const short = cityNameFromGeo.value || code;
+  return { name: short, short, center: [116.40, 39.90], zoom: 1.8 };
+});
+const currentCity = computed(() => currentCityConfig.value.short);
+const currentCityCenter = computed(() => currentCityConfig.value.center);
+
+// 根据路由参数同步筛选条件（从 province.vue 地图下钻进入时生效）
+// 城市码前两位 + '0000' 即为省份码
+const syncFilterFromRoute = () => {
+  const code = routeCode.value;
+  if (code && code.length >= 4) {
+    const provinceCode = code.slice(0, 2) + '0000';
+    if (Object.values(PROVINCE_CODES).includes(provinceCode)) {
+      filter.province = provinceCode;
+      filter.city = code;
+      filter.district = '';
+      filter.school = '';
+    }
+  }
+};
+
+const tabs = [
+  { key: 'vision', label: '视力健康', icon: '👁️' },
+  { key: 'oral', label: '口腔健康', icon: '🦷' },
+  { key: 'mental', label: '心理健康', icon: '🧠' },
+  { key: 'weight', label: '健康体重', icon: '⚖️' },
+  { key: 'bone', label: '骨骼健康', icon: '🦴' }
+];
+
+const metricConfig = {
+  vision: { name: '近视', baseRate: 55, trend: 2.0, maleFactor: 0.95, femaleFactor: 1.05, primaryFactor: 0.6, juniorFactor: 1.0, seniorFactor: 1.25 },
+  oral: { name: '龋齿', baseRate: 40, trend: -1.0, maleFactor: 0.96, femaleFactor: 1.05, primaryFactor: 1.24, juniorFactor: 0.9, seniorFactor: 0.67 },
+  mental: { name: '心理预警', baseRate: 16, trend: -0.6, maleFactor: 0.92, femaleFactor: 1.1, primaryFactor: 0.67, juniorFactor: 1.22, seniorFactor: 1.56 },
+  weight: { name: '超重/肥胖', baseRate: 22, trend: 1.2, maleFactor: 1.12, femaleFactor: 0.88, primaryFactor: 0.63, juniorFactor: 1.17, seniorFactor: 1.33 },
+  bone: { name: '骨密度偏低', baseRate: 14, trend: -0.4, maleFactor: 0.91, femaleFactor: 1.11, primaryFactor: 0.75, juniorFactor: 1.13, seniorFactor: 1.38 }
+};
+
+const currentMetric = computed(() => metricConfig[activeTab.value]);
+
+const districtList = ref([]);
 
 const PROVINCE_CODES = {
   北京: '110000', 天津: '120000', 河北: '130000', 山西: '140000', 内蒙古: '150000',
@@ -394,96 +590,6 @@ const PROVINCE_CODES = {
   新疆: '650000', 台湾: '710000', 香港: '810000', 澳门: '820000',
 };
 
-const PROVINCE_MAP_CONFIG = {
-  '110000': { name: '北京市', short: '北京', center: [116.4, 39.9], zoom: 1.6 },
-  '120000': { name: '天津市', short: '天津', center: [117.2, 39.1], zoom: 1.8 },
-  '130000': { name: '河北省', short: '河北', center: [114.5, 38.0], zoom: 1.8 },
-  '140000': { name: '山西省', short: '山西', center: [112.5, 37.8], zoom: 1.8 },
-  '150000': { name: '内蒙古自治区', short: '内蒙古', center: [111.7, 40.8], zoom: 1.4 },
-  '210000': { name: '辽宁省', short: '辽宁', center: [123.4, 41.8], zoom: 1.7 },
-  '220000': { name: '吉林省', short: '吉林', center: [125.3, 43.9], zoom: 1.6 },
-  '230000': { name: '黑龙江省', short: '黑龙江', center: [126.6, 45.7], zoom: 1.5 },
-  '310000': { name: '上海市', short: '上海', center: [121.5, 31.2], zoom: 2.0 },
-  '320000': { name: '江苏省', short: '江苏', center: [118.8, 32.0], zoom: 1.8 },
-  '330000': { name: '浙江省', short: '浙江', center: [120.2, 29.2], zoom: 1.8 },
-  '340000': { name: '安徽省', short: '安徽', center: [117.3, 31.8], zoom: 1.8 },
-  '350000': { name: '福建省', short: '福建', center: [119.3, 26.1], zoom: 1.8 },
-  '360000': { name: '江西省', short: '江西', center: [115.9, 28.7], zoom: 1.8 },
-  '370000': { name: '山东省', short: '山东', center: [118.0, 36.5], zoom: 1.8 },
-  '410000': { name: '河南省', short: '河南', center: [113.6, 34.8], zoom: 1.8 },
-  '420000': { name: '湖北省', short: '湖北', center: [112.3, 31.0], zoom: 1.8 },
-  '430000': { name: '湖南省', short: '湖南', center: [112.0, 27.6], zoom: 1.8 },
-  '440000': { name: '广东省', short: '广东', center: [113.5, 23.8], zoom: 1.8 },
-  '450000': { name: '广西壮族自治区', short: '广西', center: [108.3, 22.8], zoom: 1.7 },
-  '460000': { name: '海南省', short: '海南', center: [110.3, 20.0], zoom: 1.8 },
-  '500000': { name: '重庆市', short: '重庆', center: [106.5, 29.5], zoom: 1.9 },
-  '510000': { name: '四川省', short: '四川', center: [104.0, 30.6], zoom: 1.6 },
-  '520000': { name: '贵州省', short: '贵州', center: [106.7, 26.6], zoom: 1.8 },
-  '530000': { name: '云南省', short: '云南', center: [102.7, 25.0], zoom: 1.7 },
-  '540000': { name: '西藏自治区', short: '西藏', center: [91.1, 29.7], zoom: 1.2 },
-  '610000': { name: '陕西省', short: '陕西', center: [108.9, 34.3], zoom: 1.8 },
-  '620000': { name: '甘肃省', short: '甘肃', center: [103.8, 36.1], zoom: 1.4 },
-  '630000': { name: '青海省', short: '青海', center: [101.8, 36.6], zoom: 1.4 },
-  '640000': { name: '宁夏回族自治区', short: '宁夏', center: [106.3, 38.5], zoom: 1.7 },
-  '650000': { name: '新疆维吾尔自治区', short: '新疆', center: [87.6, 43.8], zoom: 1.2 },
-};
-
-const CITY_CODES_MAP = {
-  '110000': { '东城区': '110101', '西城区': '110102', '朝阳区': '110105', '海淀区': '110108', '丰台区': '110106', '石景山区': '110107', '通州区': '110112', '昌平区': '110114', '顺义区': '110113', '大兴区': '110115' },
-  '120000': { '和平区': '120101', '河东区': '120102', '河西区': '120103', '南开区': '120104', '河北区': '120105', '红桥区': '120106', '东丽区': '120110', '西青区': '120111', '津南区': '120112', '北辰区': '120113' },
-  '130000': { '石家庄市': '130100', '唐山市': '130200', '秦皇岛市': '130300', '邯郸市': '130400', '邢台市': '130500', '保定市': '130600', '张家口市': '130700', '承德市': '130800', '沧州市': '130900', '廊坊市': '131000', '衡水市': '131100' },
-  '140000': { '太原市': '140100', '大同市': '140200', '阳泉市': '140300', '长治市': '140400', '晋城市': '140500', '朔州市': '140600', '晋中市': '140700', '运城市': '140800', '忻州市': '140900', '临汾市': '141000', '吕梁市': '141100' },
-  '150000': { '呼和浩特市': '150100', '包头市': '150200', '乌海市': '150300', '赤峰市': '150400', '通辽市': '150500', '鄂尔多斯市': '150600', '呼伦贝尔市': '150700', '巴彦淖尔市': '150800', '乌兰察布市': '150900', '兴安盟': '152200' },
-  '210000': { '沈阳市': '210100', '大连市': '210200', '鞍山市': '210300', '抚顺市': '210400', '本溪市': '210500', '丹东市': '210600', '锦州市': '210700', '营口市': '210800', '阜新市': '210900', '辽阳市': '211000', '盘锦市': '211100', '铁岭市': '211200', '朝阳市': '211300', '葫芦岛市': '211400' },
-  '220000': { '长春市': '220100', '吉林市': '220200', '四平市': '220300', '辽源市': '220400', '通化市': '220500', '白山市': '220600', '松原市': '220700', '白城市': '220800' },
-  '230000': { '哈尔滨市': '230100', '齐齐哈尔市': '230200', '鸡西市': '230300', '鹤岗市': '230400', '双鸭山市': '230500', '大庆市': '230600', '伊春市': '230700', '佳木斯市': '230800', '七台河市': '230900', '牡丹江市': '231000' },
-  '310000': { '黄浦区': '310101', '徐汇区': '310104', '长宁区': '310105', '静安区': '310106', '普陀区': '310107', '虹口区': '310109', '杨浦区': '310110', '浦东新区': '310115', '闵行区': '310112', '宝山区': '310113', '嘉定区': '310114', '金山区': '310116', '松江区': '310117', '青浦区': '310118', '奉贤区': '310120', '崇明区': '310151' },
-  '320000': { '南京市': '320100', '无锡市': '320200', '徐州市': '320300', '常州市': '320400', '苏州市': '320500', '南通市': '320600', '连云港市': '320700', '淮安市': '320800', '盐城市': '320900', '扬州市': '321000', '镇江市': '321100', '泰州市': '321200', '宿迁市': '321300' },
-  '330000': { '杭州市': '330100', '宁波市': '330200', '温州市': '330300', '嘉兴市': '330400', '湖州市': '330500', '绍兴市': '330600', '金华市': '330700', '衢州市': '330800', '舟山市': '330900', '台州市': '331000', '丽水市': '331100' },
-  '340000': { '合肥市': '340100', '芜湖市': '340200', '蚌埠市': '340300', '淮南市': '340400', '马鞍山市': '340500', '淮北市': '340600', '铜陵市': '340700', '安庆市': '340800', '黄山市': '341000', '滁州市': '341100', '阜阳市': '341200', '宿州市': '341300', '六安市': '341500' },
-  '350000': { '福州市': '350100', '厦门市': '350200', '莆田市': '350300', '三明市': '350400', '泉州市': '350500', '漳州市': '350600', '南平市': '350700', '龙岩市': '350800', '宁德市': '350900' },
-  '360000': { '南昌市': '360100', '景德镇市': '360200', '萍乡市': '360300', '九江市': '360400', '新余市': '360500', '鹰潭市': '360600', '赣州市': '360700', '吉安市': '360800', '宜春市': '360900', '抚州市': '361000', '上饶市': '361100' },
-  '370000': { '济南市': '370100', '青岛市': '370200', '淄博市': '370300', '枣庄市': '370400', '东营市': '370500', '烟台市': '370600', '潍坊市': '370700', '济宁市': '370800', '泰安市': '370900', '威海市': '371000', '日照市': '371100', '临沂市': '371300', '德州市': '371400', '聊城市': '371500', '滨州市': '371600', '菏泽市': '371700' },
-  '410000': { '郑州市': '410100', '开封市': '410200', '洛阳市': '410300', '平顶山市': '410400', '安阳市': '410500', '鹤壁市': '410600', '新乡市': '410700', '焦作市': '410800', '濮阳市': '410900', '许昌市': '411000', '漯河市': '411100', '三门峡市': '411200', '南阳市': '411300', '商丘市': '411400', '信阳市': '411500', '周口市': '411600', '驻马店市': '411700' },
-  '420000': { '武汉市': '420100', '黄石市': '420200', '十堰市': '420300', '宜昌市': '420500', '襄阳市': '420600', '鄂州市': '420700', '荆门市': '420800', '孝感市': '420900', '荆州市': '421000', '黄冈市': '421100', '咸宁市': '421200', '随州市': '421300' },
-  '430000': { '长沙市': '430100', '株洲市': '430200', '湘潭市': '430300', '衡阳市': '430400', '邵阳市': '430500', '岳阳市': '430600', '常德市': '430700', '张家界市': '430800', '益阳市': '430900', '郴州市': '431000', '永州市': '431100', '怀化市': '431200', '娄底市': '431300' },
-  '440000': { '广州市': '440100', '深圳市': '440300', '珠海市': '440400', '汕头市': '440500', '佛山市': '440600', '韶关市': '440200', '湛江市': '440800', '肇庆市': '441200', '江门市': '440700', '茂名市': '440900', '惠州市': '441300', '梅州市': '441400', '汕尾市': '441500', '河源市': '441600', '阳江市': '441700', '清远市': '441800', '东莞市': '441900', '中山市': '442000', '潮州市': '445100', '揭阳市': '445200' },
-  '450000': { '南宁市': '450100', '柳州市': '450200', '桂林市': '450300', '梧州市': '450400', '北海市': '450500', '防城港市': '450600', '钦州市': '450700', '贵港市': '450800', '玉林市': '450900', '百色市': '451000', '贺州市': '451100', '河池市': '451200', '来宾市': '451300', '崇左市': '451400' },
-  '460000': { '海口市': '460100', '三亚市': '460200', '三沙市': '460300', '儋州市': '460400' },
-  '500000': { '渝中区': '500103', '江北区': '500105', '沙坪坝区': '500106', '九龙坡区': '500107', '南岸区': '500108', '北碚区': '500109', '万州区': '500101', '涪陵区': '500102', '渝北区': '500112', '巴南区': '500113' },
-  '510000': { '成都市': '510100', '自贡市': '510300', '攀枝花市': '510400', '泸州市': '510500', '德阳市': '510600', '绵阳市': '510700', '广元市': '510800', '遂宁市': '510900', '内江市': '511000', '乐山市': '511100', '南充市': '511300', '眉山市': '511400' },
-  '520000': { '贵阳市': '520100', '六盘水市': '520200', '遵义市': '520300', '安顺市': '520400', '毕节市': '520500', '铜仁市': '520600' },
-  '530000': { '昆明市': '530100', '曲靖市': '530300', '玉溪市': '530400', '保山市': '530500', '昭通市': '530600', '丽江市': '530700', '普洱市': '530800', '临沧市': '530900' },
-  '540000': { '拉萨市': '540100', '日喀则市': '540200', '昌都市': '540300', '林芝市': '540400', '山南市': '540500', '那曲市': '540600' },
-  '610000': { '西安市': '610100', '铜川市': '610200', '宝鸡市': '610300', '咸阳市': '610400', '渭南市': '610500', '延安市': '610600', '汉中市': '610700', '榆林市': '610800', '安康市': '610900', '商洛市': '611000' },
-  '620000': { '兰州市': '620100', '嘉峪关市': '620200', '金昌市': '620300', '白银市': '620400', '天水市': '620500', '武威市': '620600', '张掖市': '620700', '平凉市': '620800', '酒泉市': '620900', '庆阳市': '621000', '定西市': '621100', '陇南市': '621200' },
-  '630000': { '西宁市': '630100', '海东市': '630200' },
-  '640000': { '银川市': '640100', '石嘴山市': '640200', '吴忠市': '640300', '固原市': '640400', '中卫市': '640500' },
-  '650000': { '乌鲁木齐市': '650100', '克拉玛依市': '650200', '吐鲁番市': '650400', '哈密市': '650500' },
-};
-
-const getColors = () => (isLight.value ? LIGHT_COLOR : DARK_COLOR);
-
-const makeGrad = (c1, c2, horizontal = true) =>
-  new echarts.graphic.LinearGradient(0, 0, horizontal ? 1 : 0, horizontal ? 0 : 1, [
-    { offset: 0, color: c1 },
-    { offset: 1, color: c2 },
-  ]);
-
-// ============================================================
-//  Tabs
-// ============================================================
-const tabs = [
-  { key: 'vision', label: '视力健康', icon: '👁️' },
-  { key: 'oral',   label: '口腔健康', icon: '🦷' },
-  { key: 'mental', label: '心理健康', icon: '🧠' },
-  { key: 'weight', label: '健康体重', icon: '⚖️' },
-  { key: 'bone',   label: '骨骼健康', icon: '🦴' }
-];
-
-// ============================================================
-//  顶部筛选
-// ============================================================
 const filter = reactive({
   province: '',
   city: '',
@@ -492,6 +598,10 @@ const filter = reactive({
 });
 
 const openDropdown = ref(null);
+const provinceRef = ref(null);
+const cityRef = ref(null);
+const districtRef = ref(null);
+const schoolRef = ref(null);
 
 const toggleDropdown = (key) => {
   if (key === 'city' && !filter.province) return;
@@ -1185,187 +1295,42 @@ const handleResetFilter = () => {
   filter.school = '';
 };
 
-// ============================================================
-//  数据
-// ============================================================
-const nationData = {
-  vision: {
-    metric: '近视', rate: 53.6, students: 18600, cities: 31,
-    primary: 36.7, junior: 71.4, senior: 79.6,
-    maleRate: 55.2, femaleRate: 42.2, trend: -1.4,
-    citiesRank: [
-      { name: '济南', value: 32.63 }, { name: '青岛', value: 20.26 },
-      { name: '烟台', value: 19.82 }, { name: '德州', value: 19.13 },
-      { name: '泰安', value: 18.96 }, { name: '菏泽', value: 17.23 },
-      { name: '聊城', value: 11.28 }, { name: '济宁', value: 10.24 },
-      { name: '枣庄', value: 9.33 },  { name: '淄博', value: 8.96 }
-    ],
-    ageGender: { grades: ['小学', '初中', '高中'], male: [36, 60, 75], female: [28, 52, 68] },
-    urbanRural: { urban: 62.2, rural: 33.2 },
-    interventions: [
-      { name: '试点小学A', initial: 76.4, final: 68.2, change: -8.2 },
-      { name: '试点小学B', initial: 84.5, final: 72.6, change: -11.9 },
-      { name: '试点小学C', initial: 66.4, final: 62.2, change: -4.2 },
-      { name: '试点小学D', initial: 59.8, final: 54.2, change: -5.6 }
-    ]
-  },
-  oral: {
-    metric: '龋齿', rate: 45.2, students: 18600, cities: 31,
-    primary: 28.0, junior: 50.2, senior: 65.0,
-    maleRate: 40.5, femaleRate: 38.2, trend: 0.8,
-    citiesRank: [
-      { name: '济南', value: 45.2 }, { name: '青岛', value: 43.8 },
-      { name: '烟台', value: 40.5 }, { name: '德州', value: 39.2 },
-      { name: '泰安', value: 38.1 }, { name: '菏泽', value: 36.5 },
-      { name: '聊城', value: 35.2 }, { name: '济宁', value: 34.1 },
-      { name: '枣庄', value: 32.8 }, { name: '淄博', value: 31.5 }
-    ],
-    ageGender: { grades: ['小学', '初中', '高中'], male: [30, 42, 50], female: [26, 38, 47] },
-    urbanRural: { urban: 45.0, rural: 28.5 },
-    interventions: [
-      { name: '试点小学A', initial: 52.3, final: 48.1, change: -4.2 },
-      { name: '试点小学B', initial: 62.5, final: 56.8, change: -5.7 },
-      { name: '试点小学C', initial: 70.2, final: 62.1, change: -8.1 },
-      { name: '试点小学D', initial: 48.6, final: 44.3, change: -4.3 }
-    ]
-  },
-  mental: {
-    metric: '心理风险', rate: 23.5, students: 18600, cities: 31,
-    primary: 18.2, junior: 25.6, senior: 30.1,
-    maleRate: 24.2, femaleRate: 22.8, trend: 2.1,
-    citiesRank: [
-      { name: '济南', value: 28.3 }, { name: '青岛', value: 26.7 },
-      { name: '烟台', value: 24.5 }, { name: '德州', value: 23.8 },
-      { name: '泰安', value: 22.4 }, { name: '菏泽', value: 21.5 },
-      { name: '聊城', value: 20.8 }, { name: '济宁', value: 20.1 },
-      { name: '枣庄', value: 19.4 }, { name: '淄博', value: 18.7 }
-    ],
-    ageGender: { grades: ['小学', '初中', '高中'], male: [20, 28, 33], female: [16, 23, 28] },
-    urbanRural: { urban: 28.0, rural: 18.5 },
-    interventions: [
-      { name: '试点小学A', initial: 32.4, final: 28.1, change: -4.3 },
-      { name: '试点小学B', initial: 38.2, final: 32.5, change: -5.7 },
-      { name: '试点小学C', initial: 42.1, final: 35.2, change: -6.9 },
-      { name: '试点小学D', initial: 28.9, final: 24.8, change: -4.1 }
-    ]
-  },
-  weight: {
-    metric: '超重肥胖', rate: 30.5, students: 18600, cities: 31,
-    primary: 22.3, junior: 30.5, senior: 35.0,
-    maleRate: 32.1, femaleRate: 28.9, trend: 1.5,
-    citiesRank: [
-      { name: '济南', value: 35.2 }, { name: '青岛', value: 33.8 },
-      { name: '烟台', value: 31.5 }, { name: '德州', value: 30.8 },
-      { name: '泰安', value: 29.5 }, { name: '菏泽', value: 28.4 },
-      { name: '聊城', value: 27.5 }, { name: '济宁', value: 26.8 },
-      { name: '枣庄', value: 25.9 }, { name: '淄博', value: 25.1 }
-    ],
-    ageGender: { grades: ['小学', '初中', '高中'], male: [25, 32, 38], female: [20, 28, 32] },
-    urbanRural: { urban: 35.0, rural: 22.0 },
-    interventions: [
-      { name: '试点小学A', initial: 42.3, final: 38.1, change: -4.2 },
-      { name: '试点小学B', initial: 48.5, final: 42.2, change: -6.3 },
-      { name: '试点小学C', initial: 52.1, final: 44.6, change: -7.5 },
-      { name: '试点小学D', initial: 38.6, final: 34.3, change: -4.3 }
-    ]
-  },
-  bone: {
-    metric: '脊柱侧弯', rate: 16.2, students: 18600, cities: 31,
-    primary: 12.1, junior: 16.8, senior: 20.5,
-    maleRate: 18.0, femaleRate: 14.4, trend: -0.3,
-    citiesRank: [
-      { name: '济南', value: 19.5 }, { name: '青岛', value: 18.3 },
-      { name: '烟台', value: 17.2 }, { name: '德州', value: 16.8 },
-      { name: '泰安', value: 16.0 }, { name: '菏泽', value: 15.5 },
-      { name: '聊城', value: 15.0 }, { name: '济宁', value: 14.5 },
-      { name: '枣庄', value: 14.0 }, { name: '淄博', value: 13.6 }
-    ],
-    ageGender: { grades: ['小学', '初中', '高中'], male: [14, 18, 22], female: [10, 15, 19] },
-    urbanRural: { urban: 20.0, rural: 12.0 },
-    interventions: [
-      { name: '试点小学A', initial: 22.4, final: 19.8, change: -2.6 },
-      { name: '试点小学B', initial: 26.5, final: 22.8, change: -3.7 },
-      { name: '试点小学C', initial: 28.2, final: 24.1, change: -4.1 },
-      { name: '试点小学D', initial: 19.8, final: 17.5, change: -2.3 }
-    ]
-  }
-};
-
-// 省份地图数据由 getProvinceMapData() 根据路由参数动态生成
-
-// ============================================================
-//  状态
-// ============================================================
-const activeTab = ref('vision');
-const mapLoaded = ref(false);
-const currentDate = ref('');
-const currentTime = ref('');
-const isLight = ref(false);
-const mapZoom = ref(1.8);
-const cityList = ref([]);
-
-// 路由驱动的省份配置
-const routeCode = computed(() => String(route.params.code || '370000'));
-const currentProvinceConfig = computed(() => PROVINCE_MAP_CONFIG[routeCode.value] || PROVINCE_MAP_CONFIG['370000']);
-const currentProvince = computed(() => currentProvinceConfig.value.short);
-const currentProvinceCenter = computed(() => currentProvinceConfig.value.center);
-const currentCityCodes = computed(() => CITY_CODES_MAP[routeCode.value] || {});
-
-// 根据路由参数同步筛选条件中的省份默认选中（从 index.vue 地图下钻进入时生效）
-const syncFilterFromRoute = () => {
-  const code = routeCode.value;
-  if (code && Object.values(PROVINCE_CODES).includes(code)) {
-    filter.province = code;
-    filter.city = '';
-    filter.district = '';
-    filter.school = '';
-  }
-};
-
-const cityRankRef = ref(null);
-const ageGenderRef = ref(null);
-const urbanGaugeRef = ref(null);
-const ruralGaugeRef = ref(null);
-const interventionRef = ref(null);
-const mapRef = ref(null);
-
-const chartInstances = {};
-let timer = null;
-let themeObserver = null;
-
-const metricConfig = {
-  vision: { name: '近视', baseRate: 58, trend: 2.5, maleFactor: 0.95, femaleFactor: 1.05, primaryFactor: 0.6, juniorFactor: 1.0, seniorFactor: 1.25 },
-  oral: { name: '龋齿', baseRate: 42, trend: -1.2, maleFactor: 0.96, femaleFactor: 1.05, primaryFactor: 1.24, juniorFactor: 0.9, seniorFactor: 0.67 },
-  mental: { name: '心理预警', baseRate: 18, trend: -0.8, maleFactor: 0.92, femaleFactor: 1.1, primaryFactor: 0.67, juniorFactor: 1.22, seniorFactor: 1.56 },
-  weight: { name: '超重/肥胖', baseRate: 24, trend: 1.5, maleFactor: 1.12, femaleFactor: 0.88, primaryFactor: 0.63, juniorFactor: 1.17, seniorFactor: 1.33 },
-  bone: { name: '骨密度偏低', baseRate: 16, trend: -0.5, maleFactor: 0.91, femaleFactor: 1.11, primaryFactor: 0.75, juniorFactor: 1.13, seniorFactor: 1.38 }
-};
-
-const currentMetric = computed(() => metricConfig[activeTab.value]);
-
-const computeProvinceMetricData = () => {
+const computeCityMetricData = () => {
   const m = metricConfig[activeTab.value];
-  const cfg = currentProvinceConfig.value;
-  const code = routeCode.value;
-  const seed = parseInt(code.slice(-2), 10) || 13;
-  const rate = Math.round((m.baseRate + (seed % 15 - 7)) * 10) / 10;
-  const students = Math.round(800 + seed * 3 + cfg.center[0] % 50);
-  const cities = cityList.value.length || 11;
+  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
+  const rate = Math.round((m.baseRate + (seed % 12 - 6)) * 10) / 10;
+  const students = Math.round(500 + seed * 5);
+  const districts = districtList.value.length || 8;
   const maleRate = Math.round(rate * m.maleFactor * 10) / 10;
   const femaleRate = Math.round(rate * m.femaleFactor * 10) / 10;
   const primary = Math.round(rate * m.primaryFactor * 10) / 10;
   const junior = Math.round(rate * m.juniorFactor * 10) / 10;
   const senior = Math.round(rate * m.seniorFactor * 10) / 10;
-  const topCity = cityList.value[0] || '最高';
-  const topRate = Math.round((rate + 5 + (seed % 8)) * 10) / 10;
-  return { rate, students, cities, trend: m.trend, maleRate, femaleRate, primary, junior, senior, topCity, topRate };
+  const topDistrict = districtList.value[0] || '最高';
+  const topRate = Math.round((rate + 4 + (seed % 6)) * 10) / 10;
+  return { rate, students, districts, trend: m.trend, maleRate, femaleRate, primary, junior, senior, topDistrict, topRate };
 };
 
-const currentProvinceData = computed(() => computeProvinceMetricData());
+const currentCityData = computed(() => computeCityMetricData());
 
-// ============================================================
-//  方法
-// ============================================================
+const rankingChartRef = ref(null);
+const ageGenderChartRef = ref(null);
+const urbanGaugeRef = ref(null);
+const ruralGaugeRef = ref(null);
+const trendChartRef = ref(null);
+const interventionChartRef = ref(null);
+const mapRef = ref(null);
+
+const chartInstances = {};
+const activeTab = ref('vision');
+const isLight = ref(false);
+const currentDate = ref('');
+const currentTime = ref('');
+const mapLoaded = ref(false);
+const mapZoom = ref(1.8);
+let timer = null;
+let themeObserver = null;
+
 // 可视化大屏始终使用深色主题，不受系统深浅色模式影响
 const applySystemTheme = () => {
   isLight.value = false;
@@ -1377,37 +1342,35 @@ const observeTheme = () => {
   themeObserver = null;
 };
 
-const drillToCity = (name) => {
-  const codes = currentCityCodes.value;
+const updateDateTime = () => {
+  const now = new Date();
+  currentDate.value = now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+  currentTime.value = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+};
+
+const switchTab = (tabKey) => {
+  activeTab.value = tabKey;
+  setTimeout(() => renderAllCharts(), 100);
+};
+
+const goBack = () => {
+  const code = routeCode.value;
+  const provinceCode = code.slice(0, 2) + '0000';
+  router.push({ path: `/vision/province/${provinceCode}`, query: { tab: activeTab.value } });
+};
+
+const drillToDistrict = (name) => {
+  const codes = DISTRICT_CODES_MAP[routeCode.value] || {};
   let code = codes[name];
   if (!code) {
-    const suffixes = ['市', '区', '县', '盟', '自治州', '地区'];
+    const suffixes = ['区', '县', '市'];
     for (const s of suffixes) {
       const stripped = name.replace(s, '');
       if (codes[stripped]) { code = codes[stripped]; break; }
     }
   }
-  if (code) router.push({ path: `/vision/city/${code}`, query: { tab: activeTab.value } });
-};
-
-const goBack = () => {
-  router.push({ path: '/vision/national', query: { tab: activeTab.value } });
-};
-
-const getProvinceMapData = () => {
-  const cities = cityList.value;
-  if (cities.length === 0) return [];
-  const baseRate = currentProvinceData.value.rate;
-  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
-  return cities.map((name, i) => ({
-    name: name,
-    value: Math.round((baseRate + ((seed + i * 7) % 20 - 10)) * 10) / 10
-  }));
-};
-
-const switchTab = (key) => {
-  activeTab.value = key;
-  setTimeout(() => renderAllCharts(), 100);
+  if (code) router.push({ path: `/vision/county/${code}`, query: { tab: activeTab.value } });
+  else console.warn('未找到区县编码:', name);
 };
 
 const getTooltip = (trigger = 'axis') => {
@@ -1424,278 +1387,53 @@ const getTooltip = (trigger = 'axis') => {
   };
 };
 
-const getCityRankOption = () => {
-  const c = getColors();
-  const cities = cityList.value.length ? cityList.value.slice(0, 10) : ['暂无数据'];
-  const baseRate = currentProvinceData.value.rate;
-  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
-  const rates = cities.map((_, i) => Math.round((baseRate + (15 - i * 1.5) + ((seed + i * 3) % 6 - 3)) * 10) / 10);
-  const maxRate = Math.max(...rates);
-
-  return {
-    backgroundColor: 'transparent',
-    tooltip: {
-      ...getTooltip('axis'),
-      axisPointer: { type: 'shadow' },
-      formatter: (params) => {
-        const p = params[0];
-        return `<div style="font-weight:600">${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div><div style="font-size:11px;color:${c.textDim};margin-top:4px">点击查看市级详情</div>`;
-      },
-    },
-    grid: { left: 10, right: 50, top: 5, bottom: 5, containLabel: true },
-    xAxis: { type: 'value', show: false, max: maxRate + 5 },
-    yAxis: {
-      type: 'category',
-      data: cities,
-      inverse: true,
-      axisLine: { show: false },
-      axisTick: { show: false },
-      axisLabel: { color: c.text, fontSize: 11, fontWeight: 'bold' },
-    },
-    series: [{
-      name: currentMetric.value.name + '率',
-      type: 'bar',
-      data: rates.map(v => ({
-        value: v,
-        itemStyle: {
-          color: makeGrad(c.primary, c.secondary),
-          borderRadius: [0, 4, 4, 0],
-          shadowBlur: isLight.value ? 4 : 8,
-          shadowColor: `${c.primary}44`,
-        },
-      })),
-      barWidth: 12,
-      label: {
-        show: true,
-        position: 'right',
-        color: c.primary,
-        fontSize: 10,
-        fontWeight: 'bold',
-        formatter: '{c}%',
-      },
-    }],
-  };
+const disposeAll = () => {
+  Object.values(chartInstances).forEach(c => { if (c && !c.isDisposed()) c.dispose(); });
+  Object.keys(chartInstances).forEach(k => delete chartInstances[k]);
 };
 
-const getAgeGenderOption = () => {
-  const c = getColors();
-  const grades = ['小学低年级', '小学中年级', '小学高年级', '初中', '高中'];
-  const baseRate = currentProvinceData.value.rate;
-  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
-  const d = {
-    grades,
-    male: grades.map((_, i) => Math.round((baseRate * 0.95 + i * 5 + ((seed + i * 3) % 6 - 3)) * 10) / 10),
-    female: grades.map((_, i) => Math.round((baseRate * 1.05 + i * 6 + ((seed + i * 2) % 5 - 2)) * 10) / 10)
-  };
-  return {
-    backgroundColor: 'transparent',
-    tooltip: {
-      ...getTooltip('axis'),
-      axisPointer: { type: 'shadow' },
-      formatter: (params) => {
-        const i = params[0].dataIndex;
-        return `<div style="font-weight:600;margin-bottom:4px">${d.grades[i]}</div>
-                <div>■男生：<span style="color:${c.primary};font-weight:bold">${d.male[i]}%</span></div>
-                <div>■女生：<span style="color:${c.secondary};font-weight:bold">${d.female[i]}%</span></div>`;
-      },
-    },
-    legend: {
-      data: ['男生', '女生'],
-      textStyle: { color: c.text, fontSize: 11 },
-      right: 10,
-      top: 2,
-      itemWidth: 12,
-      itemHeight: 12,
-    },
-    grid: { left: 40, right: 25, top: 30, bottom: 20 },
-    xAxis: {
-      type: 'value',
-      min: -100,
-      max: 100,
-      splitNumber: 5,
-      axisLine: { show: false },
-      axisTick: { show: false },
-      splitLine: { lineStyle: { color: c.splitLine } },
-      axisLabel: { color: c.textDim, fontSize: 10, formatter: (v) => Math.abs(v) + '' },
-    },
-    yAxis: {
-      type: 'category',
-      data: d.grades,
-      axisLine: { show: false },
-      axisTick: { show: false },
-      axisLabel: { color: c.text, fontSize: 11, fontWeight: 'bold' },
-    },
-    series: [
-      {
-        name: '男生',
-        type: 'bar',
-        stack: 'total',
-        data: d.male.map((v) => -v),
-        barWidth: 14,
-        itemStyle: { color: makeGrad(c.primary, isLight.value ? '#67e8f9' : '#0891b2'), borderRadius: [4, 0, 0, 4] },
-        label: {
-          show: true,
-          position: 'left',
-          color: c.text,
-          fontSize: 10,
-          fontWeight: 'bold',
-          formatter: (p) => Math.abs(p.value) + '%',
-        },
-      },
-      {
-        name: '女生',
-        type: 'bar',
-        stack: 'total',
-        data: d.female,
-        barWidth: 14,
-        itemStyle: { color: makeGrad(c.secondary, isLight.value ? '#c4f1f0' : '#59ebe8'), borderRadius: [0, 4, 4, 0] },
-        label: {
-          show: true,
-          position: 'right',
-          color: c.text,
-          fontSize: 10,
-          fontWeight: 'bold',
-          formatter: '{c}%',
-        },
-      },
-    ],
-  };
+const initChart = (ref, key, option, onClick, retryCount = 0) => {
+  if (!ref.value) return;
+  try {
+    const rect = ref.value.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      if (retryCount < 3) setTimeout(() => initChart(ref, key, option, onClick, retryCount + 1), 200);
+      return;
+    }
+    const chart = echarts.init(ref.value);
+    chartInstances[key] = chart;
+    chart.setOption(option);
+    if (onClick) chart.on('click', onClick);
+    chart.resize();
+  } catch (e) {}
 };
 
-const getGaugeOption = (value, name, color) => {
-  const c = getColors();
-  return {
-    backgroundColor: 'transparent',
-    series: [{
-      type: 'gauge',
-      startAngle: 200,
-      endAngle: -20,
-      min: 0,
-      max: 100,
-      radius: '92%',
-      center: ['50%', '58%'],
-      progress: {
-        show: true,
-        width: 10,
-        roundCap: true,
-        itemStyle: {
-          color: makeGrad(color, color === c.primary ? c.secondary : c.accent),
-          shadowBlur: isLight.value ? 6 : 12,
-          shadowColor: `${color}88`,
-        },
-      },
-      axisLine: { lineStyle: { width: 10, color: [[1, c.gaugeTrack]] } },
-      pointer: { show: false },
-      axisTick: { show: false },
-      splitLine: { show: false },
-      axisLabel: { show: false },
-      anchor: { show: false },
-      detail: {
-        valueAnimation: true,
-        formatter: '{value}%',
-        color,
-        fontSize: 22,
-        fontWeight: 'bold',
-        offsetCenter: [0, '15%'],
-        textShadowBlur: isLight.value ? 0 : 8,
-        textShadowColor: color,
-      },
-      title: { show: true, offsetCenter: [0, '70%'], color: c.textDim, fontSize: 12 },
-      data: [{ value, name }],
-    }],
-  };
-};
-
-const getInterventionOption = () => {
-  const c = getColors();
+const getCityMapData = () => {
+  const districts = districtList.value;
+  if (districts.length === 0) return [];
+  const baseRate = currentCityData.value.rate;
   const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
-  const base = currentProvinceData.value.rate;
-  const data = [
-    { name: '示范区A', initial: Math.round((base + 8 + (seed % 5)) * 10) / 10, final: Math.round((base + 1 - (seed % 3)) * 10) / 10, change: -Math.round((7 + (seed % 3)) * 10) / 10 },
-    { name: '示范区B', initial: Math.round((base + 12 + (seed % 4)) * 10) / 10, final: Math.round((base + 3 - (seed % 4)) * 10) / 10, change: -Math.round((9 + (seed % 2)) * 10) / 10 },
-    { name: '示范区C', initial: Math.round((base + 5 + (seed % 3)) * 10) / 10, final: Math.round((base + 1 - (seed % 2)) * 10) / 10, change: -Math.round((5 + (seed % 4)) * 10) / 10 },
-    { name: '示范区D', initial: Math.round((base + 10 + (seed % 2)) * 10) / 10, final: Math.round((base + 2 - (seed % 3)) * 10) / 10, change: -Math.round((8 + (seed % 2)) * 10) / 10 },
-  ];
-  const names = data.map((d) => d.name);
-  const initials = data.map((d) => d.initial);
-  const finals = data.map((d) => d.final);
-  const changes = data.map((d) => d.change);
-
-  return {
-    backgroundColor: 'transparent',
-    tooltip: {
-      ...getTooltip('axis'),
-      axisPointer: { type: 'shadow' },
-      formatter: (params) => {
-        let html = '';
-        params.forEach((p) => {
-          html += `<div>${p.marker}${p.seriesName}：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div>`;
-        });
-        return html;
-      },
-    },
-    legend: { show: false },
-    grid: { left: 90, right: 60, top: 8, bottom: 8 },
-    xAxis: { type: 'value', show: false, max: Math.ceil(Math.max(...initials) * 1.15) },
-    yAxis: {
-      type: 'category',
-      data: names,
-      axisLine: { show: false },
-      axisTick: { show: false },
-      axisLabel: { color: c.text, fontSize: 11 },
-    },
-    series: [
-      {
-        name: '期初',
-        type: 'bar',
-        data: initials,
-        barWidth: 9,
-        barGap: '30%',
-        itemStyle: { color: c.initialBar, borderRadius: [0, 3, 3, 0] },
-        label: { show: true, position: 'right', color: c.textDim, fontSize: 10, formatter: '{c}%', distance: 4 },
-      },
-      {
-        name: '期末',
-        type: 'bar',
-        data: finals,
-        barWidth: 9,
-        itemStyle: {
-          color: makeGrad(c.primary, isLight.value ? '#67e8f9' : '#0891b2'),
-          borderRadius: [0, 3, 3, 0],
-          shadowBlur: isLight.value ? 4 : 8,
-          shadowColor: `${c.primary}55`,
-        },
-        label: {
-          show: true,
-          position: 'right',
-          color: c.primary,
-          fontSize: 10,
-          fontWeight: 'bold',
-          formatter: (p) => {
-            const ch = changes[p.dataIndex];
-            return `${p.value}%  {ch|${ch > 0 ? '+' : ''}${ch}}`;
-          },
-          rich: { ch: { color: c.success, fontSize: 9, padding: [0, 0, 0, 4] } },
-        },
-      },
-    ],
-  };
+  return districts.map((name, i) => ({
+    name,
+    value: Math.round((baseRate + ((seed + i * 5) % 18 - 9)) * 10) / 10
+  }));
 };
 
 const getMapOption = () => {
   if (!mapLoaded.value) return {};
   const c = getColors();
-  const data = getProvinceMapData();
+  const data = getCityMapData();
   if (data.length === 0) return {};
-  const cfg = currentProvinceConfig.value;
+  const cfg = currentCityConfig.value;
 
   return {
     backgroundColor: 'transparent',
     tooltip: {
       ...getTooltip('item'),
       formatter: (p) => {
-        const canDrill = !!currentCityCodes.value[p.name];
-        return `<div style="font-weight:600">${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value || 0}%</span></div>${canDrill ? `<div style="font-size:11px;color:${c.textDim};margin-top:4px">点击查看市级详情</div>` : ''}`;
+        return `<div style="font-weight:600">${p.name}</div>
+          <div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value || 0}%</span></div>
+          <div style="color:${c.textDim};font-size:11px;margin-top:4px">点击查看区县详情 →</div>`;
       },
     },
     visualMap: {
@@ -1715,7 +1453,7 @@ const getMapOption = () => {
     },
     series: [{
       type: 'map',
-      map: 'province',
+      map: 'city',
       roam: true,
       selectedMode: false,
       layoutCenter: ['50%', '50%'],
@@ -1764,44 +1502,286 @@ const getMapOption = () => {
   };
 };
 
-const disposeAll = () => {
-  Object.values(chartInstances).forEach(c => { if (c && !c.isDisposed()) c.dispose(); });
-  Object.keys(chartInstances).forEach(k => delete chartInstances[k]);
+const getRankingOption = () => {
+  const c = getColors();
+  const districts = districtList.value.length ? districtList.value.slice(0, 10) : ['暂无数据'];
+  const baseRate = currentCityData.value.rate;
+  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
+  const rates = districts.map((_, i) => Math.round((baseRate + (12 - i * 1.2) + ((seed + i * 3) % 5 - 2)) * 10) / 10);
+  const maxRate = Math.max(...rates);
+
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      ...getTooltip('axis'),
+      axisPointer: { type: 'shadow' },
+      formatter: (params) => {
+        const p = params[0];
+        return `<div style="font-weight:600">${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div>`;
+      },
+    },
+    grid: { left: 10, right: 50, top: 5, bottom: 5, containLabel: true },
+    xAxis: { type: 'value', show: false, max: maxRate + 5 },
+    yAxis: {
+      type: 'category', data: districts, inverse: true,
+      axisLine: { show: false }, axisTick: { show: false },
+      axisLabel: { color: c.text, fontSize: 11, fontWeight: 'bold' },
+    },
+    series: [{
+      name: currentMetric.value.name + '率',
+      type: 'bar',
+      data: rates.map(v => ({
+        value: v,
+        itemStyle: {
+          color: makeGrad(c.primary, c.secondary),
+          borderRadius: [0, 4, 4, 0],
+          shadowBlur: isLight.value ? 4 : 8, shadowColor: `${c.primary}44`,
+        },
+      })),
+      barWidth: 12,
+      label: { show: true, position: 'right', color: c.primary, fontSize: 10, fontWeight: 'bold', formatter: '{c}%' },
+    }],
+  };
 };
 
-const initChart = (ref, key, option, onClick, retryCount = 0) => {
-  if (!ref.value) return;
-  try {
-    const rect = ref.value.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) {
-      if (retryCount < 3) setTimeout(() => initChart(ref, key, option, onClick, retryCount + 1), 200);
-      return;
-    }
-    const chart = echarts.init(ref.value);
-    chartInstances[key] = chart;
-    chart.setOption(option);
-    if (onClick) chart.on('click', onClick);
-    chart.resize();
-  } catch (e) {}
+const getGaugeOption = (value, name, color) => {
+  const c = getColors();
+  return {
+    backgroundColor: 'transparent',
+    series: [{
+      type: 'gauge', startAngle: 200, endAngle: -20, min: 0, max: 100,
+      radius: '92%', center: ['50%', '58%'],
+      progress: {
+        show: true, width: 10, roundCap: true,
+        itemStyle: {
+          color: makeGrad(color, color === c.primary ? c.secondary : c.accent),
+          shadowBlur: isLight.value ? 6 : 12, shadowColor: `${color}88`,
+        },
+      },
+      axisLine: { lineStyle: { width: 10, color: [[1, c.gaugeTrack]] } },
+      pointer: { show: false }, axisTick: { show: false }, splitLine: { show: false },
+      axisLabel: { show: false }, anchor: { show: false },
+      detail: {
+        valueAnimation: true, formatter: '{value}%', color, fontSize: 22, fontWeight: 'bold',
+        offsetCenter: [0, '15%'], textShadowBlur: isLight.value ? 0 : 8, textShadowColor: color,
+      },
+      title: { show: true, offsetCenter: [0, '70%'], color: c.textDim, fontSize: 12 },
+      data: [{ value, name }],
+    }],
+  };
+};
+
+const getTrendOption = () => {
+  const c = getColors();
+  const months = ['1月', '2月', '3月', '4月', '5月', '6月'];
+  const baseRate = currentCityData.value.rate;
+  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
+  const rateData = months.map((_, i) => Math.round((baseRate + i * 0.7 + ((seed + i * 3) % 4 - 2)) * 10) / 10);
+  const targetData = months.map((_, i) => Math.round((baseRate + 2 - i * 0.3) * 10) / 10);
+
+  return {
+    backgroundColor: 'transparent',
+    tooltip: { ...getTooltip('axis') },
+    legend: { show: false },
+    grid: { left: 40, right: 20, top: 10, bottom: 30 },
+    xAxis: {
+      type: 'category', data: months,
+      axisLine: { lineStyle: { color: c.splitLine } }, axisTick: { show: false },
+      axisLabel: { color: c.textDim, fontSize: 11 },
+    },
+    yAxis: {
+      type: 'value', axisLine: { show: false }, axisTick: { show: false },
+      axisLabel: { color: c.textDim, fontSize: 11 },
+      splitLine: { lineStyle: { color: c.splitLine } },
+    },
+    series: [
+      {
+        name: '实际' + currentMetric.value.name + '率', type: 'line', data: rateData,
+        smooth: true, symbol: 'circle', symbolSize: 8,
+        lineStyle: { width: 3, color: c.primary, shadowBlur: 8, shadowColor: `${c.primary}55` },
+        itemStyle: { color: c.primary, borderColor: c.bg, borderWidth: 2 },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: `${c.primary}55` }, { offset: 1, color: `${c.primary}00` },
+          ]),
+        },
+      },
+      {
+        name: '目标线', type: 'line', data: targetData,
+        smooth: true, symbol: 'none',
+        lineStyle: { width: 2, color: c.secondary, type: 'dashed' },
+      },
+    ],
+  };
+};
+
+const getAgeGenderOption = () => {
+  const c = getColors();
+  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
+  const base = currentCityData.value.rate;
+  const maleData = [
+    { value: Math.round((base * 0.75 + (seed % 3)) * 10) / 10, name: '7-10岁' },
+    { value: Math.round((base * 0.9 + (seed % 4)) * 10) / 10, name: '11-14岁' },
+    { value: Math.round((base * 1.1 + (seed % 2)) * 10) / 10, name: '15-18岁' },
+    { value: Math.round((base * 0.85 + (seed % 5)) * 10) / 10, name: '19-22岁' },
+  ];
+  const femaleData = [
+    { value: Math.round((base * 0.82 + (seed % 3)) * 10) / 10, name: '7-10岁' },
+    { value: Math.round((base * 1.05 + (seed % 4)) * 10) / 10, name: '11-14岁' },
+    { value: Math.round((base * 1.18 + (seed % 2)) * 10) / 10, name: '15-18岁' },
+    { value: Math.round((base * 0.92 + (seed % 5)) * 10) / 10, name: '19-22岁' },
+  ];
+  const maxV = Math.max(...maleData.map(d => d.value), ...femaleData.map(d => d.value));
+
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      ...getTooltip('axis'),
+      axisPointer: { type: 'shadow' },
+      formatter: (params) => {
+        const p = params[0];
+        const gender = p.seriesName === '男生' ? '男' : '女';
+        return `<div style="font-weight:600">${gender}生 ${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${p.color};font-weight:bold">${p.value}%</span></div>`;
+      },
+    },
+    legend: {
+      show: true,
+      top: 0, right: 0,
+      textStyle: { color: c.textDim, fontSize: 10 },
+      itemWidth: 12, itemHeight: 8,
+    },
+    grid: { left: 30, right: 10, top: 24, bottom: 5, containLabel: true },
+    xAxis: {
+      type: 'value', show: false,
+      max: Math.ceil(maxV + 5),
+    },
+    yAxis: {
+      type: 'category',
+      data: maleData.map(d => d.name),
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: c.textDim, fontSize: 10 },
+      inverse: true,
+    },
+    series: [
+      {
+        name: '男生',
+        type: 'bar',
+        data: maleData.map(d => ({
+          value: d.value,
+          itemStyle: {
+            color: makeGrad(c.primary, isLight.value ? '#67e8f9' : '#0891b2'),
+            borderRadius: [0, 3, 3, 0],
+            shadowBlur: isLight.value ? 4 : 8,
+            shadowColor: `${c.primary}55`,
+          },
+        })),
+        barWidth: 8,
+        label: {
+          show: true, position: 'right',
+          color: c.primary, fontSize: 9, fontWeight: 'bold',
+          formatter: '{c}%',
+        },
+        z: 2,
+      },
+      {
+        name: '女生',
+        type: 'bar',
+        data: femaleData.map(d => ({
+          value: d.value,
+          itemStyle: {
+            color: makeGrad(c.secondary, isLight.value ? '#c4b5fd' : '#7c3aed'),
+            borderRadius: [0, 3, 3, 0],
+            shadowBlur: isLight.value ? 4 : 8,
+            shadowColor: `${c.secondary}55`,
+          },
+        })),
+        barWidth: 8,
+        barGap: '30%',
+        label: {
+          show: true, position: 'right',
+          color: c.secondary, fontSize: 9, fontWeight: 'bold',
+          formatter: '{c}%',
+        },
+        z: 1,
+      },
+    ],
+  };
+};
+
+const getInterventionOption = () => {
+  const c = getColors();
+  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
+  const base = currentCityData.value.rate;
+  const data = [
+    { name: '示范区A', initial: Math.round((base + 6 + (seed % 5)) * 10) / 10, final: Math.round((base + 1 - (seed % 3)) * 10) / 10, change: -Math.round((6 + (seed % 3)) * 10) / 10 },
+    { name: '示范区B', initial: Math.round((base + 10 + (seed % 4)) * 10) / 10, final: Math.round((base + 2 - (seed % 4)) * 10) / 10, change: -Math.round((8 + (seed % 2)) * 10) / 10 },
+    { name: '示范区C', initial: Math.round((base + 4 + (seed % 3)) * 10) / 10, final: Math.round((base + 1 - (seed % 2)) * 10) / 10, change: -Math.round((4 + (seed % 4)) * 10) / 10 },
+    { name: '示范区D', initial: Math.round((base + 8 + (seed % 2)) * 10) / 10, final: Math.round((base + 2 - (seed % 3)) * 10) / 10, change: -Math.round((7 + (seed % 2)) * 10) / 10 },
+  ];
+  const names = data.map(d => d.name);
+  const initials = data.map(d => d.initial);
+  const finals = data.map(d => d.final);
+  const changes = data.map(d => d.change);
+
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      ...getTooltip('axis'),
+      axisPointer: { type: 'shadow' },
+      formatter: (params) => {
+        let html = '';
+        params.forEach((p) => { html += `<div>${p.marker}${p.seriesName}：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div>`; });
+        return html;
+      },
+    },
+    legend: { show: false },
+    grid: { left: 80, right: 60, top: 8, bottom: 8 },
+    xAxis: { type: 'value', show: false, max: Math.ceil(Math.max(...initials) * 1.2) },
+    yAxis: { type: 'category', data: names, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: c.text, fontSize: 11 } },
+    series: [
+      {
+        name: '期初', type: 'bar', data: initials, barWidth: 9, barGap: '30%',
+        itemStyle: { color: c.initialBar, borderRadius: [0, 3, 3, 0] },
+        label: { show: true, position: 'right', color: c.textDim, fontSize: 10, formatter: '{c}%', distance: 4 },
+      },
+      {
+        name: '期末', type: 'bar', data: finals, barWidth: 9,
+        itemStyle: {
+          color: makeGrad(c.primary, isLight.value ? '#67e8f9' : '#0891b2'),
+          borderRadius: [0, 3, 3, 0],
+          shadowBlur: isLight.value ? 4 : 8, shadowColor: `${c.primary}55`,
+        },
+        label: {
+          show: true, position: 'right', color: c.primary, fontSize: 10, fontWeight: 'bold',
+          formatter: (p) => {
+            const ch = changes[p.dataIndex];
+            return `${p.value}%  {ch|${ch > 0 ? '+' : ''}${ch}}`;
+          },
+          rich: { ch: { color: c.success, fontSize: 9, padding: [0, 0, 0, 4] } },
+        },
+      },
+    ],
+  };
 };
 
 const renderAllCharts = () => {
   disposeAll();
   requestAnimationFrame(() => {
     nextTick(() => {
-      const c = getColors();
-      const d = currentProvinceData.value;
-      const ur = { urban: Math.round((d.rate + 3) * 10) / 10, rural: Math.round((d.rate - 5) * 10) / 10 };
-      initChart(cityRankRef, 'cityRank', getCityRankOption(), (params) => {
-        if (params?.name) drillToCity(params.name);
+      const d = currentCityData.value;
+      const ur = { urban: Math.round(d.rate * 0.9 * 10) / 10, rural: Math.round(d.rate * 1.2 * 10) / 10 };
+      initChart(rankingChartRef, 'ranking', getRankingOption(), (params) => {
+        if (params?.name) drillToDistrict(params.name);
       });
-      initChart(ageGenderRef, 'ageGender', getAgeGenderOption());
-      initChart(urbanGaugeRef, 'urbanGauge', getGaugeOption(ur.urban, `城区${currentMetric.value.name}率`, c.primary));
-      initChart(ruralGaugeRef, 'ruralGauge', getGaugeOption(ur.rural, `县乡${currentMetric.value.name}率`, c.secondary));
-      initChart(interventionRef, 'intervention', getInterventionOption());
+      initChart(ageGenderChartRef, 'ageGender', getAgeGenderOption());
+      initChart(urbanGaugeRef, 'urbanGauge', getGaugeOption(ur.urban, `城区${currentMetric.value.name}率`, getColors().primary));
+      initChart(ruralGaugeRef, 'ruralGauge', getGaugeOption(ur.rural, `县乡${currentMetric.value.name}率`, getColors().secondary));
+      initChart(trendChartRef, 'trend', getTrendOption());
+      initChart(interventionChartRef, 'intervention', getInterventionOption());
       if (mapLoaded.value) {
         initChart(mapRef, 'map', getMapOption(), (params) => {
-          if (params?.name) drillToCity(params.name);
+          if (params?.name) drillToDistrict(params.name);
         });
         // Update zoom display when map roams
         const mapChart = chartInstances['map'];
@@ -1820,10 +1800,9 @@ const renderAllCharts = () => {
 
 const loadMap = async () => {
   const code = routeCode.value;
-  const cfg = currentProvinceConfig.value;
+  const cfg = currentCityConfig.value;
   const urls = [
     `https://geo.datav.aliyun.com/areas_v3/bound/${code}_full.json`,
-    `https://fastly.jsdelivr.net/npm/echarts@4.9.0/map/json/province/${cfg.short}.json`,
     `https://geo.datav.aliyun.com/areas_v3/bound/${code}.json`,
   ];
   for (const url of urls) {
@@ -1831,7 +1810,7 @@ const loadMap = async () => {
       const res = await fetch(url);
       if (!res.ok) continue;
       const geoJson = await res.json();
-      echarts.registerMap('province', geoJson);
+      echarts.registerMap('city', geoJson);
       const features = geoJson.features || [];
       if (features.length > 0) {
         const list = [];
@@ -1842,9 +1821,18 @@ const loadMap = async () => {
             list.push(fullName);
           }
         });
-        cityList.value = list.length >= 3 ? list.slice(0, 30) : [];
+        if (list.length >= 2) {
+          districtList.value = list.slice(0, 30);
+        } else {
+          districtList.value = [];
+        }
+        const parentProps = geoJson.properties || {};
+        const parentName = parentProps.name || parentProps.NAME || '';
+        if (parentName && !CITY_MAP_CONFIG[code]) {
+          cityNameFromGeo.value = parentName;
+        }
       } else {
-        cityList.value = [];
+        districtList.value = [];
       }
       mapLoaded.value = true;
       mapZoom.value = 1;
@@ -1854,15 +1842,9 @@ const loadMap = async () => {
       console.warn('地图加载失败', url, e);
     }
   }
-  cityList.value = [];
+  districtList.value = [];
   mapLoaded.value = true;
   setTimeout(() => renderAllCharts(), 200);
-};
-
-const updateDateTime = () => {
-  const now = new Date();
-  currentDate.value = now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
-  currentTime.value = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 };
 
 const resizeAll = () => {
@@ -1893,27 +1875,22 @@ onBeforeUnmount(() => {
 
 watch(activeTab, () => setTimeout(() => renderAllCharts(), 100));
 watch(isLight, () => setTimeout(() => renderAllCharts(), 100));
-const VALID_TABS = ['vision', 'oral', 'mental', 'weight', 'bone'];
 watch(() => route.query.tab, (tab) => {
-  if (tab && typeof tab === 'string' && VALID_TABS.includes(tab)) {
+  if (tab && typeof tab === 'string' && ['vision','oral','mental','weight','bone'].includes(tab)) {
     activeTab.value = tab;
     setTimeout(() => renderAllCharts(), 100);
   }
 }, { immediate: true });
 watch(() => route.params.code, () => {
   mapLoaded.value = false;
-  cityList.value = [];
   syncFilterFromRoute();
   setTimeout(() => loadMap(), 100);
 });
-
-
-defineExpose({ switchTab });
 </script>
 
 <style scoped>
 /* ============================================================
-   CSS 变量 - 深色主题（参考 1.css 青色科技风格）
+   CSS 变量 - 深色主题（与 province.vue 青色科技风格对齐）
    ============================================================ */
 .app-root {
   --primary: #0bc4e9;
@@ -2013,12 +1990,11 @@ defineExpose({ switchTab });
 }
 
 /* ============================================================
-   全局背景 - 增强版
+   全局背景 - 与 province.vue 对齐
    ============================================================ */
 .app-root.theme-light .scan-line,
 .app-root.theme-light .scan-line-2,
-.app-root.theme-light .bg-stars,
-.app-root.theme-light .bg-particles { display: none; }
+.app-root.theme-light .bg-stars { display: none; }
 .app-root.theme-light .bg-glow { opacity: 0.04; filter: blur(120px); }
 .app-root.theme-light .bg-grid { opacity: 0.3; }
 .app-root.theme-light .tech-panel::before,
@@ -2042,8 +2018,6 @@ defineExpose({ switchTab });
   box-shadow: var(--shadow-card);
 }
 .app-root.theme-light .map-deco-ready .map-grid { opacity: 0.2; }
-.app-root.theme-light .tech-panel-top-border { display: none; }
-.app-root.theme-light .chart-area-glow { display: none; }
 .app-root.theme-light {
   background: #f1f5f9 url('./images/bg.png') no-repeat center center fixed;
   background-size: cover;
@@ -2051,8 +2025,8 @@ defineExpose({ switchTab });
 .app-root.theme-light .bg-decor {
   background: linear-gradient(180deg, rgba(248, 250, 252, 0.75) 0%, rgba(241, 245, 249, 0.85) 100%);
 }
-.bg-decor { 
-  position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; 
+.bg-decor {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
   background: linear-gradient(180deg, rgba(6, 15, 28, 0.65) 0%, rgba(6, 15, 28, 0.75) 100%);
 }
 .bg-grid {
@@ -2083,25 +2057,6 @@ defineExpose({ switchTab });
   66% { transform: translate(-50px, 60px) scale(0.95); }
 }
 
-.bg-particles {
-  position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background-image:
-    radial-gradient(1px 1px at 10% 20%, rgba(0, 229, 255, 0.7) 50%, transparent 100%),
-    radial-gradient(1px 1px at 30% 60%, rgba(0, 229, 255, 0.5) 50%, transparent 100%),
-    radial-gradient(1px 1px at 50% 10%, rgba(139, 92, 246, 0.6) 50%, transparent 100%),
-    radial-gradient(1px 1px at 70% 40%, rgba(0, 229, 255, 0.4) 50%, transparent 100%),
-    radial-gradient(1px 1px at 90% 80%, rgba(139, 92, 246, 0.5) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 25% 85%, rgba(0, 229, 255, 0.6) 50%, transparent 100%),
-    radial-gradient(1px 1px at 65% 75%, rgba(0, 229, 255, 0.45) 50%, transparent 100%),
-    radial-gradient(1px 1px at 85% 25%, rgba(139, 92, 246, 0.55) 50%, transparent 100%);
-  background-size: 400px 400px, 350px 350px, 500px 500px, 300px 300px, 450px 450px, 380px 380px, 420px 420px, 480px 480px;
-  animation: particle-drift 25s linear infinite, star-twinkle 5s ease-in-out infinite alternate;
-}
-@keyframes particle-drift {
-  0% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
-  100% { background-position: -400px 300px, -350px 280px, -500px 350px, -300px 220px, -450px 320px, -380px 260px, -420px 300px, -480px 340px; }
-}
-
 .bg-stars { position: absolute; inset: 0; }
 .bg-stars::before, .bg-stars::after {
   content: ''; position: absolute; inset: 0;
@@ -2117,7 +2072,7 @@ defineExpose({ switchTab });
 .bg-stars::after { animation-delay: 2s; opacity: 0.6; }
 @keyframes star-twinkle { 0% { opacity: 0.3; } 100% { opacity: 0.8; } }
 
-/* 扫描线 - 参考 1.css 风格 */
+/* 扫描线 */
 .scan-line {
   position: absolute; left: 0; right: 0; top: 0; height: 2px;
   background: linear-gradient(90deg, transparent, var(--primary), var(--accent), var(--primary), transparent);
@@ -2138,7 +2093,7 @@ defineExpose({ switchTab });
   100% { transform: translateY(100vh); }
 }
 
-/* 顶部光带 - 增强版 */
+/* 顶部光带 */
 .tech-topbar {
   position: relative; z-index: 5;
   display: flex; align-items: center; justify-content: space-between;
@@ -2190,7 +2145,7 @@ defineExpose({ switchTab });
 .tech-dots span:nth-child(6) { animation-delay: 0.75s; }
 .tech-dots span:nth-child(7) { animation-delay: 0.9s; }
 
-/* Header - 增强版 */
+/* Header */
 .national-header {
   position: relative; z-index: 5;
   display: flex; align-items: center; justify-content: space-between;
@@ -2226,7 +2181,6 @@ defineExpose({ switchTab });
   0%, 100% { left: -30%; }
   50% { left: 120%; }
 }
-
 .national-title::after {
   content: '';
   position: absolute;
@@ -2254,10 +2208,8 @@ defineExpose({ switchTab });
   text-shadow: 0 0 14px var(--glow), 0 0 6px var(--primary);
   letter-spacing: 2px;
 }
-.tc-blink { color: var(--secondary); animation: blink 1s steps(1) infinite; padding: 0 1px; text-shadow: 0 0 10px var(--secondary-glow); }
-@keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.3; } }
 
-/* Tabs - 增强版 */
+/* Tabs */
 .national-tabs {
   position: relative; z-index: 5;
   display: flex; align-items: center; justify-content: center;
@@ -2306,8 +2258,140 @@ defineExpose({ switchTab });
   opacity: 0; transition: opacity 0.3s;
 }
 .tech-tab.active .tech-tab-glow { opacity: 1; box-shadow: 0 0 10px var(--primary); }
+.tech-tab-label { font-size: 13px; }
 
-/* 顶部筛选栏 */
+/* 主体 */
+.national-body {
+  position: relative; z-index: 3;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 22% 1fr 22%;
+  gap: 14px;
+  padding: 8px 20px 16px;
+  min-height: 0;
+  height: 0;
+}
+.left-col, .right-col, .map-col { display: flex; flex-direction: column; gap: 12px; min-height: 0; height: 100%; }
+.map-col {
+  gap: 12px;
+  padding: 6px;
+}
+.map-col .map-area { min-height: 0; position: relative; flex: 1; }
+
+/* 科技面板 - 与 province.vue 对齐 */
+.tech-panel {
+  position: relative;
+  background: var(--grad-deep);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 12px 14px;
+  display: flex; flex-direction: column;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-card);
+  flex: 1; min-height: 0;
+  overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tech-panel::before {
+  content: '';
+  position: absolute;
+  width: 80%;
+  height: 100%;
+  bottom: -1px;
+  top: -1px;
+  left: 10%;
+  border-bottom: 1px solid var(--border-inner);
+  border-top: 1px solid var(--border-inner);
+  transition: all 0.5s;
+  pointer-events: none;
+}
+.tech-panel::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 80%;
+  left: -1px;
+  right: -1px;
+  top: 10%;
+  border-left: 1px solid var(--border-inner);
+  border-right: 1px solid var(--border-inner);
+  transition: all 0.5s;
+  pointer-events: none;
+}
+.tech-panel:hover::before { width: 0%; }
+.tech-panel:hover::after { height: 0%; }
+.tech-panel:hover {
+  box-shadow:
+    -5px 0 2px rgba(255,255,255,.1),
+    0 -5px 2px rgba(255,255,255,.1),
+    5px 0 2px rgba(255,255,255,.1),
+    0 5px 2px rgba(255,255,255,.1),
+    0 0 30px var(--glow-soft);
+  background: rgba(0, 90, 140, 0.4);
+}
+
+.tech-panel-header {
+  display: flex; align-items: center; gap: 8px;
+  padding-bottom: 8px; margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-inner);
+  flex-shrink: 0;
+  position: relative;
+}
+.tech-panel-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary), transparent 30%, transparent 70%, var(--secondary));
+  background-size: 200% 100%;
+  animation: header-line-flow 5s linear infinite;
+  opacity: 0.8;
+}
+@keyframes header-line-flow {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.panel-bullet {
+  position: relative;
+  width: 5px; height: 22px;
+  background: #59ebe8;
+  border-radius: 0;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px var(--glow), 0 0 20px var(--glow-soft);
+}
+.panel-bullet::after {
+  content: ''; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 6px; height: 6px;
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: bullet-pulse 2s ease-in-out infinite;
+}
+@keyframes bullet-pulse {
+  0%, 100% { box-shadow: 0 0 4px var(--primary); opacity: 0.8; }
+  50% { box-shadow: 0 0 12px var(--primary), 0 0 24px var(--glow); opacity: 1; }
+}
+.panel-title {
+  font-size: 16px; font-weight: 500; color: var(--text);
+  line-height: 35px;
+  letter-spacing: 0.5px; flex: 1;
+  text-shadow: 0 0 15px var(--glow);
+  padding-left: 4px;
+}
+.panel-tag {
+  font-size: 10px; color: var(--primary);
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  background: var(--primary-soft);
+  letter-spacing: 0.5px; border-radius: 2px;
+  box-shadow: 0 0 10px var(--glow-soft);
+  font-weight: 600;
+}
+.tech-panel-body { flex: 1; min-height: 0; position: relative; }
+
+/* 顶部筛选栏 - 与 province.vue 对齐 */
 .top-filter-bar {
   position: relative; z-index: 6;
   display: flex; align-items: center; justify-content: center;
@@ -2400,7 +2484,7 @@ defineExpose({ switchTab });
 }
 .filter-select .clear-icon:hover {
   color: var(--danger); border-color: var(--danger);
-  box-shadow: 0 0 8px var(--glow-danger);
+  box-shadow: 0 0 8px rgba(244, 63, 94, 0.4);
 }
 
 .select-dropdown {
@@ -2524,175 +2608,16 @@ defineExpose({ switchTab });
 }
 .btn-search-top .icon, .btn-reset-top .icon { font-size: 13px; }
 
-/* 主体 */
-.national-body {
-  position: relative; z-index: 3;
-  flex: 1;
-  display: grid;
-  grid-template-columns: 22% 1fr 22%;
-  gap: 14px;
-  padding: 8px 20px 16px;
-  min-height: 0;
-  height: 0;
+/* 浅色模式筛选栏 */
+.app-root.theme-light .select-dropdown {
+  background: #ffffff;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(8, 145, 178, 0.1);
 }
-.left-col, .right-col, .map-col { display: flex; flex-direction: column; gap: 12px; min-height: 0; height: 100%; }
-.map-col { 
-  gap: 12px; 
-  padding: 6px;
-}
-.map-col .map-area { min-height: 0; position: relative; flex: 1; }
+.app-root.theme-light .dropdown-item:hover { background: rgba(8, 145, 178, 0.06); }
+.app-root.theme-light .dropdown-item.selected { background: rgba(8, 145, 178, 0.08); }
+.app-root.theme-light .filter-select .clear-icon { background: #ffffff; }
 
-/* 科技面板 - 参考 1.css .boxall 风格 */
-.tech-panel {
-  position: relative;
-  background: var(--grad-deep);
-  border: 1px solid var(--border);
-  border-radius: 0;
-  padding: 12px 14px;
-  display: flex; flex-direction: column;
-  backdrop-filter: blur(12px);
-  box-shadow: var(--shadow-card);
-  flex: 1; min-height: 0;
-  overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-}
-.tech-panel::before {
-  content: '';
-  position: absolute;
-  width: 80%;
-  height: 100%;
-  bottom: -1px;
-  top: -1px;
-  left: 10%;
-  border-bottom: 1px solid var(--border-inner);
-  border-top: 1px solid var(--border-inner);
-  transition: all 0.5s;
-  pointer-events: none;
-}
-.tech-panel::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 80%;
-  left: -1px;
-  right: -1px;
-  top: 10%;
-  border-left: 1px solid var(--border-inner);
-  border-right: 1px solid var(--border-inner);
-  transition: all 0.5s;
-  pointer-events: none;
-}
-.tech-panel:hover::before { width: 0%; }
-.tech-panel:hover::after { height: 0%; }
-.tech-panel:hover {
-  box-shadow: 
-    -5px 0 2px rgba(255,255,255,.1),
-    0 -5px 2px rgba(255,255,255,.1),
-    5px 0 2px rgba(255,255,255,.1),
-    0 5px 2px rgba(255,255,255,.1),
-    0 0 30px var(--glow-soft);
-  background: rgba(0, 90, 140, 0.4);
-}
-.tech-panel > .mc-tl, .tech-panel > .mc-tr,
-.tech-panel > .mc-bl, .tech-panel > .mc-br {
-  width: 10px; height: 10px;
-}
-
-.tech-panel::selection { background: var(--primary-soft); }
-
-.tech-panel-top-border {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--grad-main);
-  background-size: 200% 100%;
-  animation: top-border-flow 4s linear infinite;
-  opacity: 0.9;
-  z-index: 2;
-  pointer-events: none;
-}
-@keyframes top-border-flow {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.tech-panel-inner-glow {
-  position: absolute;
-  inset: 1px;
-  border-radius: 0;
-  pointer-events: none;
-  box-shadow: inset 0 0 30px rgba(11, 196, 233, 0.04);
-  opacity: 0.6;
-  transition: opacity 0.3s;
-}
-.tech-panel:hover .tech-panel-inner-glow {
-  opacity: 1;
-  box-shadow: inset 0 0 40px rgba(11, 196, 233, 0.08);
-}
-
-.tech-panel-header {
-  display: flex; align-items: center; gap: 8px;
-  padding-bottom: 8px; margin-bottom: 10px;
-  border-bottom: 1px solid var(--border-inner);
-  flex-shrink: 0;
-  position: relative;
-}
-.tech-panel-header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--primary), transparent 30%, transparent 70%, var(--secondary));
-  background-size: 200% 100%;
-  animation: header-line-flow 5s linear infinite;
-  opacity: 0.8;
-}
-@keyframes header-line-flow {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.panel-bullet {
-  position: relative;
-  width: 5px; height: 22px;
-  background: #59ebe8;
-  border-radius: 0;
-  flex-shrink: 0;
-  box-shadow: 0 0 10px var(--glow), 0 0 20px var(--glow-soft);
-}
-.panel-bullet::after {
-  content: ''; position: absolute;
-  top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 6px; height: 6px;
-  background: var(--primary);
-  border-radius: 50%;
-  opacity: 0.8;
-  animation: bullet-pulse 2s ease-in-out infinite;
-}
-@keyframes bullet-pulse {
-  0%, 100% { box-shadow: 0 0 4px var(--primary); opacity: 0.8; }
-  50% { box-shadow: 0 0 12px var(--primary), 0 0 24px var(--glow); opacity: 1; }
-}
-.panel-title { 
-  font-size: 16px; font-weight: 500; color: var(--text); 
-  line-height: 35px;
-  letter-spacing: 0.5px; flex: 1; 
-  text-shadow: 0 0 15px var(--glow);
-  padding-left: 4px;
-}
-.panel-tag {
-  font-size: 10px; color: var(--primary);
-  padding: 3px 10px;
-  border: 1px solid var(--border);
-  background: var(--primary-soft);
-  letter-spacing: 0.5px; border-radius: 2px;
-  box-shadow: 0 0 10px var(--glow-soft);
-  font-weight: 600;
-}
-.tech-panel-body { flex: 1; min-height: 0; position: relative; }
-
-/* KPI - 参考 1.css 风格 */
+/* KPI */
 .kpi-grid { display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; overflow: hidden; }
 .kpi-row-large { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .kpi-card-lg {
@@ -2720,10 +2645,10 @@ defineExpose({ switchTab });
   height: 1px;
   background: linear-gradient(90deg, var(--primary), transparent 60%);
 }
-.kpi-card-lg:hover { 
-  transform: translateY(-2px); 
-  border-color: var(--border-hover); 
-  box-shadow: 0 4px 20px var(--glow-soft), 0 0 30px var(--glow); 
+.kpi-card-lg:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-hover);
+  box-shadow: 0 4px 20px var(--glow-soft), 0 0 30px var(--glow);
 }
 .kpi-card-deco {
   position: absolute; top: 0; left: 0; right: 0; height: 2px;
@@ -2761,9 +2686,10 @@ defineExpose({ switchTab });
   line-height: 1.1; z-index: 1;
   letter-spacing: 2px;
 }
-.kpi-lg-value .unit { 
-  font-size: 14px; 
-  color: var(--text-dim); 
+.kpi-lg-value .num { color: #00a8d7; }
+.kpi-lg-value .unit {
+  font-size: 14px;
+  color: var(--text-dim);
   margin-left: 4px;
   text-shadow: 0 0 8px var(--glow-soft);
 }
@@ -2772,7 +2698,7 @@ defineExpose({ switchTab });
 .kpi-lg-trend.down { color: var(--success); background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
 .trend-arrow { font-size: 9px; margin-right: 2px; }
 
-/* 性别 - 参考 1.css 风格 */
+/* 性别 */
 .kpi-row-gender { display: flex; flex-direction: column; gap: 10px; }
 .gender-item {
   display: flex; align-items: center; gap: 12px;
@@ -2805,7 +2731,7 @@ defineExpose({ switchTab });
 .gender-item.male .gender-bar-fill { background: var(--grad-accent); }
 .gender-item.female .gender-bar-fill { background: var(--grad-cyan); }
 
-/* 小卡片 - 参考 1.css 风格 */
+/* 小卡片 */
 .kpi-row-small { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 .kpi-card-sm {
   position: relative;
@@ -2825,26 +2751,18 @@ defineExpose({ switchTab });
 }
 .kpi-card-sm:hover { border-color: var(--border); background: var(--primary-soft); transform: translateY(-2px); box-shadow: 0 4px 20px var(--glow-soft); }
 .kpi-sm-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
-.kpi-sm-value { 
-  font-size: 24px; font-weight: bolder; 
+.kpi-sm-value {
+  font-size: 24px; font-weight: bolder;
   color: #00a8d7;
-  font-family: "等线", 'Consolas', monospace; 
-  text-shadow: 0 0 15px var(--glow-soft); 
-  margin-bottom: 8px; 
+  font-family: "等线", 'Consolas', monospace;
+  text-shadow: 0 0 15px var(--glow-soft);
+  margin-bottom: 8px;
   letter-spacing: 1px;
 }
 .kpi-sm-bar { height: 4px; background: rgba(11, 196, 233, 0.08); border-radius: 0; overflow: hidden; }
 .kpi-sm-bar-fill { height: 100%; background: var(--grad-accent); border-radius: 0; box-shadow: 0 0 8px var(--glow-soft); }
 
 .chart-area { width: 100%; height: 100%; min-height: 0; position: relative; }
-.chart-area-glow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: 4px;
-  box-shadow: inset 0 0 30px rgba(0, 229, 255, 0.04);
-  opacity: 0.8;
-}
 .chart-area::after {
   content: '';
   position: absolute;
@@ -2855,22 +2773,22 @@ defineExpose({ switchTab });
     linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
   background-size: 30px 30px;
   mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
-  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
   border-radius: 4px;
 }
 
-/* 地图 - 增强版 */
+/* 地图 - 增强版（与 province.vue 对齐） */
 .map-area {
   position: relative;
   display: flex; flex-direction: column;
   min-height: 0;
-  background: 
+  background:
     radial-gradient(ellipse at 50% 40%, rgba(0, 100, 150, 0.15) 0%, transparent 60%),
     radial-gradient(ellipse at center, rgba(11, 196, 233, 0.08) 0%, transparent 70%);
   border: 1px solid var(--border);
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 4px 30px rgba(0, 0, 0, 0.5),
     0 0 30px rgba(11, 196, 233, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -2907,27 +2825,19 @@ defineExpose({ switchTab });
   z-index: 2;
 }
 .map-loading {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 16px;
+  z-index: 5;
   background: var(--bg-card);
 }
-.map-loading-text { font-size: 13px; color: var(--text-dim); text-shadow: 0 0 10px var(--glow-soft); }
-.map-deco { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
-.map-deco-ready .map-grid { opacity: 0.5; }
-.map-deco-ready .map-corner { opacity: 1; }
 .map-radar {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 200px; height: 200px;
+  width: 120px; height: 120px;
   border: 1px dashed rgba(0, 229, 255, 0.5);
   border-radius: 50%;
-  animation: radar-spin 8s linear infinite;
-  box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
+  position: relative;
+  animation: radar-rotate 3s linear infinite;
+  box-shadow: 0 0 40px var(--glow), 0 0 80px var(--glow-soft);
 }
 .map-radar::before {
   content: ''; position: absolute; top: 50%; left: 50%;
@@ -2936,43 +2846,21 @@ defineExpose({ switchTab });
   transform-origin: left center;
   box-shadow: 0 0 10px var(--primary), 0 0 20px var(--glow);
 }
-@keyframes radar-spin { 0% { transform: translate(-50%, -50%) rotate(0); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-
-.map-radar-sweep {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 120%; height: 120%;
-  transform: translate(-50%, -50%);
+@keyframes radar-rotate { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+.map-loading-text {
+  font-size: 14px; color: var(--text-dim);
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px var(--glow-soft);
+}
+.map-deco {
+  position: absolute; inset: 0;
   pointer-events: none;
-  background: conic-gradient(from 0deg, transparent 0deg, #0bc4e9 30deg, transparent 60deg, transparent 180deg, #00a8d7 210deg, transparent 240deg);
-  border-radius: 50%;
-  opacity: 0.25;
-  animation: radar-sweep-rotate 6s linear infinite;
-  mix-blend-mode: screen;
-}
-@keyframes radar-sweep-rotate {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-.map-pulse-ring {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 100px; height: 100px;
-  transform: translate(-50%, -50%);
-  border: 2px solid var(--primary);
-  border-radius: 50%;
+  z-index: 3;
   opacity: 0;
-  pointer-events: none;
-  animation: pulse-ring-expand 4s ease-out infinite;
+  transition: opacity 0.8s ease-out;
 }
-.map-pulse-ring:nth-child(2) { animation-delay: -1.3s; border-color: var(--secondary); }
-.map-pulse-ring:nth-child(3) { animation-delay: -2.6s; border-color: var(--accent); }
-@keyframes pulse-ring-expand {
-  0% { width: 50px; height: 50px; opacity: 0.8; }
-  100% { width: 600px; height: 600px; opacity: 0; }
-}
-
+.map-deco-ready { opacity: 1; }
+.map-deco-ready .map-grid { opacity: 0.5; }
 .map-grid {
   position: absolute; inset: 0;
   background-image:
@@ -2980,6 +2868,7 @@ defineExpose({ switchTab });
     linear-gradient(90deg, rgba(11, 196, 233, 0.06) 1px, transparent 1px);
   background-size: 40px 40px;
   mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
 }
 .map-corner { position: absolute; width: 24px; height: 24px; border: 2px solid var(--primary); box-shadow: 0 0 12px var(--glow), 0 0 24px var(--glow-soft); transition: all 0.3s; }
 .mc-tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
@@ -2998,6 +2887,22 @@ defineExpose({ switchTab });
   z-index: 5;
 }
 .map-data-strip b { color: var(--primary); font-weight: 700; text-shadow: 0 0 10px var(--glow-soft); }
+.map-drill-tip {
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(11, 196, 233, 0.8), 0 0 20px rgba(11, 196, 233, 0.4);
+  background: linear-gradient(90deg, rgba(11, 196, 233, 0.3), rgba(0, 168, 215, 0.3));
+  border: 1px solid rgba(11, 196, 233, 0.6);
+  padding: 4px 12px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  animation: tip-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(11, 196, 233, 0.4), inset 0 0 10px rgba(11, 196, 233, 0.1);
+}
+@keyframes tip-pulse {
+  0%, 100% { box-shadow: 0 0 15px rgba(11, 196, 233, 0.4), inset 0 0 10px rgba(11, 196, 233, 0.1); }
+  50% { box-shadow: 0 0 25px rgba(11, 196, 233, 0.7), inset 0 0 15px rgba(11, 196, 233, 0.2); }
+}
 
 .map-back-btn {
   position: absolute;
@@ -3036,40 +2941,8 @@ defineExpose({ switchTab });
   background: var(--primary-soft);
   color: var(--primary);
 }
-.app-root.theme-light .map-back-btn {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(8, 145, 178, 0.15);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-}
-.app-root.theme-light .map-back-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.15);
-}
-.map-drill-tip {
-  color: #ffffff;
-  font-weight: 700;
-  text-shadow: 0 0 10px rgba(11, 196, 233, 0.8), 0 0 20px rgba(11, 196, 233, 0.4);
-  background: linear-gradient(90deg, rgba(11, 196, 233, 0.3), rgba(0, 168, 215, 0.3));
-  border: 1px solid rgba(11, 196, 233, 0.6);
-  padding: 4px 12px;
-  border-radius: 2px;
-  letter-spacing: 1px;
-  animation: tip-pulse 2s ease-in-out infinite;
-  box-shadow: 0 0 15px rgba(11, 196, 233, 0.4), inset 0 0 10px rgba(11, 196, 233, 0.1);
-  cursor: pointer;
-}
-@keyframes tip-pulse {
-  0%, 100% { 
-    box-shadow: 0 0 15px rgba(11, 196, 233, 0.4), inset 0 0 10px rgba(11, 196, 233, 0.1);
-    text-shadow: 0 0 10px rgba(11, 196, 233, 0.8), 0 0 20px rgba(11, 196, 233, 0.4);
-  }
-  50% { 
-    box-shadow: 0 0 25px rgba(11, 196, 233, 0.7), inset 0 0 15px rgba(11, 196, 233, 0.2);
-    text-shadow: 0 0 15px rgba(11, 196, 233, 1), 0 0 30px rgba(11, 196, 233, 0.6);
-  }
-}
 
+/* 图例（地图内悬浮面板，与 province.vue 四段色对齐） */
 .map-legend {
   position: absolute;
   bottom: 16px;
@@ -3079,7 +2952,7 @@ defineExpose({ switchTab });
   background: linear-gradient(180deg, rgba(6, 16, 28, 0.95) 0%, rgba(4, 10, 20, 0.92) 100%);
   border: 1px solid rgba(11, 196, 233, 0.5);
   border-radius: 0;
-  box-shadow: 
+  box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.5),
     0 0 30px rgba(11, 196, 233, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -3098,10 +2971,10 @@ defineExpose({ switchTab });
   background: linear-gradient(90deg, #0bc4e9, #7dd87d, #f5c542, #e8554f);
   box-shadow: 0 0 10px rgba(11, 196, 233, 0.5);
 }
-.legend-title { 
-  font-size: 13px; 
-  color: #ffffff; 
-  text-shadow: 0 0 10px rgba(11, 196, 233, 0.6); 
+.legend-title {
+  font-size: 13px;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(11, 196, 233, 0.6);
   font-weight: 700;
   letter-spacing: 1px;
   padding-bottom: 8px;
@@ -3112,10 +2985,10 @@ defineExpose({ switchTab });
   width: 100%;
   height: 12px;
   border-radius: 2px;
-  background: linear-gradient(90deg, 
-    #0bc4e9 0%, #0bc4e9 48%, 
-    #7dd87d 48%, #7dd87d 55%, 
-    #f5c542 55%, #f5c542 60%, 
+  background: linear-gradient(90deg,
+    #0bc4e9 0%, #0bc4e9 48%,
+    #7dd87d 48%, #7dd87d 55%,
+    #f5c542 55%, #f5c542 60%,
     #e8554f 60%, #e8554f 100%);
   box-shadow: 0 0 10px rgba(11, 196, 233, 0.3), inset 0 0 5px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(11, 196, 233, 0.3);
@@ -3129,80 +3002,78 @@ defineExpose({ switchTab });
   font-family: 'Consolas', monospace;
 }
 .legend-items { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
-.legend-item { 
-  display: flex; 
-  align-items: center; 
-  gap: 10px; 
-  font-size: 12px; 
-  color: #8adeff; 
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #8adeff;
 }
-.legend-bar { 
-  width: 20px; 
-  height: 10px; 
+.legend-bar {
+  width: 20px;
+  height: 10px;
   border-radius: 2px;
   box-shadow: 0 0 8px currentColor;
   flex-shrink: 0;
 }
-.legend-bar.bar-0 { background: #0bc4e9; color: #0bc4e9; }
 .legend-bar.bar-1 { background: #0bc4e9; color: #0bc4e9; }
 .legend-bar.bar-2 { background: #7dd87d; color: #7dd87d; }
 .legend-bar.bar-3 { background: #f5c542; color: #f5c542; }
 .legend-bar.bar-4 { background: #e8554f; color: #e8554f; }
 
+/* 仪表盘 */
 .gauge-row { display: flex; gap: 14px; height: 100%; min-height: 0; }
 .gauge-item { flex: 1; min-height: 0; }
 
-/* 滚动条 - 增强版 */
+/* 预警提醒（city 专属，配色对齐青色主题） */
+.alert-list {
+  display: flex; flex-direction: column; gap: 8px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.alert-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  background: rgba(0, 72, 115, 0.28);
+  border: 1px solid var(--border-soft);
+  border-radius: 0;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  animation: alert-slide-in 0.4s ease-out;
+}
+@keyframes alert-slide-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.alert-item::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.alert-item.danger::before { background: #e8554f; box-shadow: 0 0 8px rgba(232, 85, 79, 0.6); }
+.alert-item.warning::before { background: #f5c542; box-shadow: 0 0 8px rgba(245, 197, 66, 0.6); }
+.alert-item.info::before { background: var(--primary); box-shadow: 0 0 8px var(--glow); }
+.alert-item:hover {
+  background: rgba(0, 90, 140, 0.4);
+  border-color: var(--border);
+  transform: translateX(3px);
+  box-shadow: 0 0 16px var(--glow-soft);
+}
+.alert-icon { font-size: 14px; flex-shrink: 0; }
+.alert-msg {
+  font-size: 11px; color: var(--text);
+  line-height: 1.5;
+}
+
+/* 滚动条 */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--primary); box-shadow: 0 0 8px var(--glow); }
 
-/* 响应式 */
-@media (max-width: 1500px) {
-  .national-title { font-size: 24px; letter-spacing: 3px; }
-  .kpi-lg-value { font-size: 24px; }
-  .national-body { grid-template-columns: 26% 1fr 26%; padding: 8px 14px 14px; }
-}
-@media (max-width: 1200px) {
-  .app-root { height: auto; min-height: 100vh; overflow-y: auto; }
-  .national-body { grid-template-columns: 1fr; }
-  .left-col, .right-col { flex-direction: row; flex-wrap: wrap; }
-  .left-col .tech-panel, .right-col .tech-panel { flex: 1 1 300px; }
-}
-@media (max-width: 768px) {
-  .national-title { font-size: 18px; letter-spacing: 2px; }
-  .kpi-lg-value { font-size: 20px; }
-  .national-header { padding: 10px 16px 6px; }
-  .national-tabs { padding: 6px 12px; }
-  .tech-tab { padding: 6px 14px; font-size: 12px; }
-  .national-body { padding: 6px 12px 12px; gap: 8px; }
-  .left-col, .right-col { flex-direction: column; }
-  .header-deco { display: none; }
-  .tech-panel-top-border { display: none; }
-}
-
-/* 额外的粒子动画层 */
-.bg-particles-float {
-  position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background-image:
-    radial-gradient(1px 1px at 15% 25%, rgba(11, 196, 233, 0.5) 50%, transparent 100%),
-    radial-gradient(1px 1px at 45% 65%, rgba(0, 168, 215, 0.4) 50%, transparent 100%),
-    radial-gradient(1px 1px at 75% 15%, rgba(89, 235, 232, 0.35) 50%, transparent 100%),
-    radial-gradient(1px 1px at 85% 55%, rgba(14, 252, 255, 0.45) 50%, transparent 100%);
-  background-size: 350px 350px, 420px 420px, 380px 380px, 450px 450px;
-  animation: float-up 18s linear infinite;
-  opacity: 0.5;
-}
-@keyframes float-up {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-100%); }
-}
-
-/* 浅色模式粒子效果禁用 */
-.app-root.theme-light .bg-particles-float { display: none; }
-
-/* 浅色模式面板增强 */
+/* 浅色模式面板 */
 .app-root.theme-light .tech-panel {
   background: rgba(255, 255, 255, 0.98);
   border: 1px solid rgba(8, 145, 178, 0.12);
@@ -3215,7 +3086,7 @@ defineExpose({ switchTab });
 .app-root.theme-light .tech-panel-header::after { display: none; }
 .app-root.theme-light .panel-title { text-shadow: none; }
 
-/* 浅色模式KPI卡片 */
+/* 浅色模式KPI */
 .app-root.theme-light .kpi-card-lg {
   background: linear-gradient(135deg, rgba(8, 145, 178, 0.04), rgba(0, 168, 215, 0.02));
   border: 1px solid rgba(8, 145, 178, 0.1);
@@ -3240,6 +3111,17 @@ defineExpose({ switchTab });
   background: rgba(8, 145, 178, 0.04);
   border-color: rgba(8, 145, 178, 0.15);
 }
+.app-root.theme-light .alert-item {
+  background: rgba(8, 145, 178, 0.02);
+  border: 1px solid rgba(8, 145, 178, 0.08);
+}
+.app-root.theme-light .select-box select {
+  background: #ffffff;
+  border: 1px solid rgba(8, 145, 178, 0.2);
+  color: #1e293b;
+  box-shadow: none;
+}
+.app-root.theme-light .select-box select option { background: #fff; color: #1e293b; }
 
 /* 浅色模式地图 */
 .app-root.theme-light .map-area {
@@ -3248,7 +3130,6 @@ defineExpose({ switchTab });
   animation: none;
   box-shadow: 0 4px 24px rgba(15, 23, 42, 0.05);
 }
-.app-root.theme-light .map-area::after { display: none; }
 .app-root.theme-light .map-grid {
   background-image:
     linear-gradient(rgba(8, 145, 178, 0.03) 1px, transparent 1px),
@@ -3268,19 +3149,17 @@ defineExpose({ switchTab });
   border-color: rgba(8, 145, 178, 0.3);
   box-shadow: none;
 }
-.app-root.theme-light .map-radar::before {
-  box-shadow: none;
+.app-root.theme-light .map-radar::before { box-shadow: none; }
+.app-root.theme-light .map-back-btn {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(8, 145, 178, 0.15);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
-
-/* 浅色模式标签页 */
-.app-root.theme-light .tech-tab:hover {
-  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.1);
+.app-root.theme-light .map-back-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.15);
 }
-.app-root.theme-light .tech-tab.active {
-  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.2);
-}
-
-/* 浅色模式图例 */
 .app-root.theme-light .map-legend {
   background: rgba(255, 255, 255, 0.98);
   border: 1px solid rgba(8, 145, 178, 0.15);
@@ -3300,7 +3179,31 @@ defineExpose({ switchTab });
 .app-root.theme-light .legend-scale {
   color: var(--text-dim);
 }
-.app-root.theme-light .legend-item {
-  color: var(--text-dim);
+.app-root.theme-light .legend-item { color: var(--text-dim); }
+
+/* 响应式 */
+@media (max-width: 1500px) {
+  .national-title { font-size: 24px; letter-spacing: 3px; }
+  .kpi-lg-value { font-size: 24px; }
+  .national-body { grid-template-columns: 26% 1fr 26%; padding: 8px 14px 14px; }
 }
+@media (max-width: 1200px) {
+  .app-root { height: auto; min-height: 100vh; overflow-y: auto; }
+  .national-body { grid-template-columns: 1fr; }
+  .left-col, .right-col { flex-direction: row; flex-wrap: wrap; }
+  .left-col .tech-panel, .right-col .tech-panel { flex: 1 1 300px; }
+  .map-area { min-height: 320px; }
+}
+@media (max-width: 768px) {
+  .national-title { font-size: 18px; letter-spacing: 2px; }
+  .kpi-lg-value { font-size: 20px; }
+  .national-header { padding: 10px 16px 6px; }
+  .national-tabs { padding: 6px 12px; }
+  .tech-tab { padding: 6px 14px; font-size: 12px; }
+  .national-body { padding: 6px 12px 12px; gap: 8px; }
+  .left-col, .right-col { flex-direction: column; }
+  .header-deco { display: none; }
+  .map-corner { display: none; }
+}
+
 </style>
