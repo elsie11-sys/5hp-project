@@ -1,14 +1,8 @@
 {
   "version": 2,
-<<<<<<< HEAD
-  "dgSpecHash": "3CxQjMBDSUA=",
+  "dgSpecHash": "W2x/0pcuADw=",
   "success": true,
   "projectFilePath": "E:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj",
-=======
-  "dgSpecHash": "t+SDh1bsedw=",
-  "success": true,
-  "projectFilePath": "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\Infrastructure.csproj",
->>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
   "expectedPackageFiles": [
     "C:\\Users\\16413\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\16413\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
@@ -20,11 +14,11 @@
     "C:\\Users\\16413\\.nuget\\packages\\microsoft.codeanalysis.csharp.workspaces\\4.5.0\\microsoft.codeanalysis.csharp.workspaces.4.5.0.nupkg.sha512",
     "C:\\Users\\16413\\.nuget\\packages\\microsoft.codeanalysis.workspaces.common\\4.5.0\\microsoft.codeanalysis.workspaces.common.4.5.0.nupkg.sha512",
     "C:\\Users\\16413\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
-    "C:\\Users\\16413\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.29\\microsoft.entityframeworkcore.8.0.29.nupkg.sha512",
-    "C:\\Users\\16413\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.29\\microsoft.entityframeworkcore.abstractions.8.0.29.nupkg.sha512",
-    "C:\\Users\\16413\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.29\\microsoft.entityframeworkcore.analyzers.8.0.29.nupkg.sha512",
+    "C:\\Users\\16413\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.30\\microsoft.entityframeworkcore.8.0.30.nupkg.sha512",
+    "C:\\Users\\16413\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.30\\microsoft.entityframeworkcore.abstractions.8.0.30.nupkg.sha512",
+    "C:\\Users\\16413\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.30\\microsoft.entityframeworkcore.analyzers.8.0.30.nupkg.sha512",
     "C:\\Users\\16413\\.nuget\\packages\\microsoft.entityframeworkcore.design\\8.0.26\\microsoft.entityframeworkcore.design.8.0.26.nupkg.sha512",
-    "C:\\Users\\16413\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\8.0.29\\microsoft.entityframeworkcore.relational.8.0.29.nupkg.sha512",
+    "C:\\Users\\16413\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\8.0.30\\microsoft.entityframeworkcore.relational.8.0.30.nupkg.sha512",
     "C:\\Users\\16413\\.nuget\\packages\\microsoft.entityframeworkcore.tools\\10.0.10\\microsoft.entityframeworkcore.tools.10.0.10.nupkg.sha512",
     "C:\\Users\\16413\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\8.0.0\\microsoft.extensions.caching.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\16413\\.nuget\\packages\\microsoft.extensions.caching.memory\\8.0.1\\microsoft.extensions.caching.memory.8.0.1.nupkg.sha512",
@@ -53,5 +47,12 @@
     "C:\\Users\\16413\\.nuget\\packages\\system.text.encoding.codepages\\6.0.0\\system.text.encoding.codepages.6.0.0.nupkg.sha512",
     "C:\\Users\\16413\\.nuget\\packages\\system.threading.channels\\6.0.0\\system.threading.channels.6.0.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problem reading the cache file E:\\5HP_Project\\backend\\src\\Infrastructure\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
 }

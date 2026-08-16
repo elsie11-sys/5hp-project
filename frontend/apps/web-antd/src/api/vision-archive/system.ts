@@ -243,6 +243,7 @@ export const userApi = {
 export interface RoleDto {
   id: number;
   name: string;           // 角色名称
+  roleCode: string;       // 角色编号
   code: string;           // 权限字符
   level: number;          // 等级
   status: number;         // 1:启用 0:停用
@@ -258,7 +259,8 @@ export interface RoleDto {
 export interface RoleForm {
   id?: number;
   name: string;
-  code: string;
+  roleCode: string;       // 角色编号
+  code: string;           // 权限字符
   level: number;
   status: number;
   remark?: string;

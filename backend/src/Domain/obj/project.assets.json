@@ -13,14 +13,14 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj",
+      "projectUniqueName": "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj",
       "projectName": "Domain",
-      "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj",
+      "projectPath": "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj",
       "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
-      "outputPath": "D:\\5HP_ProjectD\\backend\\src\\Domain\\obj\\",
+      "outputPath": "E:\\5HP_Project\\backend\\src\\Domain\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "D:\\5HP_ProjectD\\backend\\NuGet.Config",
+        "E:\\5HP_Project\\backend\\NuGet.Config",
         "C:\\Users\\16413\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
@@ -69,5 +69,13 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.423/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problem reading the cache file E:\\5HP_Project\\backend\\src\\Domain\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
 }

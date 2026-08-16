@@ -1,7 +1,6 @@
 {
   "format": 1,
   "restore": {
-<<<<<<< HEAD
     "E:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj": {}
   },
   "projects": {
@@ -13,22 +12,9 @@
         "projectPath": "E:\\5HP_Project\\backend\\src\\Application\\Application.csproj",
         "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
         "outputPath": "E:\\5HP_Project\\backend\\src\\Application\\obj\\",
-=======
-    "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\Infrastructure.csproj": {}
-  },
-  "projects": {
-    "D:\\5HP_ProjectD\\backend\\src\\Application\\Application.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "D:\\5HP_ProjectD\\backend\\src\\Application\\Application.csproj",
-        "projectName": "Application",
-        "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Application\\Application.csproj",
-        "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
-        "outputPath": "D:\\5HP_ProjectD\\backend\\src\\Application\\obj\\",
->>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "D:\\5HP_ProjectD\\backend\\NuGet.Config",
+          "E:\\5HP_Project\\backend\\NuGet.Config",
           "C:\\Users\\16413\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
@@ -42,13 +28,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-<<<<<<< HEAD
               "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj": {
                 "projectPath": "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj"
-=======
-              "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj": {
-                "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj"
->>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
               }
             }
           }
@@ -97,7 +78,6 @@
         }
       }
     },
-<<<<<<< HEAD
     "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -106,19 +86,9 @@
         "projectPath": "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj",
         "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
         "outputPath": "E:\\5HP_Project\\backend\\src\\Domain\\obj\\",
-=======
-    "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj",
-        "projectName": "Domain",
-        "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj",
-        "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
-        "outputPath": "D:\\5HP_ProjectD\\backend\\src\\Domain\\obj\\",
->>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "D:\\5HP_ProjectD\\backend\\NuGet.Config",
+          "E:\\5HP_Project\\backend\\NuGet.Config",
           "C:\\Users\\16413\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
@@ -168,7 +138,6 @@
         }
       }
     },
-<<<<<<< HEAD
     "E:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -177,19 +146,9 @@
         "projectPath": "E:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj",
         "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
         "outputPath": "E:\\5HP_Project\\backend\\src\\Infrastructure\\obj\\",
-=======
-    "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\Infrastructure.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\Infrastructure.csproj",
-        "projectName": "Infrastructure",
-        "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
-        "outputPath": "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\obj\\",
->>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "D:\\5HP_ProjectD\\backend\\NuGet.Config",
+          "E:\\5HP_Project\\backend\\NuGet.Config",
           "C:\\Users\\16413\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
@@ -203,19 +162,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-<<<<<<< HEAD
               "E:\\5HP_Project\\backend\\src\\Application\\Application.csproj": {
                 "projectPath": "E:\\5HP_Project\\backend\\src\\Application\\Application.csproj"
               },
               "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj": {
                 "projectPath": "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj"
-=======
-              "D:\\5HP_ProjectD\\backend\\src\\Application\\Application.csproj": {
-                "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Application\\Application.csproj"
-              },
-              "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj": {
-                "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj"
->>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
               }
             }
           }

@@ -1,7 +1,6 @@
 {
   "format": 1,
   "restore": {
-<<<<<<< HEAD
     "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj": {}
   },
   "projects": {
@@ -13,22 +12,9 @@
         "projectPath": "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj",
         "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
         "outputPath": "E:\\5HP_Project\\backend\\src\\Domain\\obj\\",
-=======
-    "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj": {}
-  },
-  "projects": {
-    "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj",
-        "projectName": "Domain",
-        "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj",
-        "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
-        "outputPath": "D:\\5HP_ProjectD\\backend\\src\\Domain\\obj\\",
->>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "D:\\5HP_ProjectD\\backend\\NuGet.Config",
+          "E:\\5HP_Project\\backend\\NuGet.Config",
           "C:\\Users\\16413\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [

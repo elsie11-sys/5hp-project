@@ -312,11 +312,11 @@
           "lib/netcoreapp2.0/_._": {}
         }
       },
-      "Microsoft.EntityFrameworkCore/8.0.29": {
+      "Microsoft.EntityFrameworkCore/8.0.30": {
         "type": "package",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.29",
-          "Microsoft.EntityFrameworkCore.Analyzers": "8.0.29",
+          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.30",
+          "Microsoft.EntityFrameworkCore.Analyzers": "8.0.30",
           "Microsoft.Extensions.Caching.Memory": "8.0.1",
           "Microsoft.Extensions.Logging": "8.0.1"
         },
@@ -334,7 +334,7 @@
           "buildTransitive/net8.0/Microsoft.EntityFrameworkCore.props": {}
         }
       },
-      "Microsoft.EntityFrameworkCore.Abstractions/8.0.29": {
+      "Microsoft.EntityFrameworkCore.Abstractions/8.0.30": {
         "type": "package",
         "compile": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll": {
@@ -347,7 +347,7 @@
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Analyzers/8.0.29": {
+      "Microsoft.EntityFrameworkCore.Analyzers/8.0.30": {
         "type": "package",
         "compile": {
           "lib/netstandard2.0/_._": {}
@@ -379,10 +379,10 @@
           "build/net8.0/Microsoft.EntityFrameworkCore.Design.props": {}
         }
       },
-      "Microsoft.EntityFrameworkCore.Relational/8.0.29": {
+      "Microsoft.EntityFrameworkCore.Relational/8.0.30": {
         "type": "package",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "8.0.29",
+          "Microsoft.EntityFrameworkCore": "8.0.30",
           "Microsoft.Extensions.Configuration.Abstractions": "8.0.0"
         },
         "compile": {
@@ -1465,10 +1465,10 @@
         "version.txt"
       ]
     },
-    "Microsoft.EntityFrameworkCore/8.0.29": {
-      "sha512": "+4Md9S8HcJEkoatsVTiYrF621StlxS8bpnQMSYYbAVRnMGHWLhtlbgqTYdO8+zxuyIqAjiFAYtWr/oJ9KC7X7Q==",
+    "Microsoft.EntityFrameworkCore/8.0.30": {
+      "sha512": "Y6GP16iuqAUkcXSgMqjgao9w0UHSz8x04LRDadsi++sn7yBI9C/sy61xNLzPKM+6DZEbyPRHGq3M58f6DhB25g==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore/8.0.29",
+      "path": "microsoft.entityframeworkcore/8.0.30",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1477,14 +1477,14 @@
         "buildTransitive/net8.0/Microsoft.EntityFrameworkCore.props",
         "lib/net8.0/Microsoft.EntityFrameworkCore.dll",
         "lib/net8.0/Microsoft.EntityFrameworkCore.xml",
-        "microsoft.entityframeworkcore.8.0.29.nupkg.sha512",
+        "microsoft.entityframeworkcore.8.0.30.nupkg.sha512",
         "microsoft.entityframeworkcore.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Abstractions/8.0.29": {
-      "sha512": "z5JLj2mWCuxnhP7oP9udaHxOK5FQWPpvjXeTmCMjRRCYZ1k+gUlb9Vznx2LHSFXww4ZHjztKbxezNTTu/T6znw==",
+    "Microsoft.EntityFrameworkCore.Abstractions/8.0.30": {
+      "sha512": "JoVu3708PrMcA3BUeo1+gTcD4nRI8o3g3kwNXwgTPUDhe0dqN2CQmHmEPDD0uZlI1v2oq3F7tR46VycUHzP9ng==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.abstractions/8.0.29",
+      "path": "microsoft.entityframeworkcore.abstractions/8.0.30",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1492,14 +1492,14 @@
         "PACKAGE.md",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.xml",
-        "microsoft.entityframeworkcore.abstractions.8.0.29.nupkg.sha512",
+        "microsoft.entityframeworkcore.abstractions.8.0.30.nupkg.sha512",
         "microsoft.entityframeworkcore.abstractions.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Analyzers/8.0.29": {
-      "sha512": "rC/q2K3JGSKJpEraRDRJ3NUOH4e+CpwwCIbbKGXi87J6LuGdIg0+yggCSPCmV2PwSSlegZSg+le++O4IBRecLA==",
+    "Microsoft.EntityFrameworkCore.Analyzers/8.0.30": {
+      "sha512": "+ZVRBR3CzGu0AGWTbewOWTzV+UG//yDrA0gdvb9i1dTidSvwG9qRRggEI9fie0MPC0LAcS9Z8X5HRYWWxefutg==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.analyzers/8.0.29",
+      "path": "microsoft.entityframeworkcore.analyzers/8.0.30",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1507,7 +1507,7 @@
         "analyzers/dotnet/cs/Microsoft.EntityFrameworkCore.Analyzers.dll",
         "docs/PACKAGE.md",
         "lib/netstandard2.0/_._",
-        "microsoft.entityframeworkcore.analyzers.8.0.29.nupkg.sha512",
+        "microsoft.entityframeworkcore.analyzers.8.0.30.nupkg.sha512",
         "microsoft.entityframeworkcore.analyzers.nuspec"
       ]
     },
@@ -1527,10 +1527,10 @@
         "microsoft.entityframeworkcore.design.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Relational/8.0.29": {
-      "sha512": "2Hr88wB21JLwKhccXYM+7gy9hdtLNM0x5YcQs+Fxa+TYmWqaLof9HxOpgJytR2YOlJKcNM+Ee67GR6bqTXyZBQ==",
+    "Microsoft.EntityFrameworkCore.Relational/8.0.30": {
+      "sha512": "uGWv6fvDUvJDKAYXfVwPVLmit2i6WCmfdzwrHHuw4OJ30s9GDVLsvV62Gi8TIgFSUlTVgSVW/c+hAvDwmY1TDw==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.relational/8.0.29",
+      "path": "microsoft.entityframeworkcore.relational/8.0.30",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1538,7 +1538,7 @@
         "PACKAGE.md",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Relational.dll",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Relational.xml",
-        "microsoft.entityframeworkcore.relational.8.0.29.nupkg.sha512",
+        "microsoft.entityframeworkcore.relational.8.0.30.nupkg.sha512",
         "microsoft.entityframeworkcore.relational.nuspec"
       ]
     },
@@ -2329,22 +2329,14 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-<<<<<<< HEAD
       "projectUniqueName": "E:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj",
       "projectName": "Infrastructure",
       "projectPath": "E:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj",
       "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
       "outputPath": "E:\\5HP_Project\\backend\\src\\Infrastructure\\obj\\",
-=======
-      "projectUniqueName": "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\Infrastructure.csproj",
-      "projectName": "Infrastructure",
-      "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\Infrastructure.csproj",
-      "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
-      "outputPath": "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\obj\\",
->>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "D:\\5HP_ProjectD\\backend\\NuGet.Config",
+        "E:\\5HP_Project\\backend\\NuGet.Config",
         "C:\\Users\\16413\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
@@ -2358,19 +2350,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-<<<<<<< HEAD
             "E:\\5HP_Project\\backend\\src\\Application\\Application.csproj": {
               "projectPath": "E:\\5HP_Project\\backend\\src\\Application\\Application.csproj"
             },
             "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj": {
               "projectPath": "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj"
-=======
-            "D:\\5HP_ProjectD\\backend\\src\\Application\\Application.csproj": {
-              "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Application\\Application.csproj"
-            },
-            "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj": {
-              "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj"
->>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
             }
           }
         }
@@ -2428,5 +2412,13 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.423/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problem reading the cache file E:\\5HP_Project\\backend\\src\\Infrastructure\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
 }
