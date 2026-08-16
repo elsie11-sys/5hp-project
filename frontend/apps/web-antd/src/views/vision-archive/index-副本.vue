@@ -32,7 +32,7 @@
       </div>
       <h1 class="national-title">
         <span class="title-bracket">【</span>
-        <span class="title-text">{{ currentProvince }}中小学生健康监测大屏</span>
+        <span class="title-text">全国中小学生健康监测大屏</span>
         <span class="title-bracket">】</span>
         <span class="title-shine"></span>
       </h1>
@@ -163,7 +163,7 @@
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentProvince }}{{ currentMetric.name }}核心数据</span>
+            <span class="panel-title">全国核心数据</span>
             <span class="panel-tag">{{ currentMetric.name }}专题</span>
           </header>
           <div class="tech-panel-body">
@@ -172,13 +172,13 @@
                 <div class="kpi-card-lg">
                   <div class="kpi-card-deco"></div>
                   <div class="kpi-card-hex"><span></span><span></span><span></span></div>
-                  <div class="kpi-lg-label">{{ currentProvince }}{{ currentMetric.name }}率</div>
+                  <div class="kpi-lg-label">全国{{ currentMetric.name }}率</div>
                   <div class="kpi-lg-value">
-                    <span class="num">{{ currentProvinceData.rate }}</span><span class="unit">%</span>
+                    <span class="num">{{ currentNationData.rate }}</span><span class="unit">%</span>
                   </div>
-                  <div :class="['kpi-lg-trend', currentProvinceData.trend > 0 ? 'up' : 'down']">
-                    <span class="trend-arrow">{{ currentProvinceData.trend > 0 ? '▲' : '▼' }}</span>
-                    {{ Math.abs(currentProvinceData.trend) }}% 同比
+                  <div :class="['kpi-lg-trend', currentNationData.trend > 0 ? 'up' : 'down']">
+                    <span class="trend-arrow">{{ currentNationData.trend > 0 ? '▲' : '▼' }}</span>
+                    {{ Math.abs(currentNationData.trend) }}% 同比
                   </div>
                 </div>
                 <div class="kpi-card-lg">
@@ -186,9 +186,9 @@
                   <div class="kpi-card-hex"><span></span><span></span><span></span></div>
                   <div class="kpi-lg-label">学生总数（万）</div>
                   <div class="kpi-lg-value">
-                    <span class="num">{{ currentProvinceData.students }}</span>
+                    <span class="num">{{ currentNationData.students }}</span>
                   </div>
-                  <div class="kpi-lg-trend down">覆盖 {{ currentProvinceData.cities }} 地市</div>
+                  <div class="kpi-lg-trend down">覆盖 {{ currentNationData.cities }} 城市</div>
                 </div>
               </div>
 
@@ -197,35 +197,35 @@
                   <span class="gender-icon">♂</span>
                   <div class="gender-info">
                     <span class="gender-label">男生{{ currentMetric.name }}率</span>
-                    <span class="gender-value">{{ currentProvinceData.maleRate }}%</span>
+                    <span class="gender-value">{{ currentNationData.maleRate || 55.2 }}%</span>
                   </div>
-                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentProvinceData.maleRate + '%' }"></div></div>
+                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: (currentNationData.maleRate || 55.2) + '%' }"></div></div>
                 </div>
                 <div class="gender-item female">
                   <span class="gender-icon">♀</span>
                   <div class="gender-info">
                     <span class="gender-label">女生{{ currentMetric.name }}率</span>
-                    <span class="gender-value">{{ currentProvinceData.femaleRate }}%</span>
+                    <span class="gender-value">{{ currentNationData.femaleRate || 42.2 }}%</span>
                   </div>
-                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentProvinceData.femaleRate + '%' }"></div></div>
+                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: (currentNationData.femaleRate || 42.2) + '%' }"></div></div>
                 </div>
               </div>
 
               <div class="kpi-row-small">
                 <div class="kpi-card-sm">
                   <div class="kpi-sm-label">小学{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentProvinceData.primary }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.primary + '%' }"></div></div>
+                  <div class="kpi-sm-value">{{ currentNationData.primary }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentNationData.primary + '%' }"></div></div>
                 </div>
                 <div class="kpi-card-sm">
                   <div class="kpi-sm-label">初中{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentProvinceData.junior }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.junior + '%' }"></div></div>
+                  <div class="kpi-sm-value">{{ currentNationData.junior }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentNationData.junior + '%' }"></div></div>
                 </div>
                 <div class="kpi-card-sm">
                   <div class="kpi-sm-label">高中{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentProvinceData.senior }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.senior + '%' }"></div></div>
+                  <div class="kpi-sm-value">{{ currentNationData.senior }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentNationData.senior + '%' }"></div></div>
                 </div>
               </div>
             </div>
@@ -235,7 +235,7 @@
         <section class="tech-panel">
           <header class="tech-panel-header">
             <span class="panel-bullet"></span>
-            <span class="panel-title">地市{{ currentMetric.name }}率排名</span>
+            <span class="panel-title">城市{{ currentMetric.name }}率排名</span>
             <span class="panel-tag">TOP 10</span>
           </header>
           <div class="tech-panel-body">
@@ -259,16 +259,13 @@
             <div class="map-corner mc-bl"></div>
             <div class="map-corner mc-br"></div>
             <div class="map-data-strip">
-              <span>经度：<b>{{ currentProvinceCenter[0].toFixed(1) }}°E</b></span>
-              <span>纬度：<b>{{ currentProvinceCenter[1].toFixed(1) }}°N</b></span>
+              <span>经度：<b>{{ mapCenter[0].toFixed(1) }}°E</b></span>
+              <span>纬度：<b>{{ mapCenter[1].toFixed(1) }}°N</b></span>
               <span>缩放：<b>{{ mapZoom.toFixed(2) }}x</b></span>
-              <span v-if="mapLoaded" class="map-drill-tip">{{ currentProvince }}地图</span>
+              <span v-if="mapLoaded" class="map-drill-tip">点击省份下钻 ›</span>
               <span v-else>加载中…</span>
             </div>
           </div>
-          <button class="map-back-btn" @click="goBack">
-            <span class="back-icon">◀</span> 返回上级地图
-          </button>
           <div class="map-legend">
             <div class="legend-title">{{ currentMetric.name }}率分布</div>
             <div class="legend-gradient-bar"></div>
@@ -394,73 +391,34 @@ const PROVINCE_CODES = {
   新疆: '650000', 台湾: '710000', 香港: '810000', 澳门: '820000',
 };
 
-const PROVINCE_MAP_CONFIG = {
-  '110000': { name: '北京市', short: '北京', center: [116.4, 39.9], zoom: 1.6 },
-  '120000': { name: '天津市', short: '天津', center: [117.2, 39.1], zoom: 1.8 },
-  '130000': { name: '河北省', short: '河北', center: [114.5, 38.0], zoom: 1.8 },
-  '140000': { name: '山西省', short: '山西', center: [112.5, 37.8], zoom: 1.8 },
-  '150000': { name: '内蒙古自治区', short: '内蒙古', center: [111.7, 40.8], zoom: 1.4 },
-  '210000': { name: '辽宁省', short: '辽宁', center: [123.4, 41.8], zoom: 1.7 },
-  '220000': { name: '吉林省', short: '吉林', center: [125.3, 43.9], zoom: 1.6 },
-  '230000': { name: '黑龙江省', short: '黑龙江', center: [126.6, 45.7], zoom: 1.5 },
-  '310000': { name: '上海市', short: '上海', center: [121.5, 31.2], zoom: 2.0 },
-  '320000': { name: '江苏省', short: '江苏', center: [118.8, 32.0], zoom: 1.8 },
-  '330000': { name: '浙江省', short: '浙江', center: [120.2, 29.2], zoom: 1.8 },
-  '340000': { name: '安徽省', short: '安徽', center: [117.3, 31.8], zoom: 1.8 },
-  '350000': { name: '福建省', short: '福建', center: [119.3, 26.1], zoom: 1.8 },
-  '360000': { name: '江西省', short: '江西', center: [115.9, 28.7], zoom: 1.8 },
-  '370000': { name: '山东省', short: '山东', center: [118.0, 36.5], zoom: 1.8 },
-  '410000': { name: '河南省', short: '河南', center: [113.6, 34.8], zoom: 1.8 },
-  '420000': { name: '湖北省', short: '湖北', center: [112.3, 31.0], zoom: 1.8 },
-  '430000': { name: '湖南省', short: '湖南', center: [112.0, 27.6], zoom: 1.8 },
-  '440000': { name: '广东省', short: '广东', center: [113.5, 23.8], zoom: 1.8 },
-  '450000': { name: '广西壮族自治区', short: '广西', center: [108.3, 22.8], zoom: 1.7 },
-  '460000': { name: '海南省', short: '海南', center: [110.3, 20.0], zoom: 1.8 },
-  '500000': { name: '重庆市', short: '重庆', center: [106.5, 29.5], zoom: 1.9 },
-  '510000': { name: '四川省', short: '四川', center: [104.0, 30.6], zoom: 1.6 },
-  '520000': { name: '贵州省', short: '贵州', center: [106.7, 26.6], zoom: 1.8 },
-  '530000': { name: '云南省', short: '云南', center: [102.7, 25.0], zoom: 1.7 },
-  '540000': { name: '西藏自治区', short: '西藏', center: [91.1, 29.7], zoom: 1.2 },
-  '610000': { name: '陕西省', short: '陕西', center: [108.9, 34.3], zoom: 1.8 },
-  '620000': { name: '甘肃省', short: '甘肃', center: [103.8, 36.1], zoom: 1.4 },
-  '630000': { name: '青海省', short: '青海', center: [101.8, 36.6], zoom: 1.4 },
-  '640000': { name: '宁夏回族自治区', short: '宁夏', center: [106.3, 38.5], zoom: 1.7 },
-  '650000': { name: '新疆维吾尔自治区', short: '新疆', center: [87.6, 43.8], zoom: 1.2 },
+const CITY_CODES = {
+  济南: '370100', 青岛: '370200', 烟台: '370600', 德州: '371400', 泰安: '370900',
+  菏泽: '371700', 聊城: '371500', 济宁: '370800', 枣庄: '370400', 淄博: '370300',
 };
 
-const CITY_CODES_MAP = {
-  '110000': { '东城区': '110101', '西城区': '110102', '朝阳区': '110105', '海淀区': '110108', '丰台区': '110106', '石景山区': '110107', '通州区': '110112', '昌平区': '110114', '顺义区': '110113', '大兴区': '110115' },
-  '120000': { '和平区': '120101', '河东区': '120102', '河西区': '120103', '南开区': '120104', '河北区': '120105', '红桥区': '120106', '东丽区': '120110', '西青区': '120111', '津南区': '120112', '北辰区': '120113' },
-  '130000': { '石家庄市': '130100', '唐山市': '130200', '秦皇岛市': '130300', '邯郸市': '130400', '邢台市': '130500', '保定市': '130600', '张家口市': '130700', '承德市': '130800', '沧州市': '130900', '廊坊市': '131000', '衡水市': '131100' },
-  '140000': { '太原市': '140100', '大同市': '140200', '阳泉市': '140300', '长治市': '140400', '晋城市': '140500', '朔州市': '140600', '晋中市': '140700', '运城市': '140800', '忻州市': '140900', '临汾市': '141000', '吕梁市': '141100' },
-  '150000': { '呼和浩特市': '150100', '包头市': '150200', '乌海市': '150300', '赤峰市': '150400', '通辽市': '150500', '鄂尔多斯市': '150600', '呼伦贝尔市': '150700', '巴彦淖尔市': '150800', '乌兰察布市': '150900', '兴安盟': '152200' },
-  '210000': { '沈阳市': '210100', '大连市': '210200', '鞍山市': '210300', '抚顺市': '210400', '本溪市': '210500', '丹东市': '210600', '锦州市': '210700', '营口市': '210800', '阜新市': '210900', '辽阳市': '211000', '盘锦市': '211100', '铁岭市': '211200', '朝阳市': '211300', '葫芦岛市': '211400' },
-  '220000': { '长春市': '220100', '吉林市': '220200', '四平市': '220300', '辽源市': '220400', '通化市': '220500', '白山市': '220600', '松原市': '220700', '白城市': '220800' },
-  '230000': { '哈尔滨市': '230100', '齐齐哈尔市': '230200', '鸡西市': '230300', '鹤岗市': '230400', '双鸭山市': '230500', '大庆市': '230600', '伊春市': '230700', '佳木斯市': '230800', '七台河市': '230900', '牡丹江市': '231000' },
-  '310000': { '黄浦区': '310101', '徐汇区': '310104', '长宁区': '310105', '静安区': '310106', '普陀区': '310107', '虹口区': '310109', '杨浦区': '310110', '浦东新区': '310115', '闵行区': '310112', '宝山区': '310113', '嘉定区': '310114', '金山区': '310116', '松江区': '310117', '青浦区': '310118', '奉贤区': '310120', '崇明区': '310151' },
-  '320000': { '南京市': '320100', '无锡市': '320200', '徐州市': '320300', '常州市': '320400', '苏州市': '320500', '南通市': '320600', '连云港市': '320700', '淮安市': '320800', '盐城市': '320900', '扬州市': '321000', '镇江市': '321100', '泰州市': '321200', '宿迁市': '321300' },
-  '330000': { '杭州市': '330100', '宁波市': '330200', '温州市': '330300', '嘉兴市': '330400', '湖州市': '330500', '绍兴市': '330600', '金华市': '330700', '衢州市': '330800', '舟山市': '330900', '台州市': '331000', '丽水市': '331100' },
-  '340000': { '合肥市': '340100', '芜湖市': '340200', '蚌埠市': '340300', '淮南市': '340400', '马鞍山市': '340500', '淮北市': '340600', '铜陵市': '340700', '安庆市': '340800', '黄山市': '341000', '滁州市': '341100', '阜阳市': '341200', '宿州市': '341300', '六安市': '341500' },
-  '350000': { '福州市': '350100', '厦门市': '350200', '莆田市': '350300', '三明市': '350400', '泉州市': '350500', '漳州市': '350600', '南平市': '350700', '龙岩市': '350800', '宁德市': '350900' },
-  '360000': { '南昌市': '360100', '景德镇市': '360200', '萍乡市': '360300', '九江市': '360400', '新余市': '360500', '鹰潭市': '360600', '赣州市': '360700', '吉安市': '360800', '宜春市': '360900', '抚州市': '361000', '上饶市': '361100' },
-  '370000': { '济南市': '370100', '青岛市': '370200', '淄博市': '370300', '枣庄市': '370400', '东营市': '370500', '烟台市': '370600', '潍坊市': '370700', '济宁市': '370800', '泰安市': '370900', '威海市': '371000', '日照市': '371100', '临沂市': '371300', '德州市': '371400', '聊城市': '371500', '滨州市': '371600', '菏泽市': '371700' },
-  '410000': { '郑州市': '410100', '开封市': '410200', '洛阳市': '410300', '平顶山市': '410400', '安阳市': '410500', '鹤壁市': '410600', '新乡市': '410700', '焦作市': '410800', '濮阳市': '410900', '许昌市': '411000', '漯河市': '411100', '三门峡市': '411200', '南阳市': '411300', '商丘市': '411400', '信阳市': '411500', '周口市': '411600', '驻马店市': '411700' },
-  '420000': { '武汉市': '420100', '黄石市': '420200', '十堰市': '420300', '宜昌市': '420500', '襄阳市': '420600', '鄂州市': '420700', '荆门市': '420800', '孝感市': '420900', '荆州市': '421000', '黄冈市': '421100', '咸宁市': '421200', '随州市': '421300' },
-  '430000': { '长沙市': '430100', '株洲市': '430200', '湘潭市': '430300', '衡阳市': '430400', '邵阳市': '430500', '岳阳市': '430600', '常德市': '430700', '张家界市': '430800', '益阳市': '430900', '郴州市': '431000', '永州市': '431100', '怀化市': '431200', '娄底市': '431300' },
-  '440000': { '广州市': '440100', '深圳市': '440300', '珠海市': '440400', '汕头市': '440500', '佛山市': '440600', '韶关市': '440200', '湛江市': '440800', '肇庆市': '441200', '江门市': '440700', '茂名市': '440900', '惠州市': '441300', '梅州市': '441400', '汕尾市': '441500', '河源市': '441600', '阳江市': '441700', '清远市': '441800', '东莞市': '441900', '中山市': '442000', '潮州市': '445100', '揭阳市': '445200' },
-  '450000': { '南宁市': '450100', '柳州市': '450200', '桂林市': '450300', '梧州市': '450400', '北海市': '450500', '防城港市': '450600', '钦州市': '450700', '贵港市': '450800', '玉林市': '450900', '百色市': '451000', '贺州市': '451100', '河池市': '451200', '来宾市': '451300', '崇左市': '451400' },
-  '460000': { '海口市': '460100', '三亚市': '460200', '三沙市': '460300', '儋州市': '460400' },
-  '500000': { '渝中区': '500103', '江北区': '500105', '沙坪坝区': '500106', '九龙坡区': '500107', '南岸区': '500108', '北碚区': '500109', '万州区': '500101', '涪陵区': '500102', '渝北区': '500112', '巴南区': '500113' },
-  '510000': { '成都市': '510100', '自贡市': '510300', '攀枝花市': '510400', '泸州市': '510500', '德阳市': '510600', '绵阳市': '510700', '广元市': '510800', '遂宁市': '510900', '内江市': '511000', '乐山市': '511100', '南充市': '511300', '眉山市': '511400' },
-  '520000': { '贵阳市': '520100', '六盘水市': '520200', '遵义市': '520300', '安顺市': '520400', '毕节市': '520500', '铜仁市': '520600' },
-  '530000': { '昆明市': '530100', '曲靖市': '530300', '玉溪市': '530400', '保山市': '530500', '昭通市': '530600', '丽江市': '530700', '普洱市': '530800', '临沧市': '530900' },
-  '540000': { '拉萨市': '540100', '日喀则市': '540200', '昌都市': '540300', '林芝市': '540400', '山南市': '540500', '那曲市': '540600' },
-  '610000': { '西安市': '610100', '铜川市': '610200', '宝鸡市': '610300', '咸阳市': '610400', '渭南市': '610500', '延安市': '610600', '汉中市': '610700', '榆林市': '610800', '安康市': '610900', '商洛市': '611000' },
-  '620000': { '兰州市': '620100', '嘉峪关市': '620200', '金昌市': '620300', '白银市': '620400', '天水市': '620500', '武威市': '620600', '张掖市': '620700', '平凉市': '620800', '酒泉市': '620900', '庆阳市': '621000', '定西市': '621100', '陇南市': '621200' },
-  '630000': { '西宁市': '630100', '海东市': '630200' },
-  '640000': { '银川市': '640100', '石嘴山市': '640200', '吴忠市': '640300', '固原市': '640400', '中卫市': '640500' },
-  '650000': { '乌鲁木齐市': '650100', '克拉玛依市': '650200', '吐鲁番市': '650400', '哈密市': '650500' },
+const GEO_SUFFIXES = /(省|市|自治区|壮族|回族|维吾尔|特别行政区)$/;
+
+const buildProvinceNameMap = () => {
+  const map = {};
+  Object.keys(PROVINCE_CODES).forEach((name) => {
+    map[`${name}省`] = name;
+    map[`${name}市`] = name;
+    map[`${name}自治区`] = name;
+    map[`${name}壮族自治区`] = name;
+    map[`${name}回族自治区`] = name;
+    map[`${name}维吾尔自治区`] = name;
+    map[`${name}特别行政区`] = name;
+    map[name] = name;
+  });
+  map['内蒙古自治区'] = '内蒙古';
+  map['广西壮族自治区'] = '广西';
+  map['宁夏回族自治区'] = '宁夏';
+  map['新疆维吾尔自治区'] = '新疆';
+  map['西藏自治区'] = '西藏';
+  return map;
 };
+
+const PROVINCE_NAME_MAP = buildProvinceNameMap();
 
 const getColors = () => (isLight.value ? LIGHT_COLOR : DARK_COLOR);
 
@@ -1185,6 +1143,16 @@ const handleResetFilter = () => {
   filter.school = '';
 };
 
+// 按 Esc 退出大屏：若有下拉筛选框打开则优先关闭，否则退出到分析页
+const handleKeydown = (e) => {
+  if (e.key !== 'Escape') return;
+  if (openDropdown.value) {
+    openDropdown.value = null;
+    return;
+  }
+  router.push('/analytics');
+};
+
 // ============================================================
 //  数据
 // ============================================================
@@ -1291,7 +1259,13 @@ const nationData = {
   }
 };
 
-// 省份地图数据由 getProvinceMapData() 根据路由参数动态生成
+const provinceDataMap = {
+  vision: { '广东': 52.3, '江苏': 48.7, '浙江': 45.1, '山东': 54.2, '河南': 56.5, '四川': 51.8, '湖北': 49.4, '湖南': 50.1, '福建': 46.8, '安徽': 53.5, '北京': 58.3, '上海': 56.7, '河北': 49.2, '山西': 48.0, '内蒙古': 51.5, '辽宁': 51.3, '吉林': 49.2, '黑龙江': 48.5, '江西': 46.2, '重庆': 52.6, '陕西': 49.1, '甘肃': 45.3 },
+  oral:   { '广东': 45.2, '江苏': 42.1, '浙江': 40.5, '山东': 47.8, '河南': 49.0, '四川': 44.5, '湖北': 43.2, '湖南': 44.0, '福建': 41.3, '安徽': 46.4, '北京': 45.2, '上海': 43.8, '河北': 47.5, '山西': 46.8, '辽宁': 48.0, '吉林': 47.2, '黑龙江': 46.5, '江西': 45.5, '重庆': 45.0, '陕西': 44.2, '甘肃': 43.5 },
+  mental: { '广东': 25.3, '江苏': 23.1, '浙江': 21.7, '山东': 26.5, '河南': 28.0, '四川': 24.8, '湖北': 23.5, '湖南': 24.0, '福建': 22.2, '安徽': 25.8, '北京': 28.3, '上海': 26.7, '河北': 27.0, '山西': 26.2, '辽宁': 27.5, '吉林': 26.8, '黑龙江': 26.0, '江西': 25.0, '重庆': 25.5, '陕西': 24.5, '甘肃': 23.8 },
+  weight: { '广东': 32.1, '江苏': 29.3, '浙江': 27.9, '山东': 33.8, '河南': 35.2, '四川': 31.5, '湖北': 30.4, '湖南': 31.0, '福建': 28.6, '安徽': 32.9, '北京': 35.2, '上海': 33.8, '河北': 34.5, '山西': 33.5, '辽宁': 34.8, '吉林': 33.9, '黑龙江': 33.2, '江西': 32.0, '重庆': 32.5, '陕西': 31.2, '甘肃': 30.5 },
+  bone:   { '广东': 17.2, '江苏': 15.8, '浙江': 14.5, '山东': 18.1, '河南': 19.0, '四川': 16.6, '湖北': 15.9, '湖南': 16.3, '福建': 14.9, '安徽': 17.7, '北京': 19.5, '上海': 18.3, '河北': 18.5, '山西': 17.8, '辽宁': 19.2, '吉林': 18.7, '黑龙江': 18.0, '江西': 17.0, '重庆': 17.5, '陕西': 16.8, '甘肃': 16.2 }
+};
 
 // ============================================================
 //  状态
@@ -1301,26 +1275,8 @@ const mapLoaded = ref(false);
 const currentDate = ref('');
 const currentTime = ref('');
 const isLight = ref(false);
-const mapZoom = ref(1.8);
-const cityList = ref([]);
-
-// 路由驱动的省份配置
-const routeCode = computed(() => String(route.params.code || '370000'));
-const currentProvinceConfig = computed(() => PROVINCE_MAP_CONFIG[routeCode.value] || PROVINCE_MAP_CONFIG['370000']);
-const currentProvince = computed(() => currentProvinceConfig.value.short);
-const currentProvinceCenter = computed(() => currentProvinceConfig.value.center);
-const currentCityCodes = computed(() => CITY_CODES_MAP[routeCode.value] || {});
-
-// 根据路由参数同步筛选条件中的省份默认选中（从 index.vue 地图下钻进入时生效）
-const syncFilterFromRoute = () => {
-  const code = routeCode.value;
-  if (code && Object.values(PROVINCE_CODES).includes(code)) {
-    filter.province = code;
-    filter.city = '';
-    filter.district = '';
-    filter.school = '';
-  }
-};
+const mapCenter = ref([104, 36]);
+const mapZoom = ref(1.25);
 
 const cityRankRef = ref(null);
 const ageGenderRef = ref(null);
@@ -1333,35 +1289,8 @@ const chartInstances = {};
 let timer = null;
 let themeObserver = null;
 
-const metricConfig = {
-  vision: { name: '近视', baseRate: 58, trend: 2.5, maleFactor: 0.95, femaleFactor: 1.05, primaryFactor: 0.6, juniorFactor: 1.0, seniorFactor: 1.25 },
-  oral: { name: '龋齿', baseRate: 42, trend: -1.2, maleFactor: 0.96, femaleFactor: 1.05, primaryFactor: 1.24, juniorFactor: 0.9, seniorFactor: 0.67 },
-  mental: { name: '心理预警', baseRate: 18, trend: -0.8, maleFactor: 0.92, femaleFactor: 1.1, primaryFactor: 0.67, juniorFactor: 1.22, seniorFactor: 1.56 },
-  weight: { name: '超重/肥胖', baseRate: 24, trend: 1.5, maleFactor: 1.12, femaleFactor: 0.88, primaryFactor: 0.63, juniorFactor: 1.17, seniorFactor: 1.33 },
-  bone: { name: '骨密度偏低', baseRate: 16, trend: -0.5, maleFactor: 0.91, femaleFactor: 1.11, primaryFactor: 0.75, juniorFactor: 1.13, seniorFactor: 1.38 }
-};
-
-const currentMetric = computed(() => metricConfig[activeTab.value]);
-
-const computeProvinceMetricData = () => {
-  const m = metricConfig[activeTab.value];
-  const cfg = currentProvinceConfig.value;
-  const code = routeCode.value;
-  const seed = parseInt(code.slice(-2), 10) || 13;
-  const rate = Math.round((m.baseRate + (seed % 15 - 7)) * 10) / 10;
-  const students = Math.round(800 + seed * 3 + cfg.center[0] % 50);
-  const cities = cityList.value.length || 11;
-  const maleRate = Math.round(rate * m.maleFactor * 10) / 10;
-  const femaleRate = Math.round(rate * m.femaleFactor * 10) / 10;
-  const primary = Math.round(rate * m.primaryFactor * 10) / 10;
-  const junior = Math.round(rate * m.juniorFactor * 10) / 10;
-  const senior = Math.round(rate * m.seniorFactor * 10) / 10;
-  const topCity = cityList.value[0] || '最高';
-  const topRate = Math.round((rate + 5 + (seed % 8)) * 10) / 10;
-  return { rate, students, cities, trend: m.trend, maleRate, femaleRate, primary, junior, senior, topCity, topRate };
-};
-
-const currentProvinceData = computed(() => computeProvinceMetricData());
+const currentNationData = computed(() => nationData[activeTab.value] || nationData.vision);
+const currentMetric = computed(() => ({ name: currentNationData.value.metric }));
 
 // ============================================================
 //  方法
@@ -1377,32 +1306,20 @@ const observeTheme = () => {
   themeObserver = null;
 };
 
+const normalizeRegionName = (name = '') => {
+  const short = PROVINCE_NAME_MAP[name] || name.replace(GEO_SUFFIXES, '');
+  return short;
+};
+
+const drillToProvince = (name) => {
+  const short = normalizeRegionName(name);
+  const code = PROVINCE_CODES[short];
+  if (code) router.push({ path: `/vision/province/${code}`, query: { tab: activeTab.value } });
+};
+
 const drillToCity = (name) => {
-  const codes = currentCityCodes.value;
-  let code = codes[name];
-  if (!code) {
-    const suffixes = ['市', '区', '县', '盟', '自治州', '地区'];
-    for (const s of suffixes) {
-      const stripped = name.replace(s, '');
-      if (codes[stripped]) { code = codes[stripped]; break; }
-    }
-  }
+  const code = CITY_CODES[name];
   if (code) router.push({ path: `/vision/city/${code}`, query: { tab: activeTab.value } });
-};
-
-const goBack = () => {
-  router.push({ path: '/vision/national', query: { tab: activeTab.value } });
-};
-
-const getProvinceMapData = () => {
-  const cities = cityList.value;
-  if (cities.length === 0) return [];
-  const baseRate = currentProvinceData.value.rate;
-  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
-  return cities.map((name, i) => ({
-    name: name,
-    value: Math.round((baseRate + ((seed + i * 7) % 20 - 10)) * 10) / 10
-  }));
 };
 
 const switchTab = (key) => {
@@ -1426,52 +1343,77 @@ const getTooltip = (trigger = 'axis') => {
 
 const getCityRankOption = () => {
   const c = getColors();
-  const cities = cityList.value.length ? cityList.value.slice(0, 10) : ['暂无数据'];
-  const baseRate = currentProvinceData.value.rate;
-  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
-  const rates = cities.map((_, i) => Math.round((baseRate + (15 - i * 1.5) + ((seed + i * 3) % 6 - 3)) * 10) / 10);
-  const maxRate = Math.max(...rates);
+  const data = currentNationData.value.citiesRank;
+  const sorted = [...data].sort((a, b) => a.value - b.value);
+  const values = sorted.map((d) => d.value);
+  const sortedDesc = [...values].sort((a, b) => b - a);
+  const p25 = sortedDesc[Math.floor(sortedDesc.length * 0.25)];
+  const p50 = sortedDesc[Math.floor(sortedDesc.length * 0.5)];
+
+  const colorOf = (v) => {
+    if (v >= p25) return c.accent;
+    if (v >= p50) return c.secondary;
+    return c.primary;
+  };
 
   return {
     backgroundColor: 'transparent',
     tooltip: {
       ...getTooltip('axis'),
-      axisPointer: { type: 'shadow' },
+      axisPointer: { type: 'shadow', shadowStyle: { color: `${c.primary}14` } },
       formatter: (params) => {
         const p = params[0];
-        return `<div style="font-weight:600">${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div><div style="font-size:11px;color:${c.textDim};margin-top:4px">点击查看市级详情</div>`;
+        return `<div style="font-weight:600;margin-bottom:2px">${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div><div style="font-size:11px;color:${c.textDim};margin-top:4px">点击查看市级详情</div>`;
       },
     },
-    grid: { left: 10, right: 50, top: 5, bottom: 5, containLabel: true },
-    xAxis: { type: 'value', show: false, max: maxRate + 5 },
+    grid: { left: 60, right: 45, top: 5, bottom: 5 },
+    xAxis: { type: 'value', show: false, max: Math.ceil(Math.max(...values) * 1.15) },
     yAxis: {
       type: 'category',
-      data: cities,
-      inverse: true,
+      data: sorted.map((d) => d.name),
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: c.text, fontSize: 11, fontWeight: 'bold' },
+      axisLabel: {
+        fontSize: 11,
+        formatter: (v, i) => {
+          const num = String(i + 1).padStart(2, '0');
+          return `{num|${num}.} {name|${v}}`;
+        },
+        rich: {
+          num: { color: c.primary, fontWeight: 'bold', fontSize: 11, width: 28 },
+          name: { color: c.text, fontSize: 11 },
+        },
+      },
     },
     series: [{
-      name: currentMetric.value.name + '率',
       type: 'bar',
-      data: rates.map(v => ({
-        value: v,
-        itemStyle: {
-          color: makeGrad(c.primary, c.secondary),
-          borderRadius: [0, 4, 4, 0],
-          shadowBlur: isLight.value ? 4 : 8,
-          shadowColor: `${c.primary}44`,
-        },
-      })),
-      barWidth: 12,
+      data: values,
+      barWidth: 10,
+      cursor: 'pointer',
+      itemStyle: {
+        color: (p) => ({
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 1,
+          y2: 0,
+          colorStops: [
+            { offset: 0, color: `${colorOf(p.value)}bb` },
+            { offset: 1, color: colorOf(p.value) },
+          ],
+        }),
+        borderRadius: [0, 6, 6, 0],
+        shadowBlur: isLight.value ? 4 : 8,
+        shadowColor: `${c.primary}55`,
+      },
       label: {
         show: true,
         position: 'right',
         color: c.primary,
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: 'bold',
         formatter: '{c}%',
+        distance: 6,
       },
     }],
   };
@@ -1479,14 +1421,7 @@ const getCityRankOption = () => {
 
 const getAgeGenderOption = () => {
   const c = getColors();
-  const grades = ['小学低年级', '小学中年级', '小学高年级', '初中', '高中'];
-  const baseRate = currentProvinceData.value.rate;
-  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
-  const d = {
-    grades,
-    male: grades.map((_, i) => Math.round((baseRate * 0.95 + i * 5 + ((seed + i * 3) % 6 - 3)) * 10) / 10),
-    female: grades.map((_, i) => Math.round((baseRate * 1.05 + i * 6 + ((seed + i * 2) % 5 - 2)) * 10) / 10)
-  };
+  const d = currentNationData.value.ageGender;
   return {
     backgroundColor: 'transparent',
     tooltip: {
@@ -1608,14 +1543,7 @@ const getGaugeOption = (value, name, color) => {
 
 const getInterventionOption = () => {
   const c = getColors();
-  const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
-  const base = currentProvinceData.value.rate;
-  const data = [
-    { name: '示范区A', initial: Math.round((base + 8 + (seed % 5)) * 10) / 10, final: Math.round((base + 1 - (seed % 3)) * 10) / 10, change: -Math.round((7 + (seed % 3)) * 10) / 10 },
-    { name: '示范区B', initial: Math.round((base + 12 + (seed % 4)) * 10) / 10, final: Math.round((base + 3 - (seed % 4)) * 10) / 10, change: -Math.round((9 + (seed % 2)) * 10) / 10 },
-    { name: '示范区C', initial: Math.round((base + 5 + (seed % 3)) * 10) / 10, final: Math.round((base + 1 - (seed % 2)) * 10) / 10, change: -Math.round((5 + (seed % 4)) * 10) / 10 },
-    { name: '示范区D', initial: Math.round((base + 10 + (seed % 2)) * 10) / 10, final: Math.round((base + 2 - (seed % 3)) * 10) / 10, change: -Math.round((8 + (seed % 2)) * 10) / 10 },
-  ];
+  const data = currentNationData.value.interventions;
   const names = data.map((d) => d.name);
   const initials = data.map((d) => d.initial);
   const finals = data.map((d) => d.final);
@@ -1685,17 +1613,38 @@ const getInterventionOption = () => {
 const getMapOption = () => {
   if (!mapLoaded.value) return {};
   const c = getColors();
-  const data = getProvinceMapData();
-  if (data.length === 0) return {};
-  const cfg = currentProvinceConfig.value;
+  const data = provinceDataMap[activeTab.value] || {};
+  // 包含全部省份；无数据省份默认 0%，由 visualMap 映射为 #0bc4e9，与图例保持一致
+  const mapData = Object.keys(PROVINCE_CODES).map((name) => {
+    const val = data[name];
+    const hasData = val !== undefined && val !== null;
+    return { name, value: hasData ? val : 0 };
+  });
+
+  // Major city coordinates for effectScatter
+  const majorCities = [
+    { name: '北京', value: [116.4, 39.9, 85] },
+    { name: '上海', value: [121.47, 31.23, 90] },
+    { name: '广州', value: [113.27, 23.13, 78] },
+    { name: '深圳', value: [114.05, 22.55, 75] },
+    { name: '成都', value: [104.06, 30.67, 65] },
+    { name: '西安', value: [108.95, 34.27, 60] },
+    { name: '武汉', value: [114.31, 30.52, 70] },
+    { name: '杭州', value: [120.15, 30.28, 72] },
+    { name: '哈尔滨', value: [126.53, 45.8, 55] },
+    { name: '乌鲁木齐', value: [87.62, 43.82, 50] },
+  ];
 
   return {
     backgroundColor: 'transparent',
     tooltip: {
       ...getTooltip('item'),
       formatter: (p) => {
-        const canDrill = !!currentCityCodes.value[p.name];
-        return `<div style="font-weight:600">${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value || 0}%</span></div>${canDrill ? `<div style="font-size:11px;color:${c.textDim};margin-top:4px">点击查看市级详情</div>` : ''}`;
+        const val = Array.isArray(p.value) ? p.value[p.value.length - 1] : p.value;
+        if (p.seriesType === 'effectScatter') {
+          return `<div style="font-weight:600">${p.name}</div><div>人口/指标：<span style="color:${c.accent};font-weight:bold">${val || 0}</span></div>`;
+        }
+        return `<div style="font-weight:600">${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${val || 0}%</span></div><div style="font-size:11px;color:${c.textDim};margin-top:4px">点击进入省级看板</div>`;
       },
     },
     visualMap: {
@@ -1713,15 +1662,13 @@ const getMapOption = () => {
         color: 'rgba(15, 30, 65, 0.4)',
       },
     },
-    series: [{
-      type: 'map',
-      map: 'province',
+    geo: {
+      map: 'china',
       roam: true,
-      selectedMode: false,
-      layoutCenter: ['50%', '50%'],
-      layoutSize: '100%',
-      zoom: 1,
+      zoom: mapZoom.value,
+      center: mapCenter.value,
       scaleLimit: { min: 0.8, max: 5 },
+      nameMap: PROVINCE_NAME_MAP,
       label: {
         show: true,
         color: '#ffffff',
@@ -1759,8 +1706,63 @@ const getMapOption = () => {
         label: { show: true, color: '#ffffff' },
         itemStyle: { areaColor: 'rgba(11, 196, 233, 0.5)' },
       },
-      data,
-    }],
+      zlevel: 1,
+    },
+    series: [
+      {
+        type: 'map',
+        geoIndex: 0,
+        selectedMode: false,
+        data: mapData,
+      },
+      {
+        type: 'effectScatter',
+        coordinateSystem: 'geo',
+        rippleEffect: {
+          scale: 5,
+          brushType: 'stroke',
+          period: 4,
+        },
+        symbol: 'circle',
+        symbolSize: (val) => Math.max(8, Math.min(22, val[2] / 4)),
+        itemStyle: {
+          color: '#0efcff',
+          shadowBlur: 20,
+          shadowColor: '#0efcff',
+        },
+        label: {
+          show: true,
+          formatter: '{b}',
+          position: 'right',
+          color: '#ffffff',
+          fontSize: 11,
+          fontWeight: 600,
+          textShadowColor: 'rgba(0, 0, 0, 0.9)',
+          textShadowBlur: 6,
+        },
+        data: majorCities,
+        zlevel: 3,
+      },
+      {
+        type: 'effectScatter',
+        coordinateSystem: 'geo',
+        rippleEffect: {
+          scale: 3,
+          brushType: 'stroke',
+          period: 3,
+        },
+        symbol: 'circle',
+        symbolSize: (val) => Math.max(4, Math.min(10, val[2] / 10)),
+        itemStyle: {
+          color: '#f5c542',
+          shadowBlur: 10,
+          shadowColor: '#f5c542',
+        },
+        label: { show: false },
+        data: majorCities.map(c => ({ ...c })),
+        zlevel: 4,
+      },
+    ],
   };
 };
 
@@ -1790,8 +1792,7 @@ const renderAllCharts = () => {
   requestAnimationFrame(() => {
     nextTick(() => {
       const c = getColors();
-      const d = currentProvinceData.value;
-      const ur = { urban: Math.round((d.rate + 3) * 10) / 10, rural: Math.round((d.rate - 5) * 10) / 10 };
+      const ur = currentNationData.value.urbanRural;
       initChart(cityRankRef, 'cityRank', getCityRankOption(), (params) => {
         if (params?.name) drillToCity(params.name);
       });
@@ -1801,15 +1802,16 @@ const renderAllCharts = () => {
       initChart(interventionRef, 'intervention', getInterventionOption());
       if (mapLoaded.value) {
         initChart(mapRef, 'map', getMapOption(), (params) => {
-          if (params?.name) drillToCity(params.name);
+          if (params?.name) drillToProvince(params.name);
         });
-        // Update zoom display when map roams
+        // Update display values when map roams
         const mapChart = chartInstances['map'];
         if (mapChart) {
           mapChart.on('georoam', () => {
             const option = mapChart.getOption();
-            if (option && option.series && option.series[0]) {
-              if (option.series[0].zoom != null) mapZoom.value = option.series[0].zoom;
+            if (option && option.geo && option.geo[0]) {
+              if (option.geo[0].center) mapCenter.value = option.geo[0].center;
+              if (option.geo[0].zoom != null) mapZoom.value = option.geo[0].zoom;
             }
           });
         }
@@ -1819,44 +1821,23 @@ const renderAllCharts = () => {
 };
 
 const loadMap = async () => {
-  const code = routeCode.value;
-  const cfg = currentProvinceConfig.value;
   const urls = [
-    `https://geo.datav.aliyun.com/areas_v3/bound/${code}_full.json`,
-    `https://fastly.jsdelivr.net/npm/echarts@4.9.0/map/json/province/${cfg.short}.json`,
-    `https://geo.datav.aliyun.com/areas_v3/bound/${code}.json`,
+    'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json',
+    'https://fastly.jsdelivr.net/npm/echarts@4.9.0/map/json/china.json',
   ];
   for (const url of urls) {
     try {
       const res = await fetch(url);
       if (!res.ok) continue;
       const geoJson = await res.json();
-      echarts.registerMap('province', geoJson);
-      const features = geoJson.features || [];
-      if (features.length > 0) {
-        const list = [];
-        features.forEach(f => {
-          const props = f.properties || {};
-          const fullName = props.name || props.NAME || props.NL_NAME_1 || '';
-          if (fullName && fullName.length > 0 && fullName.length < 15) {
-            list.push(fullName);
-          }
-        });
-        cityList.value = list.length >= 3 ? list.slice(0, 30) : [];
-      } else {
-        cityList.value = [];
-      }
+      echarts.registerMap('china', geoJson);
       mapLoaded.value = true;
-      mapZoom.value = 1;
       setTimeout(() => renderAllCharts(), 200);
       return;
     } catch (e) {
       console.warn('地图加载失败', url, e);
     }
   }
-  cityList.value = [];
-  mapLoaded.value = true;
-  setTimeout(() => renderAllCharts(), 200);
 };
 
 const updateDateTime = () => {
@@ -1874,10 +1855,10 @@ onMounted(() => {
   observeTheme();
   updateDateTime();
   timer = setInterval(updateDateTime, 1000);
-  syncFilterFromRoute();
   loadMap();
   renderAllCharts();
   window.addEventListener('resize', resizeAll);
+  window.addEventListener('keydown', handleKeydown);
   document.addEventListener('click', handleDocumentClick);
   setTimeout(() => resizeAll(), 500);
   setTimeout(() => resizeAll(), 1500);
@@ -1886,6 +1867,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (timer) clearInterval(timer);
   window.removeEventListener('resize', resizeAll);
+  window.removeEventListener('keydown', handleKeydown);
   document.removeEventListener('click', handleDocumentClick);
   if (themeObserver) { themeObserver.disconnect(); themeObserver = null; }
   disposeAll();
@@ -1900,12 +1882,6 @@ watch(() => route.query.tab, (tab) => {
     setTimeout(() => renderAllCharts(), 100);
   }
 }, { immediate: true });
-watch(() => route.params.code, () => {
-  mapLoaded.value = false;
-  cityList.value = [];
-  syncFilterFromRoute();
-  setTimeout(() => loadMap(), 100);
-});
 
 
 defineExpose({ switchTab });
@@ -2998,54 +2974,6 @@ defineExpose({ switchTab });
   z-index: 5;
 }
 .map-data-strip b { color: var(--primary); font-weight: 700; text-shadow: 0 0 10px var(--glow-soft); }
-
-.map-back-btn {
-  position: absolute;
-  left: 16px;
-  top: 16px;
-  z-index: 10;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  font-size: 13px;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.3s;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 12px var(--glow-soft);
-}
-.map-back-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  box-shadow: 0 0 18px var(--glow);
-  transform: translateX(-2px);
-}
-.map-back-btn .back-icon {
-  font-size: 11px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--primary-soft);
-  color: var(--primary);
-}
-.app-root.theme-light .map-back-btn {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(8, 145, 178, 0.15);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-}
-.app-root.theme-light .map-back-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.15);
-}
 .map-drill-tip {
   color: #ffffff;
   font-weight: 700;

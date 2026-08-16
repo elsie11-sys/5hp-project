@@ -117,7 +117,10 @@ public class SysMenuController : ControllerBase
             {
                 return NotFound($"菜单 ID {id} 不存在");
             }
-            return Ok();
+            // 必须返回非空对象，Ok() 的 null value 不会被 ResultWrapperFilter 包装，
+            // 前端 defaultResponseInterceptor 读 responseData.codeField 会抛 TypeError，
+            // 导致 onDelete 的 catch 接住错误，reload 不执行，列表就不刷新
+            return Ok(new { deletedId = id, success = true });
         }
         catch (Exception ex)
         {

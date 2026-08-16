@@ -1456,8 +1456,9 @@ const getMapOption = () => {
       map: 'city',
       roam: true,
       selectedMode: false,
-      zoom: cfg.zoom,
-      center: cfg.center,
+      layoutCenter: ['50%', '50%'],
+      layoutSize: '100%',
+      zoom: 1,
       scaleLimit: { min: 0.8, max: 5 },
       label: {
         show: true,
@@ -1834,7 +1835,7 @@ const loadMap = async () => {
         districtList.value = [];
       }
       mapLoaded.value = true;
-      mapZoom.value = cfg.zoom;
+      mapZoom.value = 1;
       setTimeout(() => renderAllCharts(), 200);
       return;
     } catch (e) {

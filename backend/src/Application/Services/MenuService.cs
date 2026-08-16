@@ -97,7 +97,8 @@ public class MenuService : IMenuService
             IsKeepAlive = form.IsKeepAlive,
             IsVisible = form.IsVisible,
             Remark = form.Remark,
-            CreatedAt = DateTime.Now,
+            // 必须用 DateTime.UtcNow（Npgsql 强制要求 DateTime.Kind=Utc 才能写入 timestamptz）
+            CreatedAt = DateTime.UtcNow,
         };
 
         _context.Menus.Add(entity);
@@ -131,7 +132,8 @@ public class MenuService : IMenuService
         entity.IsKeepAlive = form.IsKeepAlive;
         entity.IsVisible = form.IsVisible;
         entity.Remark = form.Remark;
-        entity.UpdatedAt = DateTime.Now;
+        // 必须用 DateTime.UtcNow（Npgsql 强制要求 DateTime.Kind=Utc 才能写入 timestamptz）
+        entity.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
 

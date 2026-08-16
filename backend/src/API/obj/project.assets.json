@@ -2771,11 +2771,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "e:\\5HP_Project\\backend\\src\\API\\API.csproj",
+      "projectUniqueName": "E:\\5HP_Project\\backend\\src\\API\\API.csproj",
       "projectName": "API",
-      "projectPath": "e:\\5HP_Project\\backend\\src\\API\\API.csproj",
+      "projectPath": "E:\\5HP_Project\\backend\\src\\API\\API.csproj",
       "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
-      "outputPath": "e:\\5HP_Project\\backend\\src\\API\\obj\\",
+      "outputPath": "E:\\5HP_Project\\backend\\src\\API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\16413\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -2790,11 +2790,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "e:\\5HP_Project\\backend\\src\\Application\\Application.csproj": {
-              "projectPath": "e:\\5HP_Project\\backend\\src\\Application\\Application.csproj"
+            "E:\\5HP_Project\\backend\\src\\Application\\Application.csproj": {
+              "projectPath": "E:\\5HP_Project\\backend\\src\\Application\\Application.csproj"
             },
-            "e:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj": {
-              "projectPath": "e:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj"
+            "E:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj": {
+              "projectPath": "E:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj"
             }
           }
         }

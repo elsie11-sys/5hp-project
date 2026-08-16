@@ -59,103 +59,6 @@
       </button>
     </nav>
 
-    <!-- 顶部筛选栏 -->
-    <div class="top-filter-bar">
-      <div class="filter-select" ref="provinceRef" :class="{ 'has-value': filter.province, 'is-open': openDropdown === 'province' }">
-        <div class="select-trigger" :class="{ disabled: false }" @click.stop="toggleDropdown('province')">
-          <span class="select-value" :class="{ placeholder: !filter.province }">
-            {{ getSelectedName(provinceList, filter.province) || '请选择省份' }}
-          </span>
-          <span v-if="filter.province" class="clear-icon" @click.stop="clearProvince">✕</span>
-          <span class="arrow-down" :class="{ rotated: openDropdown === 'province' }">▼</span>
-        </div>
-        <div v-if="openDropdown === 'province'" class="select-dropdown">
-          <div class="dropdown-header">选择省份</div>
-          <div class="dropdown-list">
-            <div v-for="p in provinceList" :key="p.code"
-              class="dropdown-item" :class="{ selected: filter.province === p.code }"
-              @click.stop="selectOption('province', p.code)">
-              {{ p.name }}
-              <span v-if="filter.province === p.code" class="check-mark">✓</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-select" ref="cityRef" :class="{ 'has-value': filter.city, 'is-open': openDropdown === 'city', 'disabled': !filter.province }">
-        <div class="select-trigger" :class="{ disabled: !filter.province }" @click.stop="toggleDropdown('city')">
-          <span class="select-value" :class="{ placeholder: !filter.city }">
-            {{ getSelectedName(cityOptions, filter.city) || '请选择城市' }}
-          </span>
-          <span v-if="filter.city" class="clear-icon" @click.stop="clearCity">✕</span>
-          <span class="arrow-down" :class="{ rotated: openDropdown === 'city' }">▼</span>
-        </div>
-        <div v-if="openDropdown === 'city'" class="select-dropdown">
-          <div class="dropdown-header">选择城市</div>
-          <div class="dropdown-list">
-            <div v-for="c in cityOptions" :key="c.code"
-              class="dropdown-item" :class="{ selected: filter.city === c.code }"
-              @click.stop="selectOption('city', c.code)">
-              {{ c.name }}
-              <span v-if="filter.city === c.code" class="check-mark">✓</span>
-            </div>
-            <div v-if="cityOptions.length === 0" class="dropdown-empty">请先选择省份</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-select" ref="districtRef" :class="{ 'has-value': filter.district, 'is-open': openDropdown === 'district', 'disabled': !filter.city }">
-        <div class="select-trigger" :class="{ disabled: !filter.city }" @click.stop="toggleDropdown('district')">
-          <span class="select-value" :class="{ placeholder: !filter.district }">
-            {{ getSelectedName(districtOptions, filter.district) || '请选择区县' }}
-          </span>
-          <span v-if="filter.district" class="clear-icon" @click.stop="clearDistrict">✕</span>
-          <span class="arrow-down" :class="{ rotated: openDropdown === 'district' }">▼</span>
-        </div>
-        <div v-if="openDropdown === 'district'" class="select-dropdown">
-          <div class="dropdown-header">选择区县</div>
-          <div class="dropdown-list">
-            <div v-for="d in districtOptions" :key="d.code"
-              class="dropdown-item" :class="{ selected: filter.district === d.code }"
-              @click.stop="selectOption('district', d.code)">
-              {{ d.name }}
-              <span v-if="filter.district === d.code" class="check-mark">✓</span>
-            </div>
-            <div v-if="districtOptions.length === 0" class="dropdown-empty">请先选择城市</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-select" ref="schoolRef" :class="{ 'has-value': filter.school, 'is-open': openDropdown === 'school', 'disabled': !filter.district }">
-        <div class="select-trigger" :class="{ disabled: !filter.district }" @click.stop="toggleDropdown('school')">
-          <span class="select-value" :class="{ placeholder: !filter.school }">
-            {{ getSelectedName(schoolOptions, filter.school) || '请选择学校' }}
-          </span>
-          <span v-if="filter.school" class="clear-icon" @click.stop="clearSchool">✕</span>
-          <span class="arrow-down" :class="{ rotated: openDropdown === 'school' }">▼</span>
-        </div>
-        <div v-if="openDropdown === 'school'" class="select-dropdown">
-          <div class="dropdown-header">选择学校</div>
-          <div class="dropdown-list">
-            <div v-for="s in schoolOptions" :key="s.code"
-              class="dropdown-item" :class="{ selected: filter.school === s.code }"
-              @click.stop="selectOption('school', s.code)">
-              {{ s.name }}
-              <span v-if="filter.school === s.code" class="check-mark">✓</span>
-            </div>
-            <div v-if="schoolOptions.length === 0" class="dropdown-empty">请先选择区县</div>
-          </div>
-        </div>
-      </div>
-
-      <button class="btn-search-top" @click="handleSearch">
-        <span class="icon">🔍</span> 搜索
-      </button>
-      <button class="btn-reset-top" @click="handleResetFilter">
-        <span class="icon">↺</span> 重置
-      </button>
-    </div>
-
     <!-- 主体 -->
     <main class="national-body">
       <!-- 左栏 -->
@@ -246,6 +149,102 @@
 
       <!-- 地图 -->
       <section class="map-col">
+        <!-- 顶部筛选栏 -->
+        <div class="top-filter-bar">
+          <div class="filter-select" ref="provinceRef" :class="{ 'has-value': filter.province, 'is-open': openDropdown === 'province' }">
+            <div class="select-trigger" :class="{ disabled: false }" @click.stop="toggleDropdown('province')">
+              <span class="select-value" :class="{ placeholder: !filter.province }">
+                {{ getSelectedName(provinceList, filter.province) || '请选择省份' }}
+              </span>
+              <span v-if="filter.province" class="clear-icon" @click.stop="clearProvince">✕</span>
+              <span class="arrow-down" :class="{ rotated: openDropdown === 'province' }">▼</span>
+            </div>
+            <div v-if="openDropdown === 'province'" class="select-dropdown">
+              <div class="dropdown-header">选择省份</div>
+              <div class="dropdown-list">
+                <div v-for="p in provinceList" :key="p.code"
+                  class="dropdown-item" :class="{ selected: filter.province === p.code }"
+                  @click.stop="selectOption('province', p.code)">
+                  {{ p.name }}
+                  <span v-if="filter.province === p.code" class="check-mark">✓</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-select" ref="cityRef" :class="{ 'has-value': filter.city, 'is-open': openDropdown === 'city', 'disabled': !filter.province }">
+            <div class="select-trigger" :class="{ disabled: !filter.province }" @click.stop="toggleDropdown('city')">
+              <span class="select-value" :class="{ placeholder: !filter.city }">
+                {{ getSelectedName(cityOptions, filter.city) || '请选择城市' }}
+              </span>
+              <span v-if="filter.city" class="clear-icon" @click.stop="clearCity">✕</span>
+              <span class="arrow-down" :class="{ rotated: openDropdown === 'city' }">▼</span>
+            </div>
+            <div v-if="openDropdown === 'city'" class="select-dropdown">
+              <div class="dropdown-header">选择城市</div>
+              <div class="dropdown-list">
+                <div v-for="c in cityOptions" :key="c.code"
+                  class="dropdown-item" :class="{ selected: filter.city === c.code }"
+                  @click.stop="selectOption('city', c.code)">
+                  {{ c.name }}
+                  <span v-if="filter.city === c.code" class="check-mark">✓</span>
+                </div>
+                <div v-if="cityOptions.length === 0" class="dropdown-empty">请先选择省份</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-select" ref="districtRef" :class="{ 'has-value': filter.district, 'is-open': openDropdown === 'district', 'disabled': !filter.city }">
+            <div class="select-trigger" :class="{ disabled: !filter.city }" @click.stop="toggleDropdown('district')">
+              <span class="select-value" :class="{ placeholder: !filter.district }">
+                {{ getSelectedName(districtOptions, filter.district) || '请选择区县' }}
+              </span>
+              <span v-if="filter.district" class="clear-icon" @click.stop="clearDistrict">✕</span>
+              <span class="arrow-down" :class="{ rotated: openDropdown === 'district' }">▼</span>
+            </div>
+            <div v-if="openDropdown === 'district'" class="select-dropdown">
+              <div class="dropdown-header">选择区县</div>
+              <div class="dropdown-list">
+                <div v-for="d in districtOptions" :key="d.code"
+                  class="dropdown-item" :class="{ selected: filter.district === d.code }"
+                  @click.stop="selectOption('district', d.code)">
+                  {{ d.name }}
+                  <span v-if="filter.district === d.code" class="check-mark">✓</span>
+                </div>
+                <div v-if="districtOptions.length === 0" class="dropdown-empty">请先选择城市</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-select" ref="schoolRef" :class="{ 'has-value': filter.school, 'is-open': openDropdown === 'school', 'disabled': !filter.district }">
+            <div class="select-trigger" :class="{ disabled: !filter.district }" @click.stop="toggleDropdown('school')">
+              <span class="select-value" :class="{ placeholder: !filter.school }">
+                {{ getSelectedName(schoolOptions, filter.school) || '请选择学校' }}
+              </span>
+              <span v-if="filter.school" class="clear-icon" @click.stop="clearSchool">✕</span>
+              <span class="arrow-down" :class="{ rotated: openDropdown === 'school' }">▼</span>
+            </div>
+            <div v-if="openDropdown === 'school'" class="select-dropdown">
+              <div class="dropdown-header">选择学校</div>
+              <div class="dropdown-list">
+                <div v-for="s in schoolOptions" :key="s.code"
+                  class="dropdown-item" :class="{ selected: filter.school === s.code }"
+                  @click.stop="selectOption('school', s.code)">
+                  {{ s.name }}
+                  <span v-if="filter.school === s.code" class="check-mark">✓</span>
+                </div>
+                <div v-if="schoolOptions.length === 0" class="dropdown-empty">请先选择区县</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-search-top" @click="handleSearch">
+            <span class="icon">🔍</span> 搜索
+          </button>
+          <button class="btn-reset-top" @click="handleResetFilter">
+            <span class="icon">↺</span> 重置
+          </button>
+        </div>
         <div class="map-area">
           <div ref="mapRef" class="map-canvas"></div>
           <div v-if="!mapLoaded" class="map-loading">
@@ -2287,7 +2286,8 @@ defineExpose({ switchTab });
 .top-filter-bar {
   position: relative; z-index: 6;
   display: flex; align-items: center; justify-content: center;
-  gap: 10px; padding: 4px 20px 6px; flex-shrink: 0;
+  flex-wrap: wrap; row-gap: 6px;
+  gap: 10px; padding: 0 0 6px; flex-shrink: 0;
 }
 .filter-select {
   position: relative; display: inline-flex; align-items: stretch;
@@ -2319,7 +2319,7 @@ defineExpose({ switchTab });
   outline: none;
   transition: all 0.3s;
   box-shadow: inset 0 0 12px rgba(0, 212, 255, 0.08);
-  min-width: 150px;
+  min-width: 120px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -2512,9 +2512,9 @@ defineExpose({ switchTab });
   height: 0;
 }
 .left-col, .right-col, .map-col { display: flex; flex-direction: column; gap: 12px; min-height: 0; height: 100%; }
-.map-col { 
-  gap: 12px; 
-  padding: 6px;
+.map-col {
+  gap: 12px;
+  padding: 0 6px 6px;
 }
 .map-col .map-area { min-height: 0; position: relative; flex: 1; }
 

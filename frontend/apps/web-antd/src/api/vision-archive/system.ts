@@ -288,24 +288,34 @@ export interface MenuDto {
   path?: string;
   component?: string;
   permission?: string;    // 权限标识
+  isExternal: number;     // 0:否 1:是
+  routeParams?: string;   // 路由 query 参数（JSON 字符串）
+  isKeepAlive: number;    // 0:不缓存 1:缓存
+  isVisible: number;      // 0:隐藏 1:显示
+  remark?: string;
   createdAt?: string;
   updatedAt?: string | null;
   children?: MenuDto[];
 }
 
-/** 菜单表单 */
+/** 菜单表单（用于新增/编辑提交） */
 export interface MenuForm {
   id?: number;
   name: string;
   code?: string;
   icon?: string;
   type: number;           // 1:目录 2:菜单 3:按钮
-  parentId: number | null;
+  parentId?: number | null;
   sort: number;
-  status: number;
+  status: number;         // 1:正常 0:停用
   path?: string;
   component?: string;
   permission?: string;
+  isExternal?: number;    // 0:否 1:是
+  routeParams?: string;
+  isKeepAlive?: number;   // 0:不缓存 1:缓存
+  isVisible?: number;     // 0:隐藏 1:显示
+  remark?: string;
 }
 
 /** 菜单查询参数 */
@@ -614,6 +624,10 @@ export interface OrgDto {
   parentId?: number | null;
   sort: number;         // 排序
   status: number;       // 1:正常 0:停用
+  remark?: string;
+  leader?: string;      // 负责人
+  phone?: string;       // 联系电话
+  email?: string;       // 邮箱
   createdAt?: string;
   updatedAt?: string | null;
   children?: OrgDto[];
@@ -622,11 +636,13 @@ export interface OrgDto {
 /** 组织表单 */
 export interface OrgForm {
   id?: number;
-  name: string;
-  code?: string;
-  level: string;
   parentId?: number | null;
+  name: string;
   sort: number;
+  level: string;
+  leader?: string;
+  phone?: string;
+  email?: string;
   status: number;
 }
 
