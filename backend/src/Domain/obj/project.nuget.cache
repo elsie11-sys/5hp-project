@@ -1,8 +1,14 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "fxpntHb+a0I=",
   "success": true,
   "projectFilePath": "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj",
+=======
+  "dgSpecHash": "ss/Ly8NuTus=",
+  "success": true,
+  "projectFilePath": "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj",
+>>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
   "expectedPackageFiles": [],
   "logs": []
 }

@@ -59,7 +59,99 @@
       </button>
     </nav>
 
-    <!-- 顶部筛选栏 -->
+    
+
+    <!-- 主体 -->
+    <main class="national-body">
+      <!-- 左栏 -->
+      <aside class="left-col">
+        <section class="tech-panel">
+          <header class="tech-panel-header">
+            <span class="panel-bullet"></span>
+            <span class="panel-title">{{ currentCounty }}{{ currentMetric.name }}核心数据</span>
+            <span class="panel-tag">{{ currentMetric.name }}专题</span>
+          </header>
+          <div class="tech-panel-body">
+            <div class="kpi-grid">
+              <div class="kpi-row-large">
+                <div class="kpi-card-lg">
+                  <div class="kpi-card-deco"></div>
+                  <div class="kpi-card-hex"><span></span><span></span><span></span></div>
+                  <div class="kpi-lg-label">{{ currentCounty }}{{ currentMetric.name }}率</div>
+                  <div class="kpi-lg-value">
+                    <span class="num">{{ currentCountyData.rate }}</span><span class="unit">%</span>
+                  </div>
+                  <div :class="['kpi-lg-trend', currentCountyData.trend > 0 ? 'up' : 'down']">
+                    <span class="trend-arrow">{{ currentCountyData.trend > 0 ? '▲' : '▼' }}</span>
+                    {{ Math.abs(currentCountyData.trend) }}% 同比
+                  </div>
+                </div>
+                <div class="kpi-card-lg">
+                  <div class="kpi-card-deco"></div>
+                  <div class="kpi-card-hex"><span></span><span></span><span></span></div>
+                  <div class="kpi-lg-label">学生总数（千）</div>
+                  <div class="kpi-lg-value">
+                    <span class="num">{{ currentCountyData.students }}</span>
+                  </div>
+                  <div class="kpi-lg-trend down">覆盖 {{ currentCountyData.schools }} 所学校</div>
+                </div>
+              </div>
+
+              <div class="kpi-row-gender">
+                <div class="gender-item male">
+                  <span class="gender-icon">♂</span>
+                  <div class="gender-info">
+                    <span class="gender-label">男生{{ currentMetric.name }}率</span>
+                    <span class="gender-value">{{ currentCountyData.maleRate }}%</span>
+                  </div>
+                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentCountyData.maleRate + '%' }"></div></div>
+                </div>
+                <div class="gender-item female">
+                  <span class="gender-icon">♀</span>
+                  <div class="gender-info">
+                    <span class="gender-label">女生{{ currentMetric.name }}率</span>
+                    <span class="gender-value">{{ currentCountyData.femaleRate }}%</span>
+                  </div>
+                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentCountyData.femaleRate + '%' }"></div></div>
+                </div>
+              </div>
+
+              <div class="kpi-row-small">
+                <div class="kpi-card-sm">
+                  <div class="kpi-sm-label">小学{{ currentMetric.name }}率</div>
+                  <div class="kpi-sm-value">{{ currentCountyData.primary }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentCountyData.primary + '%' }"></div></div>
+                </div>
+                <div class="kpi-card-sm">
+                  <div class="kpi-sm-label">初中{{ currentMetric.name }}率</div>
+                  <div class="kpi-sm-value">{{ currentCountyData.junior }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentCountyData.junior + '%' }"></div></div>
+                </div>
+                <div class="kpi-card-sm">
+                  <div class="kpi-sm-label">高中{{ currentMetric.name }}率</div>
+                  <div class="kpi-sm-value">{{ currentCountyData.senior }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentCountyData.senior + '%' }"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tech-panel">
+          <header class="tech-panel-header">
+            <span class="panel-bullet"></span>
+            <span class="panel-title">学校{{ currentMetric.name }}率排名</span>
+            <span class="panel-tag">TOP 10</span>
+          </header>
+          <div class="tech-panel-body">
+            <div ref="schoolRankRef" class="chart-area"></div>
+          </div>
+        </section>
+      </aside>
+
+      <!-- 地图 -->
+      <section class="map-col">
+        <!-- 顶部筛选栏 -->
     <div class="top-filter-bar">
       <div class="filter-select" ref="provinceRef" :class="{ 'has-value': filter.province, 'is-open': openDropdown === 'province' }">
         <div class="select-trigger" :class="{ disabled: false }" @click.stop="toggleDropdown('province')">
@@ -155,97 +247,6 @@
         <span class="icon">↺</span> 重置
       </button>
     </div>
-
-    <!-- 主体 -->
-    <main class="national-body">
-      <!-- 左栏 -->
-      <aside class="left-col">
-        <section class="tech-panel">
-          <header class="tech-panel-header">
-            <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentCounty }}{{ currentMetric.name }}核心数据</span>
-            <span class="panel-tag">{{ currentMetric.name }}专题</span>
-          </header>
-          <div class="tech-panel-body">
-            <div class="kpi-grid">
-              <div class="kpi-row-large">
-                <div class="kpi-card-lg">
-                  <div class="kpi-card-deco"></div>
-                  <div class="kpi-card-hex"><span></span><span></span><span></span></div>
-                  <div class="kpi-lg-label">{{ currentCounty }}{{ currentMetric.name }}率</div>
-                  <div class="kpi-lg-value">
-                    <span class="num">{{ currentCountyData.rate }}</span><span class="unit">%</span>
-                  </div>
-                  <div :class="['kpi-lg-trend', currentCountyData.trend > 0 ? 'up' : 'down']">
-                    <span class="trend-arrow">{{ currentCountyData.trend > 0 ? '▲' : '▼' }}</span>
-                    {{ Math.abs(currentCountyData.trend) }}% 同比
-                  </div>
-                </div>
-                <div class="kpi-card-lg">
-                  <div class="kpi-card-deco"></div>
-                  <div class="kpi-card-hex"><span></span><span></span><span></span></div>
-                  <div class="kpi-lg-label">学生总数（千）</div>
-                  <div class="kpi-lg-value">
-                    <span class="num">{{ currentCountyData.students }}</span>
-                  </div>
-                  <div class="kpi-lg-trend down">覆盖 {{ currentCountyData.schools }} 所学校</div>
-                </div>
-              </div>
-
-              <div class="kpi-row-gender">
-                <div class="gender-item male">
-                  <span class="gender-icon">♂</span>
-                  <div class="gender-info">
-                    <span class="gender-label">男生{{ currentMetric.name }}率</span>
-                    <span class="gender-value">{{ currentCountyData.maleRate }}%</span>
-                  </div>
-                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentCountyData.maleRate + '%' }"></div></div>
-                </div>
-                <div class="gender-item female">
-                  <span class="gender-icon">♀</span>
-                  <div class="gender-info">
-                    <span class="gender-label">女生{{ currentMetric.name }}率</span>
-                    <span class="gender-value">{{ currentCountyData.femaleRate }}%</span>
-                  </div>
-                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentCountyData.femaleRate + '%' }"></div></div>
-                </div>
-              </div>
-
-              <div class="kpi-row-small">
-                <div class="kpi-card-sm">
-                  <div class="kpi-sm-label">小学{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentCountyData.primary }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentCountyData.primary + '%' }"></div></div>
-                </div>
-                <div class="kpi-card-sm">
-                  <div class="kpi-sm-label">初中{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentCountyData.junior }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentCountyData.junior + '%' }"></div></div>
-                </div>
-                <div class="kpi-card-sm">
-                  <div class="kpi-sm-label">高中{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentCountyData.senior }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentCountyData.senior + '%' }"></div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="tech-panel">
-          <header class="tech-panel-header">
-            <span class="panel-bullet"></span>
-            <span class="panel-title">学校{{ currentMetric.name }}率排名</span>
-            <span class="panel-tag">TOP 10</span>
-          </header>
-          <div class="tech-panel-body">
-            <div ref="schoolRankRef" class="chart-area"></div>
-          </div>
-        </section>
-      </aside>
-
-      <!-- 地图 -->
-      <section class="map-col">
         <div class="map-area">
           <div ref="mapRef" class="map-canvas"></div>
           <div v-if="!mapLoaded" class="map-loading">
@@ -525,24 +526,230 @@ const SCHOOL_CODES_MAP = {
   '潍坊市寒亭区高里镇学校': '370703009', '潍坊市寒亭区央子镇中心小学': '370703010',
 };
 
-// 学校坐标：以区县中心为圆心，按角度分散生成
+// 学校坐标：从地图 GeoJSON 边界内生成，确保学校在地图区域内
 const SCHOOL_COORDS_MAP = {};
-const _countyCenters = {
-  '370102': [117.14, 36.65], '370103': [117.10, 36.63], '370104': [116.98, 36.65],
-  '370105': [117.02, 36.68], '370112': [117.14, 36.67], '370113': [116.75, 36.55],
-  '370702': [119.16, 36.71], '370704': [119.17, 36.62], '370705': [119.12, 36.71],
-  '370703': [119.16, 36.78],
+let lastGeoBounds = null;
+
+// === GeoJSON 几何工具 ===
+// 多边形 (经纬度 [lng, lat][]) 面积（带符号，用于判断内外环方向）
+const ringSignedArea = (ring) => {
+  let a = 0;
+  for (let i = 0, n = ring.length, j = n - 1; i < n; j = i++) {
+    a += ring[j][0] * ring[i][1] - ring[i][0] * ring[j][1];
+  }
+  return a / 2;
 };
-Object.entries(DISTRICT_SCHOOLS_MAP).forEach(([code, schools]) => {
-  const center = _countyCenters[code] || [117.12, 36.65];
-  schools.forEach((name, i) => {
-    const angle = (i / schools.length) * Math.PI * 2;
-    const radius = 0.04 + (i % 3) * 0.015;
-    const lng = Math.round((center[0] + Math.cos(angle) * radius) * 1000) / 1000;
-    const lat = Math.round((center[1] + Math.sin(angle) * radius) * 1000) / 1000;
-    SCHOOL_COORDS_MAP[name] = [lng, lat];
+// 判断 ring 是顺时针（正向外环 or 洞）还是逆时针
+// GeoJSON 标准：Polygon[0] 外环逆时钟（正面积），[1..] 内环顺时针（负面积）
+// 但数据源可能不严格，我们用：面积大者为外环
+const classifyPolygonRings = (polygonRings) => {
+  if (!polygonRings || polygonRings.length === 0) return { outer: null, holes: [] };
+  let outerIdx = 0, maxAbs = 0;
+  polygonRings.forEach((r, i) => {
+    const abs = Math.abs(ringSignedArea(r));
+    if (abs > maxAbs) { maxAbs = abs; outerIdx = i; }
   });
-});
+  return {
+    outer: polygonRings[outerIdx],
+    holes: polygonRings.filter((_, i) => i !== outerIdx),
+  };
+};
+// 单环点内判定（射线法，仅针对简单闭合环，不区分洞）
+const pointInRing = (lng, lat, ring) => {
+  if (!ring || ring.length < 3) return false;
+  // 共线段边界：严格在边界上也算命中，防止贴边漏判
+  const onSegment = (ax, ay, bx, by, cx, cy) => {
+    if ((bx - ax) * (cy - ay) === (by - ay) * (cx - ax)) {
+      return (cx >= Math.min(ax, bx) - 1e-9 && cx <= Math.max(ax, bx) + 1e-9
+           && cy >= Math.min(ay, by) - 1e-9 && cy <= Math.max(ay, by) + 1e-9);
+    }
+    return false;
+  };
+  let inside = false;
+  const n = ring.length;
+  for (let i = 0, j = n - 1; i < n; j = i++) {
+    const xi = ring[i][0], yi = ring[i][1];
+    const xj = ring[j][0], yj = ring[j][1];
+    if (onSegment(xi, yi, xj, yj, lng, lat)) return true;
+    const intersect = ((yi > lat) !== (yj > lat)) &&
+      (lng < ((xj - xi) * (lat - yi)) / ((yj - yi || (yj > yi ? 1e-9 : -1e-9))) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+};
+// 对 point (lng, lat) 判定是否在 GeoJSON 单个 polygonRings（Polygon.coordinates）内
+// 规则：在外环内，且不在所有内环（洞）内
+const pointInPolygonStrict = (lng, lat, polygonRings) => {
+  const { outer, holes } = classifyPolygonRings(polygonRings);
+  if (!outer) return false;
+  if (!pointInRing(lng, lat, outer)) return false;
+  for (const hole of holes) {
+    if (pointInRing(lng, lat, hole)) return false;
+  }
+  return true;
+};
+// 展开 geometry：把 Polygon / MultiPolygon 统一为 polygonRings[] 数组
+const flattenToPolygons = (geometry) => {
+  if (!geometry) return [];
+  if (geometry.type === 'Polygon') return [geometry.coordinates];
+  if (geometry.type === 'MultiPolygon') return geometry.coordinates;
+  return [];
+};
+// 对任意 geometry 判断点是否在其中
+const pointInGeometry = (lng, lat, geometry) => {
+  const polys = flattenToPolygons(geometry);
+  for (const p of polys) {
+    if (pointInPolygonStrict(lng, lat, p)) return true;
+  }
+  return false;
+};
+// 计算 polygons 总面积（外环绝对值 - 内环），用于按面积加权抽样
+const polygonArea = (polygonRings) => {
+  const { outer, holes } = classifyPolygonRings(polygonRings);
+  if (!outer) return 0;
+  let area = Math.abs(ringSignedArea(outer));
+  for (const h of holes) area -= Math.abs(ringSignedArea(h));
+  return Math.max(0, area);
+};
+// 取 polygonRings 的 bbox
+const ringBBox = (ring) => {
+  let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+  for (const [lng, lat] of ring) {
+    if (lng < minLng) minLng = lng;
+    if (lng > maxLng) maxLng = lng;
+    if (lat < minLat) minLat = lat;
+    if (lat > maxLat) maxLat = lat;
+  }
+  return { minLng, maxLng, minLat, maxLat };
+};
+
+const generateSchoolCoordsFromGeo = (geoJson, schools, seedStr) => {
+  if (!geoJson || !geoJson.features || !geoJson.features.length || !schools.length) return;
+  // 清除旧坐标，避免切换区县时用了之前的点
+  Object.keys(SCHOOL_COORDS_MAP).forEach(k => delete SCHOOL_COORDS_MAP[k]);
+  lastGeoBounds = null;
+
+  const seed = seedStr.split('').reduce((a, c) => a + c.charCodeAt(0), 0) || 1;
+  let rng = seed;
+  const rand = () => {
+    rng = (rng * 9301 + 49297) % 233280;
+    return rng / 233280;
+  };
+
+  // 收集所有子多边形（MultiPolygon 拆成多个 Polygon），并计算各自面积 + bbox
+  const polyItems = []; // [{ geometry, polygonRings, area, bbox }]
+  let totalArea = 0;
+  let gMinLng = Infinity, gMaxLng = -Infinity, gMinLat = Infinity, gMaxLat = -Infinity;
+
+  geoJson.features.forEach(feat => {
+    const polys = flattenToPolygons(feat.geometry);
+    polys.forEach(pr => {
+      const { outer } = classifyPolygonRings(pr);
+      if (!outer) return;
+      const area = polygonArea(pr);
+      const bb = ringBBox(outer);
+      polyItems.push({
+        feature: feat,
+        polygonRings: pr,
+        area,
+        bbox: bb,
+      });
+      totalArea += area;
+      if (bb.minLng < gMinLng) gMinLng = bb.minLng;
+      if (bb.maxLng > gMaxLng) gMaxLng = bb.maxLng;
+      if (bb.minLat < gMinLat) gMinLat = bb.minLat;
+      if (bb.maxLat > gMaxLat) gMaxLat = bb.maxLat;
+    });
+  });
+  if (gMinLng === Infinity) return;
+  lastGeoBounds = { minLng: gMinLng, maxLng: gMaxLng, minLat: gMinLat, maxLat: gMaxLat };
+
+  // 总体 bbox 内缩 3% 作为优先采样区，避免贴边
+  const lngPad3 = (gMaxLng - gMinLng) * 0.03;
+  const latPad3 = (gMaxLat - gMinLat) * 0.03;
+  const safeGMinLng = gMinLng + lngPad3;
+  const safeGMaxLng = gMaxLng - lngPad3;
+  const safeGMinLat = gMinLat + latPad3;
+  const safeGMaxLat = gMaxLat - latPad3;
+
+  // 为每所学校生成点：优先按面积加权抽样子多边形 -> 子多边形 bbox 内随机 -> 点内判定
+  const placeSchool = (schoolName, schoolIdx) => {
+    // 3000 次尝试
+    for (let attempt = 0; attempt < 3000; attempt++) {
+      let lng, lat;
+      if (attempt < 2000 && polyItems.length > 0) {
+        // 前 2/3 尝试：按面积加权挑子多边形，再在子 polygon bbox 内缩 4% 内采样
+        let r = rand() * Math.max(totalArea, 1e-9);
+        let picked = polyItems[polyItems.length - 1];
+        for (const it of polyItems) { r -= it.area; if (r <= 0) { picked = it; break; } }
+        const bb = picked.bbox;
+        const pLngPad = (bb.maxLng - bb.minLng) * 0.04;
+        const pLatPad = (bb.maxLat - bb.minLat) * 0.04;
+        lng = (bb.minLng + pLngPad) + rand() * ((bb.maxLng - pLngPad) - (bb.minLng + pLngPad));
+        lat = (bb.minLat + pLatPad) + rand() * ((bb.maxLat - pLatPad) - (bb.minLat + pLatPad));
+        // 严格命中：先在选中 polygon 内判，没中再跨所有 polygons
+        if (pointInPolygonStrict(lng, lat, picked.polygonRings)) {
+          SCHOOL_COORDS_MAP[schoolName] = [Math.round(lng * 100000) / 100000, Math.round(lat * 100000) / 100000];
+          return true;
+        }
+      } else {
+        // 后 1/3：全局安全 bbox 内随机扫所有 features
+        lng = safeGMinLng + rand() * (safeGMaxLng - safeGMinLng);
+        lat = safeGMinLat + rand() * (safeGMaxLat - safeGMinLat);
+        for (const feat of geoJson.features) {
+          if (pointInGeometry(lng, lat, feat.geometry)) {
+            SCHOOL_COORDS_MAP[schoolName] = [Math.round(lng * 100000) / 100000, Math.round(lat * 100000) / 100000];
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  };
+
+  schools.forEach((name, i) => {
+    const placed = placeSchool(name, i);
+    if (!placed) {
+      // 最终兜底：沿已放置点中心或几何中心，尝试多次小抖动随机找内部点
+      const cx = (safeGMinLng + safeGMaxLng) / 2;
+      const cy = (safeGMinLat + safeGMaxLat) / 2;
+      const spanLng = (safeGMaxLng - safeGMinLng) / 2;
+      const spanLat = (safeGMaxLat - safeGMinLat) / 2;
+      let done = false;
+      for (let t = 0; t < 8000 && !done; t++) {
+        const u = rand() * 2 - 1;
+        const v = rand() * 2 - 1;
+        const lng = cx + u * spanLng * (t < 4000 ? 0.6 : 1);
+        const lat = cy + v * spanLat * (t < 4000 ? 0.6 : 1);
+        for (const feat of geoJson.features) {
+          if (pointInGeometry(lng, lat, feat.geometry)) {
+            SCHOOL_COORDS_MAP[name] = [Math.round(lng * 100000) / 100000, Math.round(lat * 100000) / 100000];
+            done = true;
+            break;
+          }
+        }
+      }
+      // 极端 fallback：选择第一个 polygon 外环上的 1/2 边长点（通常都在内）
+      if (!done && polyItems.length > 0) {
+        const outer = polyItems[0].polygonRings[0];
+        const n = outer.length;
+        // 找质心近似（面积加权平均）
+        let sx = 0, sy = 0, sa = 0;
+        for (let i = 0, j = n - 1; i < n; j = i++) {
+          const xi = outer[i][0], yi = outer[i][1];
+          const xj = outer[j][0], yj = outer[j][1];
+          const cross = xi * yj - xj * yi;
+          sx += (xi + xj) * cross;
+          sy += (yi + yj) * cross;
+          sa += cross;
+        }
+        const cx2 = sa !== 0 ? sx / (3 * sa) : polyItems[0].bbox.minLng + (polyItems[0].bbox.maxLng - polyItems[0].bbox.minLng) / 2;
+        const cy2 = sa !== 0 ? sy / (3 * sa) : polyItems[0].bbox.minLat + (polyItems[0].bbox.maxLat - polyItems[0].bbox.minLat) / 2;
+        SCHOOL_COORDS_MAP[name] = [Math.round(cx2 * 100000) / 100000, Math.round(cy2 * 100000) / 100000];
+      }
+    }
+  });
+};
 
 // ============================================================
 //  顶部筛选（省/市/区县/学校）数据源
@@ -1132,6 +1339,10 @@ const getMapOption = () => {
   const values = data.map(d => d.value);
   const maxV = Math.max(...values);
   const cfg = currentCountyConfig.value;
+  // 使用几何中心（如果从GeoJSON计算出来了）作为连线起点，否则用配置中心
+  const geoCenter = lastGeoBounds
+    ? [(lastGeoBounds.minLng + lastGeoBounds.maxLng) / 2, (lastGeoBounds.minLat + lastGeoBounds.maxLat) / 2]
+    : cfg.center;
 
   const colorForRate = (v) => {
     const cols = c.mapColors;
@@ -1143,12 +1354,12 @@ const getMapOption = () => {
 
   const scatterData = data.map(d => ({
     name: d.name,
-    value: [...(SCHOOL_COORDS_MAP[d.name] || cfg.center), d.value],
+    value: [...(SCHOOL_COORDS_MAP[d.name] || geoCenter), d.value],
     itemStyle: { color: colorForRate(d.value) },
   }));
 
   const lineData = data.map(d => ({
-    coords: [cfg.center, (SCHOOL_COORDS_MAP[d.name] || cfg.center)],
+    coords: [geoCenter, (SCHOOL_COORDS_MAP[d.name] || geoCenter)],
     value: d.value,
     name: d.name,
   }));
@@ -1323,6 +1534,8 @@ const renderAllCharts = () => {
         initChart(mapRef, 'map', getMapOption(), (params) => {
           if (params?.name) drillToSchool(params.name);
         });
+        // 二次校验：渲染后通过 canvas 像素拾取判断散点是否真的在地图填充区域内
+        setTimeout(() => validateAndFixMapScatter(geoJsonLastRef), 450);
         // 地图漫游时同步缩放显示
         const mapChart = chartInstances['map'];
         if (mapChart) {
@@ -1336,6 +1549,131 @@ const renderAllCharts = () => {
       }
     });
   });
+};
+
+// 上一次加载地图时的 GeoJSON 引用（供二次校验使用）
+const geoJsonLastRef = { current: null };
+
+// 渲染后二次校验：读取 canvas 像素颜色，判断每个学校散点位置像素是否为地图填充色（非背景）
+// 如果不在，则在该位置附近/几何中心附近尝试 5000 次像素命中重取位
+const validateAndFixMapScatter = (geoCtx) => {
+  const chart = chartInstances['map'];
+  if (!chart || !chart['_dom'] || !mapLoaded.value) return;
+  try {
+    const canvas = chart['_dom'].querySelector('canvas');
+    if (!canvas) return;
+    const model = chart.getModel();
+    const geoModel = model.getComponent('geo');
+    const coordSys = geoModel && geoModel.coordinateSystem;
+    if (!coordSys || typeof coordSys.dataToPoint !== 'function') return;
+    const ctx2d = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    if (!ctx2d || W === 0 || H === 0) return;
+    // 取整屏中心区域像素，用于区分"背景色"和"地图填充色"
+    // 背景区域（四个角）平均色 vs 中心地图区域平均色
+    const samplePix = (x, y) => {
+      if (x < 0 || y < 0 || x >= W || y >= H) return null;
+      const d = ctx2d.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
+      return [d[0], d[1], d[2], d[3]];
+    };
+    const bgCandidates = [
+      samplePix(4, 4), samplePix(W - 5, 4), samplePix(4, H - 5), samplePix(W - 5, H - 5),
+    ].filter(Boolean);
+    const avgBg = bgCandidates.length
+      ? [
+          bgCandidates.reduce((s, p) => s + p[0], 0) / bgCandidates.length,
+          bgCandidates.reduce((s, p) => s + p[1], 0) / bgCandidates.length,
+          bgCandidates.reduce((s, p) => s + p[2], 0) / bgCandidates.length,
+        ]
+      : [0, 0, 0];
+    const isBgPixel = (p) => {
+      if (!p || p[3] < 10) return true;
+      const dr = p[0] - avgBg[0], dg = p[1] - avgBg[1], db = p[2] - avgBg[2];
+      return Math.sqrt(dr * dr + dg * dg + db * db) < 18; // 颜色差<18视为背景
+    };
+    const allSchools = schoolList.value.length > 0
+      ? schoolList.value
+      : (DISTRICT_SCHOOLS_MAP[routeCode.value] || []);
+    const seed = parseInt(routeCode.value.slice(-2), 10) || 13;
+    let rng = seed;
+    const rand = () => { rng = (rng * 9301 + 49297) % 233280; return rng / 233280; };
+    const cfg = currentCountyConfig.value;
+    const center = lastGeoBounds
+      ? [(lastGeoBounds.minLng + lastGeoBounds.maxLng) / 2, (lastGeoBounds.minLat + lastGeoBounds.maxLat) / 2]
+      : cfg.center;
+    const spanLng = lastGeoBounds ? (lastGeoBounds.maxLng - lastGeoBounds.minLng) / 2 : 0.25;
+    const spanLat = lastGeoBounds ? (lastGeoBounds.maxLat - lastGeoBounds.minLat) / 2 : 0.25;
+
+    let needRefresh = false;
+    for (const schoolName of allSchools) {
+      const old = SCHOOL_COORDS_MAP[schoolName] || center;
+      const pt = coordSys.dataToPoint(old);
+      if (!pt) continue;
+      // 采该点 9 宫格像素判断，避免正好压到散点/标签绘制色
+      const pts = [
+        [pt[0], pt[1]], [pt[0] - 6, pt[1]], [pt[0] + 6, pt[1]],
+        [pt[0], pt[1] - 6], [pt[0], pt[1] + 6],
+        [pt[0] - 3, pt[1] - 3], [pt[0] + 3, pt[1] - 3],
+        [pt[0] - 3, pt[1] + 3], [pt[0] + 3, pt[1] + 3],
+      ];
+      let insideCount = 0;
+      for (const [px, py] of pts) {
+        const p = samplePix(px, py);
+        if (p && !isBgPixel(p)) insideCount++;
+      }
+      if (insideCount >= 4) continue; // 命中地图填充色，OK
+      // 否则重取：在中心附近随机 5000 次，优先命中像素非背景
+      let fixed = false;
+      for (let t = 0; t < 5000 && !fixed; t++) {
+        const u = rand() * 2 - 1;
+        const v = rand() * 2 - 1;
+        const r1 = t < 2500 ? 0.5 : 1;
+        const lng = center[0] + u * spanLng * r1;
+        const lat = center[1] + v * spanLat * r1;
+        // 先几何判定（省时间）
+        let geoOk = false;
+        if (geoCtx && geoCtx.features) {
+          for (const feat of geoCtx.features) {
+            if (pointInGeometry(lng, lat, feat.geometry)) { geoOk = true; break; }
+          }
+        }
+        if (!geoOk && geoCtx) continue;
+        // 再像素判定
+        const pp = coordSys.dataToPoint([lng, lat]);
+        if (!pp) continue;
+        const pix = samplePix(pp[0], pp[1]);
+        if (pix && !isBgPixel(pix)) {
+          SCHOOL_COORDS_MAP[schoolName] = [Math.round(lng * 100000) / 100000, Math.round(lat * 100000) / 100000];
+          fixed = true;
+          needRefresh = true;
+        }
+      }
+      // 像素失败则纯几何重取 3000 次
+      if (!fixed && geoCtx && geoCtx.features) {
+        for (let t = 0; t < 3000 && !fixed; t++) {
+          const u = rand() * 2 - 1;
+          const v = rand() * 2 - 1;
+          const lng = center[0] + u * spanLng;
+          const lat = center[1] + v * spanLat;
+          for (const feat of geoCtx.features) {
+            if (pointInGeometry(lng, lat, feat.geometry)) {
+              SCHOOL_COORDS_MAP[schoolName] = [Math.round(lng * 100000) / 100000, Math.round(lat * 100000) / 100000];
+              fixed = true;
+              needRefresh = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    if (needRefresh) {
+      setTimeout(() => {
+        if (chartInstances['map'] && !chartInstances['map'].isDisposed()) {
+          chartInstances['map'].setOption(getMapOption(), true);
+        }
+      }, 30);
+    }
+  } catch (_) { /* ignore */ }
 };
 
 const loadMap = async () => {
@@ -1352,6 +1690,13 @@ const loadMap = async () => {
       echarts.registerMap('county', geoJson);
       mapLoaded.value = true;
       mapZoom.value = 1.0;
+      geoJsonLastRef.current = geoJson;
+      // 根据 GeoJSON 边界生成学校坐标，确保在地图内
+      const districtCode = filter.district || code;
+      const schools = DISTRICT_SCHOOLS_MAP[districtCode] || DISTRICT_SCHOOLS_MAP[code] || [];
+      if (schools.length > 0) {
+        generateSchoolCoordsFromGeo(geoJson, schools, code);
+      }
       setTimeout(() => renderAllCharts(), 200);
       return;
     } catch (e) {
@@ -1812,6 +2157,7 @@ defineExpose({ switchTab });
 .top-filter-bar {
   position: relative; z-index: 6;
   display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; row-gap: 6px;
   gap: 10px; padding: 4px 20px 6px; flex-shrink: 0;
 }
 .filter-select {

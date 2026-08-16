@@ -1,8 +1,14 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "3CxQjMBDSUA=",
   "success": true,
   "projectFilePath": "E:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj",
+=======
+  "dgSpecHash": "t+SDh1bsedw=",
+  "success": true,
+  "projectFilePath": "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\Infrastructure.csproj",
+>>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
   "expectedPackageFiles": [
     "C:\\Users\\16413\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\16413\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

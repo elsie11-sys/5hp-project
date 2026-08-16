@@ -24,3 +24,15 @@ E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\Domain.dll
 E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\refint\Domain.dll
 E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\Domain.pdb
 E:\5HP_Project\backend\src\Domain\obj\Debug\net8.0\ref\Domain.dll
+D:\5HP_ProjectD\backend\src\Domain\bin\Debug\net8.0\Domain.deps.json
+D:\5HP_ProjectD\backend\src\Domain\bin\Debug\net8.0\Domain.dll
+D:\5HP_ProjectD\backend\src\Domain\bin\Debug\net8.0\Domain.pdb
+D:\5HP_ProjectD\backend\src\Domain\obj\Debug\net8.0\Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\5HP_ProjectD\backend\src\Domain\obj\Debug\net8.0\Domain.AssemblyInfoInputs.cache
+D:\5HP_ProjectD\backend\src\Domain\obj\Debug\net8.0\Domain.AssemblyInfo.cs
+D:\5HP_ProjectD\backend\src\Domain\obj\Debug\net8.0\Domain.csproj.CoreCompileInputs.cache
+D:\5HP_ProjectD\backend\src\Domain\obj\Debug\net8.0\Domain.sourcelink.json
+D:\5HP_ProjectD\backend\src\Domain\obj\Debug\net8.0\Domain.dll
+D:\5HP_ProjectD\backend\src\Domain\obj\Debug\net8.0\refint\Domain.dll
+D:\5HP_ProjectD\backend\src\Domain\obj\Debug\net8.0\Domain.pdb
+D:\5HP_ProjectD\backend\src\Domain\obj\Debug\net8.0\ref\Domain.dll

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="app-root" :class="{ 'theme-light': isLight }">
     <!-- 背景 -->
     <div class="bg-decor" aria-hidden="true">
@@ -329,6 +329,7 @@
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import * as echarts from 'echarts';
+import 'echarts-gl';
 
 const route = useRoute();
 const router = useRouter();
@@ -1633,6 +1634,23 @@ const getMapOption = () => {
     { name: '哈尔滨', value: [126.53, 45.8, 55] },
     { name: '乌鲁木齐', value: [87.62, 43.82, 50] },
   ];
+
+  // 数据着色：geo3D 不直接支持 visualMap 数据映射，按分段规则手动计算区域颜色
+  const colorForRate = (v) => {
+    if (v == null) return 'rgba(15, 30, 65, 0.4)';
+    if (v < 48) return '#0bc4e9';
+    if (v < 55) return '#7dd87d';
+    if (v < 60) return '#f5c542';
+    return '#e8554f';
+  };
+  const regions = mapData.map((d) => ({
+    name: d.name,
+    itemStyle: {
+      color: colorForRate(d.value),
+      borderColor: 'rgba(11, 196, 233, 0.6)',
+      borderWidth: 1.5,
+    },
+  }));
 
   return {
     backgroundColor: 'transparent',

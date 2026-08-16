@@ -2329,30 +2329,48 @@
   "project": {
     "version": "1.0.0",
     "restore": {
+<<<<<<< HEAD
       "projectUniqueName": "E:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj",
       "projectName": "Infrastructure",
       "projectPath": "E:\\5HP_Project\\backend\\src\\Infrastructure\\Infrastructure.csproj",
       "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
       "outputPath": "E:\\5HP_Project\\backend\\src\\Infrastructure\\obj\\",
+=======
+      "projectUniqueName": "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\Infrastructure.csproj",
+      "projectName": "Infrastructure",
+      "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\Infrastructure.csproj",
+      "packagesPath": "C:\\Users\\16413\\.nuget\\packages\\",
+      "outputPath": "D:\\5HP_ProjectD\\backend\\src\\Infrastructure\\obj\\",
+>>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
       "projectStyle": "PackageReference",
       "configFilePaths": [
+        "D:\\5HP_ProjectD\\backend\\NuGet.Config",
         "C:\\Users\\16413\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "https://api.nuget.org/v3/index.json": {}
+        "https://api.nuget.org/v3/index.json": {},
+        "https://mirrors.huaweicloud.com/repository/nuget/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
+<<<<<<< HEAD
             "E:\\5HP_Project\\backend\\src\\Application\\Application.csproj": {
               "projectPath": "E:\\5HP_Project\\backend\\src\\Application\\Application.csproj"
             },
             "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj": {
               "projectPath": "E:\\5HP_Project\\backend\\src\\Domain\\Domain.csproj"
+=======
+            "D:\\5HP_ProjectD\\backend\\src\\Application\\Application.csproj": {
+              "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Application\\Application.csproj"
+            },
+            "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj": {
+              "projectPath": "D:\\5HP_ProjectD\\backend\\src\\Domain\\Domain.csproj"
+>>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
             }
           }
         }

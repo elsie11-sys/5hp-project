@@ -50,102 +50,6 @@
         <span class="tech-tab-glow"></span>
       </button>
     </nav>
-    <!-- 顶部筛选栏 -->
-    <div class="top-filter-bar">
-      <div class="filter-select" ref="provinceRef" :class="{ 'has-value': filter.province, 'is-open': openDropdown === 'province' }">
-        <div class="select-trigger" :class="{ disabled: false }" @click.stop="toggleDropdown('province')">
-          <span class="select-value" :class="{ placeholder: !filter.province }">
-            {{ getSelectedName(provinceList, filter.province) || '请选择省份' }}
-          </span>
-          <span v-if="filter.province" class="clear-icon" @click.stop="clearProvince">✕</span>
-          <span class="arrow-down" :class="{ rotated: openDropdown === 'province' }">▼</span>
-        </div>
-        <div v-if="openDropdown === 'province'" class="select-dropdown">
-          <div class="dropdown-header">选择省份</div>
-          <div class="dropdown-list">
-            <div v-for="p in provinceList" :key="p.code"
-              class="dropdown-item" :class="{ selected: filter.province === p.code }"
-              @click.stop="selectOption('province', p.code)">
-              {{ p.name }}
-              <span v-if="filter.province === p.code" class="check-mark">✓</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-select" ref="cityRef" :class="{ 'has-value': filter.city, 'is-open': openDropdown === 'city', 'disabled': !filter.province }">
-        <div class="select-trigger" :class="{ disabled: !filter.province }" @click.stop="toggleDropdown('city')">
-          <span class="select-value" :class="{ placeholder: !filter.city }">
-            {{ getSelectedName(cityOptions, filter.city) || '请选择城市' }}
-          </span>
-          <span v-if="filter.city" class="clear-icon" @click.stop="clearCity">✕</span>
-          <span class="arrow-down" :class="{ rotated: openDropdown === 'city' }">▼</span>
-        </div>
-        <div v-if="openDropdown === 'city'" class="select-dropdown">
-          <div class="dropdown-header">选择城市</div>
-          <div class="dropdown-list">
-            <div v-for="c in cityOptions" :key="c.code"
-              class="dropdown-item" :class="{ selected: filter.city === c.code }"
-              @click.stop="selectOption('city', c.code)">
-              {{ c.name }}
-              <span v-if="filter.city === c.code" class="check-mark">✓</span>
-            </div>
-            <div v-if="cityOptions.length === 0" class="dropdown-empty">请先选择省份</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-select" ref="districtRef" :class="{ 'has-value': filter.district, 'is-open': openDropdown === 'district', 'disabled': !filter.city }">
-        <div class="select-trigger" :class="{ disabled: !filter.city }" @click.stop="toggleDropdown('district')">
-          <span class="select-value" :class="{ placeholder: !filter.district }">
-            {{ getSelectedName(districtOptions, filter.district) || '请选择区县' }}
-          </span>
-          <span v-if="filter.district" class="clear-icon" @click.stop="clearDistrict">✕</span>
-          <span class="arrow-down" :class="{ rotated: openDropdown === 'district' }">▼</span>
-        </div>
-        <div v-if="openDropdown === 'district'" class="select-dropdown">
-          <div class="dropdown-header">选择区县</div>
-          <div class="dropdown-list">
-            <div v-for="d in districtOptions" :key="d.code"
-              class="dropdown-item" :class="{ selected: filter.district === d.code }"
-              @click.stop="selectOption('district', d.code)">
-              {{ d.name }}
-              <span v-if="filter.district === d.code" class="check-mark">✓</span>
-            </div>
-            <div v-if="districtOptions.length === 0" class="dropdown-empty">请先选择城市</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-select" ref="schoolRef" :class="{ 'has-value': filter.school, 'is-open': openDropdown === 'school', 'disabled': !filter.district }">
-        <div class="select-trigger" :class="{ disabled: !filter.district }" @click.stop="toggleDropdown('school')">
-          <span class="select-value" :class="{ placeholder: !filter.school }">
-            {{ getSelectedName(schoolOptions, filter.school) || '请选择学校' }}
-          </span>
-          <span v-if="filter.school" class="clear-icon" @click.stop="clearSchool">✕</span>
-          <span class="arrow-down" :class="{ rotated: openDropdown === 'school' }">▼</span>
-        </div>
-        <div v-if="openDropdown === 'school'" class="select-dropdown">
-          <div class="dropdown-header">选择学校</div>
-          <div class="dropdown-list">
-            <div v-for="s in schoolOptions" :key="s.code"
-              class="dropdown-item" :class="{ selected: filter.school === s.code }"
-              @click.stop="selectOption('school', s.code)">
-              {{ s.name }}
-              <span v-if="filter.school === s.code" class="check-mark">✓</span>
-            </div>
-            <div v-if="schoolOptions.length === 0" class="dropdown-empty">请先选择区县</div>
-          </div>
-        </div>
-      </div>
-
-      <button class="btn-search-top" @click="handleSearch">
-        <span class="icon">🔍</span> 搜索
-      </button>
-      <button class="btn-reset-top" @click="handleResetFilter">
-        <span class="icon">↺</span> 重置
-      </button>
-    </div>
     <main class="national-body">
       <aside class="left-col">
         <section class="tech-panel">
@@ -251,6 +155,102 @@
         </section>
       </aside>
       <section class="map-col">
+        <!-- 顶部筛选栏 -->
+    <div class="top-filter-bar">
+      <div class="filter-select" ref="provinceRef" :class="{ 'has-value': filter.province, 'is-open': openDropdown === 'province' }">
+        <div class="select-trigger" :class="{ disabled: false }" @click.stop="toggleDropdown('province')">
+          <span class="select-value" :class="{ placeholder: !filter.province }">
+            {{ getSelectedName(provinceList, filter.province) || '请选择省份' }}
+          </span>
+          <span v-if="filter.province" class="clear-icon" @click.stop="clearProvince">✕</span>
+          <span class="arrow-down" :class="{ rotated: openDropdown === 'province' }">▼</span>
+        </div>
+        <div v-if="openDropdown === 'province'" class="select-dropdown">
+          <div class="dropdown-header">选择省份</div>
+          <div class="dropdown-list">
+            <div v-for="p in provinceList" :key="p.code"
+              class="dropdown-item" :class="{ selected: filter.province === p.code }"
+              @click.stop="selectOption('province', p.code)">
+              {{ p.name }}
+              <span v-if="filter.province === p.code" class="check-mark">✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-select" ref="cityRef" :class="{ 'has-value': filter.city, 'is-open': openDropdown === 'city', 'disabled': !filter.province }">
+        <div class="select-trigger" :class="{ disabled: !filter.province }" @click.stop="toggleDropdown('city')">
+          <span class="select-value" :class="{ placeholder: !filter.city }">
+            {{ getSelectedName(cityOptions, filter.city) || '请选择城市' }}
+          </span>
+          <span v-if="filter.city" class="clear-icon" @click.stop="clearCity">✕</span>
+          <span class="arrow-down" :class="{ rotated: openDropdown === 'city' }">▼</span>
+        </div>
+        <div v-if="openDropdown === 'city'" class="select-dropdown">
+          <div class="dropdown-header">选择城市</div>
+          <div class="dropdown-list">
+            <div v-for="c in cityOptions" :key="c.code"
+              class="dropdown-item" :class="{ selected: filter.city === c.code }"
+              @click.stop="selectOption('city', c.code)">
+              {{ c.name }}
+              <span v-if="filter.city === c.code" class="check-mark">✓</span>
+            </div>
+            <div v-if="cityOptions.length === 0" class="dropdown-empty">请先选择省份</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-select" ref="districtRef" :class="{ 'has-value': filter.district, 'is-open': openDropdown === 'district', 'disabled': !filter.city }">
+        <div class="select-trigger" :class="{ disabled: !filter.city }" @click.stop="toggleDropdown('district')">
+          <span class="select-value" :class="{ placeholder: !filter.district }">
+            {{ getSelectedName(districtOptions, filter.district) || '请选择区县' }}
+          </span>
+          <span v-if="filter.district" class="clear-icon" @click.stop="clearDistrict">✕</span>
+          <span class="arrow-down" :class="{ rotated: openDropdown === 'district' }">▼</span>
+        </div>
+        <div v-if="openDropdown === 'district'" class="select-dropdown">
+          <div class="dropdown-header">选择区县</div>
+          <div class="dropdown-list">
+            <div v-for="d in districtOptions" :key="d.code"
+              class="dropdown-item" :class="{ selected: filter.district === d.code }"
+              @click.stop="selectOption('district', d.code)">
+              {{ d.name }}
+              <span v-if="filter.district === d.code" class="check-mark">✓</span>
+            </div>
+            <div v-if="districtOptions.length === 0" class="dropdown-empty">请先选择城市</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-select" ref="schoolRef" :class="{ 'has-value': filter.school, 'is-open': openDropdown === 'school', 'disabled': !filter.district }">
+        <div class="select-trigger" :class="{ disabled: !filter.district }" @click.stop="toggleDropdown('school')">
+          <span class="select-value" :class="{ placeholder: !filter.school }">
+            {{ getSelectedName(schoolOptions, filter.school) || '请选择学校' }}
+          </span>
+          <span v-if="filter.school" class="clear-icon" @click.stop="clearSchool">✕</span>
+          <span class="arrow-down" :class="{ rotated: openDropdown === 'school' }">▼</span>
+        </div>
+        <div v-if="openDropdown === 'school'" class="select-dropdown">
+          <div class="dropdown-header">选择学校</div>
+          <div class="dropdown-list">
+            <div v-for="s in schoolOptions" :key="s.code"
+              class="dropdown-item" :class="{ selected: filter.school === s.code }"
+              @click.stop="selectOption('school', s.code)">
+              {{ s.name }}
+              <span v-if="filter.school === s.code" class="check-mark">✓</span>
+            </div>
+            <div v-if="schoolOptions.length === 0" class="dropdown-empty">请先选择区县</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-search-top" @click="handleSearch">
+        <span class="icon">🔍</span> 搜索
+      </button>
+      <button class="btn-reset-top" @click="handleResetFilter">
+        <span class="icon">↺</span> 重置
+      </button>
+    </div>
         <div class="map-area">
           <div ref="mapRef" class="map-canvas"></div>
           <div v-if="!mapLoaded" class="map-loading">
@@ -1520,12 +1520,12 @@ const getRankingOption = () => {
         return `<div style="font-weight:600">${p.name}</div><div>${currentMetric.value.name}率：<span style="color:${c.primary};font-weight:bold">${p.value}%</span></div>`;
       },
     },
-    grid: { left: 10, right: 50, top: 5, bottom: 5, containLabel: true },
+    grid: { left: 10, right: 55, top: 10, bottom: 10, containLabel: true },
     xAxis: { type: 'value', show: false, max: maxRate + 5 },
     yAxis: {
       type: 'category', data: districts, inverse: true,
       axisLine: { show: false }, axisTick: { show: false },
-      axisLabel: { color: c.text, fontSize: 11, fontWeight: 'bold' },
+      axisLabel: { color: c.text, fontSize: 11, fontWeight: 'bold', margin: 12 },
     },
     series: [{
       name: currentMetric.value.name + '率',
@@ -1538,7 +1538,8 @@ const getRankingOption = () => {
           shadowBlur: isLight.value ? 4 : 8, shadowColor: `${c.primary}44`,
         },
       })),
-      barWidth: 12,
+      barWidth: 8,
+      barCategoryGap: '85%',
       label: { show: true, position: 'right', color: c.primary, fontSize: 10, fontWeight: 'bold', formatter: '{c}%' },
     }],
   };
@@ -1646,11 +1647,15 @@ const getAgeGenderOption = () => {
     },
     legend: {
       show: true,
-      top: 0, right: 0,
-      textStyle: { color: c.textDim, fontSize: 10 },
-      itemWidth: 12, itemHeight: 8,
+      top: 4, right: 0,
+      textStyle: { color: c.textDim, fontSize: 11 },
+      itemWidth: 14, itemHeight: 9,
+      data: [
+        { name: '男生', itemStyle: { color: c.male } },
+        { name: '女生', itemStyle: { color: c.female } },
+      ],
     },
-    grid: { left: 30, right: 10, top: 24, bottom: 5, containLabel: true },
+    grid: { left: 42, right: 32, top: 32, bottom: 12, containLabel: true },
     xAxis: {
       type: 'value', show: false,
       max: Math.ceil(maxV + 5),
@@ -1660,7 +1665,7 @@ const getAgeGenderOption = () => {
       data: maleData.map(d => d.name),
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: c.textDim, fontSize: 10 },
+      axisLabel: { color: c.textDim, fontSize: 12, margin: 10 },
       inverse: true,
     },
     series: [
@@ -1676,10 +1681,12 @@ const getAgeGenderOption = () => {
             shadowColor: `${c.primary}55`,
           },
         })),
-        barWidth: 8,
+        barWidth: 7,
+        barGap: '70%',
+        barCategoryGap: '110%',
         label: {
           show: true, position: 'right',
-          color: c.primary, fontSize: 9, fontWeight: 'bold',
+          color: c.primary, fontSize: 10, fontWeight: 'bold',
           formatter: '{c}%',
         },
         z: 2,
@@ -1696,11 +1703,12 @@ const getAgeGenderOption = () => {
             shadowColor: `${c.secondary}55`,
           },
         })),
-        barWidth: 8,
-        barGap: '30%',
+        barWidth: 7,
+        barGap: '70%',
+        barCategoryGap: '110%',
         label: {
           show: true, position: 'right',
-          color: c.secondary, fontSize: 9, fontWeight: 'bold',
+          color: c.secondary, fontSize: 10, fontWeight: 'bold',
           formatter: '{c}%',
         },
         z: 1,
@@ -2284,13 +2292,19 @@ watch(() => route.params.code, () => {
   background: var(--grad-deep);
   border: 1px solid var(--border);
   border-radius: 0;
-  padding: 12px 14px;
+  padding: 10px 12px;
   display: flex; flex-direction: column;
   backdrop-filter: blur(12px);
   box-shadow: var(--shadow-card);
   flex: 1; min-height: 0;
   overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* 左栏面板高度分配：核心数据内容最多需更大空间，预警提醒内容少缩小 */
+.left-col > .tech-panel:first-child { flex: 2.5; }
+.left-col > .tech-panel:nth-child(2) { flex: 1.4; }
+.left-col > .tech-panel:nth-child(3) { flex: 0.8; }
+/* 右栏：年龄/性别对比图需要更多垂直空间显示分组间距 */
+.right-col > .tech-panel:first-child { flex: 1.4; }
 .tech-panel::before {
   content: '';
   position: absolute;
@@ -2395,6 +2409,7 @@ watch(() => route.params.code, () => {
 .top-filter-bar {
   position: relative; z-index: 6;
   display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; row-gap: 6px;
   gap: 10px; padding: 4px 20px 6px; flex-shrink: 0;
 }
 .filter-select {
@@ -2618,15 +2633,33 @@ watch(() => route.params.code, () => {
 .app-root.theme-light .filter-select .clear-icon { background: #ffffff; }
 
 /* KPI */
-.kpi-grid { display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; overflow: hidden; }
-.kpi-row-large { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.kpi-grid {
+  display: flex; flex-direction: column; gap: 6px;
+  height: 100%; min-height: 0;
+  /* 内容超出时垂直滚动，保证小学/初中/高中近视率完整可见 */
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 4px;
+  /* 自定义细滚动条（科技蓝） */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(11, 196, 233, 0.6) rgba(11, 196, 233, 0.08);
+}
+.kpi-grid::-webkit-scrollbar { width: 5px; }
+.kpi-grid::-webkit-scrollbar-track { background: rgba(11, 196, 233, 0.08); border-radius: 0; }
+.kpi-grid::-webkit-scrollbar-thumb {
+  background: rgba(11, 196, 233, 0.6);
+  border-radius: 0;
+  box-shadow: 0 0 6px rgba(11, 196, 233, 0.4);
+}
+.kpi-grid::-webkit-scrollbar-thumb:hover { background: rgba(11, 196, 233, 0.9); }
+.kpi-row-large { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .kpi-card-lg {
   position: relative;
-  padding: 14px 16px;
+  padding: 6px 10px;
   background: rgba(0, 72, 115, 0.28);
   border: 1px solid var(--border);
   border-radius: 0;
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
   overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
@@ -2676,33 +2709,33 @@ watch(() => route.params.code, () => {
   100% { transform: rotate(360deg) scale(1); }
 }
 
-.kpi-lg-label { font-size: 12px; color: var(--text-dim); letter-spacing: 0.5px; z-index: 1; }
+.kpi-lg-label { font-size: 11px; color: var(--text-dim); letter-spacing: 0.5px; z-index: 1; }
 .kpi-lg-value {
-  font-size: 36px; font-weight: bolder;
+  font-size: 22px; font-weight: bolder;
   color: #00a8d7;
   font-family: "等线", "DengXian", 'Consolas', monospace;
   text-shadow: 0 0 20px var(--glow), 0 0 40px var(--glow-soft);
   display: flex; align-items: baseline; gap: 2px;
   line-height: 1.1; z-index: 1;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
 }
 .kpi-lg-value .num { color: #00a8d7; }
 .kpi-lg-value .unit {
-  font-size: 14px;
+  font-size: 11px;
   color: var(--text-dim);
-  margin-left: 4px;
+  margin-left: 3px;
   text-shadow: 0 0 8px var(--glow-soft);
 }
-.kpi-lg-trend { font-size: 10px; padding: 2px 10px; border-radius: 2px; z-index: 1; }
+.kpi-lg-trend { font-size: 9px; padding: 1px 6px; border-radius: 2px; z-index: 1; }
 .kpi-lg-trend.up { color: var(--danger); background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.5); box-shadow: 0 0 10px rgba(244, 63, 94, 0.3); }
 .kpi-lg-trend.down { color: var(--success); background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
 .trend-arrow { font-size: 9px; margin-right: 2px; }
 
 /* 性别 */
-.kpi-row-gender { display: flex; flex-direction: column; gap: 10px; }
+.kpi-row-gender { display: flex; flex-direction: column; gap: 4px; }
 .gender-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 12px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 8px;
   background: rgba(0, 72, 115, 0.28);
   border: 1px solid var(--border-soft);
   border-radius: 0; transition: all 0.5s;
@@ -2716,14 +2749,14 @@ watch(() => route.params.code, () => {
 .gender-item.female::before { background: var(--grad-cyan); box-shadow: 0 0 10px var(--glow-soft); }
 .gender-item:hover { border-color: var(--border); background: rgba(0, 90, 140, 0.4); transform: translateX(2px); }
 .gender-icon {
-  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; font-size: 18px; font-weight: bold;
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; font-size: 12px; font-weight: bold;
 }
 .gender-item.male .gender-icon { background: var(--primary-soft); color: var(--primary); box-shadow: 0 0 15px var(--glow-soft); }
 .gender-item.female .gender-icon { background: var(--secondary-soft); color: var(--secondary); box-shadow: 0 0 15px var(--glow-soft); }
 .gender-info { flex: 1; min-width: 0; }
-.gender-label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 2px; }
-.gender-value { display: block; font-size: 22px; font-weight: bolder; font-family: "等线", 'Consolas', monospace; }
+.gender-label { display: block; font-size: 10px; color: var(--text-dim); margin-bottom: 1px; }
+.gender-value { display: block; font-size: 14px; font-weight: bolder; font-family: "等线", 'Consolas', monospace; }
 .gender-item.male .gender-value { color: var(--primary); text-shadow: 0 0 10px var(--glow-soft); }
 .gender-item.female .gender-value { color: var(--secondary); text-shadow: 0 0 10px var(--glow-soft); }
 .gender-bar { flex: 1; height: 6px; background: rgba(11, 196, 233, 0.08); border-radius: 0; overflow: hidden; min-width: 40px; }
@@ -2732,10 +2765,10 @@ watch(() => route.params.code, () => {
 .gender-item.female .gender-bar-fill { background: var(--grad-cyan); }
 
 /* 小卡片 */
-.kpi-row-small { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.kpi-row-small { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
 .kpi-card-sm {
   position: relative;
-  padding: 12px 10px;
+  padding: 5px 5px;
   background: rgba(0, 72, 115, 0.28);
   border: 1px solid var(--border-soft);
   border-radius: 0; text-align: center; transition: all 0.5s;
@@ -2750,13 +2783,13 @@ watch(() => route.params.code, () => {
   opacity: 0.8;
 }
 .kpi-card-sm:hover { border-color: var(--border); background: var(--primary-soft); transform: translateY(-2px); box-shadow: 0 4px 20px var(--glow-soft); }
-.kpi-sm-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+.kpi-sm-label { font-size: 10px; color: var(--text-dim); margin-bottom: 2px; }
 .kpi-sm-value {
-  font-size: 24px; font-weight: bolder;
+  font-size: 16px; font-weight: bolder;
   color: #00a8d7;
   font-family: "等线", 'Consolas', monospace;
   text-shadow: 0 0 15px var(--glow-soft);
-  margin-bottom: 8px;
+  margin-bottom: 3px;
   letter-spacing: 1px;
 }
 .kpi-sm-bar { height: 4px; background: rgba(11, 196, 233, 0.08); border-radius: 0; overflow: hidden; }
@@ -3027,14 +3060,14 @@ watch(() => route.params.code, () => {
 
 /* 预警提醒（city 专属，配色对齐青色主题） */
 .alert-list {
-  display: flex; flex-direction: column; gap: 8px;
+  display: flex; flex-direction: column; gap: 6px;
   max-height: 100%;
   overflow-y: auto;
   padding-right: 4px;
 }
 .alert-item {
   display: flex; align-items: center; gap: 8px;
-  padding: 9px 12px;
+  padding: 6px 10px;
   background: rgba(0, 72, 115, 0.28);
   border: 1px solid var(--border-soft);
   border-radius: 0;
@@ -3061,10 +3094,10 @@ watch(() => route.params.code, () => {
   transform: translateX(3px);
   box-shadow: 0 0 16px var(--glow-soft);
 }
-.alert-icon { font-size: 14px; flex-shrink: 0; }
+.alert-icon { font-size: 12px; flex-shrink: 0; }
 .alert-msg {
   font-size: 11px; color: var(--text);
-  line-height: 1.5;
+  line-height: 1.35;
 }
 
 /* 滚动条 */

@@ -59,7 +59,99 @@
       </button>
     </nav>
 
-    <!-- 顶部筛选栏 -->
+    
+
+    <!-- 主体 -->
+    <main class="national-body">
+      <!-- 左栏 -->
+      <aside class="left-col">
+        <section class="tech-panel">
+          <header class="tech-panel-header">
+            <span class="panel-bullet"></span>
+            <span class="panel-title">{{ currentProvince }}{{ currentMetric.name }}核心数据</span>
+            <span class="panel-tag">{{ currentMetric.name }}专题</span>
+          </header>
+          <div class="tech-panel-body">
+            <div class="kpi-grid">
+              <div class="kpi-row-large">
+                <div class="kpi-card-lg">
+                  <div class="kpi-card-deco"></div>
+                  <div class="kpi-card-hex"><span></span><span></span><span></span></div>
+                  <div class="kpi-lg-label">{{ currentProvince }}{{ currentMetric.name }}率</div>
+                  <div class="kpi-lg-value">
+                    <span class="num">{{ currentProvinceData.rate }}</span><span class="unit">%</span>
+                  </div>
+                  <div :class="['kpi-lg-trend', currentProvinceData.trend > 0 ? 'up' : 'down']">
+                    <span class="trend-arrow">{{ currentProvinceData.trend > 0 ? '▲' : '▼' }}</span>
+                    {{ Math.abs(currentProvinceData.trend) }}% 同比
+                  </div>
+                </div>
+                <div class="kpi-card-lg">
+                  <div class="kpi-card-deco"></div>
+                  <div class="kpi-card-hex"><span></span><span></span><span></span></div>
+                  <div class="kpi-lg-label">学生总数（万）</div>
+                  <div class="kpi-lg-value">
+                    <span class="num">{{ currentProvinceData.students }}</span>
+                  </div>
+                  <div class="kpi-lg-trend down">覆盖 {{ currentProvinceData.cities }} 地市</div>
+                </div>
+              </div>
+
+              <div class="kpi-row-gender">
+                <div class="gender-item male">
+                  <span class="gender-icon">♂</span>
+                  <div class="gender-info">
+                    <span class="gender-label">男生{{ currentMetric.name }}率</span>
+                    <span class="gender-value">{{ currentProvinceData.maleRate }}%</span>
+                  </div>
+                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentProvinceData.maleRate + '%' }"></div></div>
+                </div>
+                <div class="gender-item female">
+                  <span class="gender-icon">♀</span>
+                  <div class="gender-info">
+                    <span class="gender-label">女生{{ currentMetric.name }}率</span>
+                    <span class="gender-value">{{ currentProvinceData.femaleRate }}%</span>
+                  </div>
+                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentProvinceData.femaleRate + '%' }"></div></div>
+                </div>
+              </div>
+
+              <div class="kpi-row-small">
+                <div class="kpi-card-sm">
+                  <div class="kpi-sm-label">小学{{ currentMetric.name }}率</div>
+                  <div class="kpi-sm-value">{{ currentProvinceData.primary }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.primary + '%' }"></div></div>
+                </div>
+                <div class="kpi-card-sm">
+                  <div class="kpi-sm-label">初中{{ currentMetric.name }}率</div>
+                  <div class="kpi-sm-value">{{ currentProvinceData.junior }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.junior + '%' }"></div></div>
+                </div>
+                <div class="kpi-card-sm">
+                  <div class="kpi-sm-label">高中{{ currentMetric.name }}率</div>
+                  <div class="kpi-sm-value">{{ currentProvinceData.senior }}%</div>
+                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.senior + '%' }"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tech-panel">
+          <header class="tech-panel-header">
+            <span class="panel-bullet"></span>
+            <span class="panel-title">地市{{ currentMetric.name }}率排名</span>
+            <span class="panel-tag">TOP 10</span>
+          </header>
+          <div class="tech-panel-body">
+            <div ref="cityRankRef" class="chart-area"></div>
+          </div>
+        </section>
+      </aside>
+
+      <!-- 地图 -->
+      <section class="map-col">
+        <!-- 顶部筛选栏 -->
     <div class="top-filter-bar">
       <div class="filter-select" ref="provinceRef" :class="{ 'has-value': filter.province, 'is-open': openDropdown === 'province' }">
         <div class="select-trigger" :class="{ disabled: false }" @click.stop="toggleDropdown('province')">
@@ -155,97 +247,6 @@
         <span class="icon">↺</span> 重置
       </button>
     </div>
-
-    <!-- 主体 -->
-    <main class="national-body">
-      <!-- 左栏 -->
-      <aside class="left-col">
-        <section class="tech-panel">
-          <header class="tech-panel-header">
-            <span class="panel-bullet"></span>
-            <span class="panel-title">{{ currentProvince }}{{ currentMetric.name }}核心数据</span>
-            <span class="panel-tag">{{ currentMetric.name }}专题</span>
-          </header>
-          <div class="tech-panel-body">
-            <div class="kpi-grid">
-              <div class="kpi-row-large">
-                <div class="kpi-card-lg">
-                  <div class="kpi-card-deco"></div>
-                  <div class="kpi-card-hex"><span></span><span></span><span></span></div>
-                  <div class="kpi-lg-label">{{ currentProvince }}{{ currentMetric.name }}率</div>
-                  <div class="kpi-lg-value">
-                    <span class="num">{{ currentProvinceData.rate }}</span><span class="unit">%</span>
-                  </div>
-                  <div :class="['kpi-lg-trend', currentProvinceData.trend > 0 ? 'up' : 'down']">
-                    <span class="trend-arrow">{{ currentProvinceData.trend > 0 ? '▲' : '▼' }}</span>
-                    {{ Math.abs(currentProvinceData.trend) }}% 同比
-                  </div>
-                </div>
-                <div class="kpi-card-lg">
-                  <div class="kpi-card-deco"></div>
-                  <div class="kpi-card-hex"><span></span><span></span><span></span></div>
-                  <div class="kpi-lg-label">学生总数（万）</div>
-                  <div class="kpi-lg-value">
-                    <span class="num">{{ currentProvinceData.students }}</span>
-                  </div>
-                  <div class="kpi-lg-trend down">覆盖 {{ currentProvinceData.cities }} 地市</div>
-                </div>
-              </div>
-
-              <div class="kpi-row-gender">
-                <div class="gender-item male">
-                  <span class="gender-icon">♂</span>
-                  <div class="gender-info">
-                    <span class="gender-label">男生{{ currentMetric.name }}率</span>
-                    <span class="gender-value">{{ currentProvinceData.maleRate }}%</span>
-                  </div>
-                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentProvinceData.maleRate + '%' }"></div></div>
-                </div>
-                <div class="gender-item female">
-                  <span class="gender-icon">♀</span>
-                  <div class="gender-info">
-                    <span class="gender-label">女生{{ currentMetric.name }}率</span>
-                    <span class="gender-value">{{ currentProvinceData.femaleRate }}%</span>
-                  </div>
-                  <div class="gender-bar"><div class="gender-bar-fill" :style="{ width: currentProvinceData.femaleRate + '%' }"></div></div>
-                </div>
-              </div>
-
-              <div class="kpi-row-small">
-                <div class="kpi-card-sm">
-                  <div class="kpi-sm-label">小学{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentProvinceData.primary }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.primary + '%' }"></div></div>
-                </div>
-                <div class="kpi-card-sm">
-                  <div class="kpi-sm-label">初中{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentProvinceData.junior }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.junior + '%' }"></div></div>
-                </div>
-                <div class="kpi-card-sm">
-                  <div class="kpi-sm-label">高中{{ currentMetric.name }}率</div>
-                  <div class="kpi-sm-value">{{ currentProvinceData.senior }}%</div>
-                  <div class="kpi-sm-bar"><div class="kpi-sm-bar-fill" :style="{ width: currentProvinceData.senior + '%' }"></div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="tech-panel">
-          <header class="tech-panel-header">
-            <span class="panel-bullet"></span>
-            <span class="panel-title">地市{{ currentMetric.name }}率排名</span>
-            <span class="panel-tag">TOP 10</span>
-          </header>
-          <div class="tech-panel-body">
-            <div ref="cityRankRef" class="chart-area"></div>
-          </div>
-        </section>
-      </aside>
-
-      <!-- 地图 -->
-      <section class="map-col">
         <div class="map-area">
           <div ref="mapRef" class="map-canvas"></div>
           <div v-if="!mapLoaded" class="map-loading">
@@ -333,6 +334,7 @@
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import * as echarts from 'echarts';
+import 'echarts-gl';
 
 const route = useRoute();
 const router = useRouter();
@@ -2311,6 +2313,7 @@ defineExpose({ switchTab });
 .top-filter-bar {
   position: relative; z-index: 6;
   display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; row-gap: 6px;
   gap: 10px; padding: 4px 20px 6px; flex-shrink: 0;
 }
 .filter-select {

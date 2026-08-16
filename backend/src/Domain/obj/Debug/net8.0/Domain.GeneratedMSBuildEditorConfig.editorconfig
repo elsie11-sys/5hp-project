@@ -8,6 +8,10 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Domain
+<<<<<<< HEAD
 build_property.ProjectDir = E:\5HP_Project\backend\src\Domain\
+=======
+build_property.ProjectDir = d:\5HP_ProjectD\backend\src\Domain\
+>>>>>>> d39ed68a5976317acf579987cacd1ec86bbfa172
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
