@@ -110,6 +110,73 @@ public partial class AppDbContext : DbContext, IApplicationDbContext
             );
         });
 
+        // ===== sys_dict / sys_dict_item 种子数据 =====
+        // 角色数据权限范围字典：用于角色管理「分配数据权限」抽屉的权限范围下拉
+        modelBuilder.Entity<SysDict>().HasData(
+            new
+            {
+                Id = 100L,
+                DictName = "角色数据权限",
+                DictType = "role_based_data_permissions",
+                Status = 1,
+                OwnerType = "SYSTEM",
+                Remark = "角色管理中可分配的数据权限范围（全部/自定义/本部门/本部门及以下/仅本人）",
+                CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local)
+            }
+        );
+        modelBuilder.Entity<SysDictItem>().HasData(
+            new
+            {
+                DictType = "role_based_data_permissions",
+                ItemValue = "1",
+                ItemLabel = "全部数据权限",
+                SortOrder = 1,
+                Status = 1,
+                Remark = "可访问所有数据",
+                CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local)
+            },
+            new
+            {
+                DictType = "role_based_data_permissions",
+                ItemValue = "2",
+                ItemLabel = "自定义数据权限",
+                SortOrder = 2,
+                Status = 1,
+                Remark = "按指定部门范围访问",
+                CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local)
+            },
+            new
+            {
+                DictType = "role_based_data_permissions",
+                ItemValue = "3",
+                ItemLabel = "本部门数据权限",
+                SortOrder = 3,
+                Status = 1,
+                Remark = "仅访问本部门数据",
+                CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local)
+            },
+            new
+            {
+                DictType = "role_based_data_permissions",
+                ItemValue = "4",
+                ItemLabel = "本部门及以下数据权限",
+                SortOrder = 4,
+                Status = 1,
+                Remark = "可访问本部门及下级部门数据",
+                CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local)
+            },
+            new
+            {
+                DictType = "role_based_data_permissions",
+                ItemValue = "5",
+                ItemLabel = "仅本人数据权限",
+                SortOrder = 5,
+                Status = 1,
+                Remark = "仅能访问自己的数据",
+                CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local)
+            }
+        );
+
         // ===== sys_role =====
         modelBuilder.Entity<SysRole>(entity =>
         {
@@ -121,8 +188,10 @@ public partial class AppDbContext : DbContext, IApplicationDbContext
                 .IsRequired()
                 .HasMaxLength(50);
             entity.HasIndex(r => r.Code).IsUnique();
+            entity.Property(r => r.Permission).HasColumnName("permission").HasMaxLength(100);
             entity.Property(r => r.Level).HasColumnName("level");
             entity.Property(r => r.Status).HasColumnName("status").HasDefaultValue(1);
+            entity.Property(r => r.DataScope).HasColumnName("data_scope").HasMaxLength(32).HasDefaultValue("ALL");
             entity.Property(r => r.Remark).HasColumnName("remark").HasMaxLength(500);
             entity.Property(r => r.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
             entity.Property(r => r.UpdatedAt).HasColumnName("updated_at");
@@ -130,13 +199,13 @@ public partial class AppDbContext : DbContext, IApplicationDbContext
             entity.ToTable("sys_role");
 
             entity.HasData(
-                new { Id = 1L, Name = "国家管理员", Code = "ROLE_NATIONAL", Level = 1, Status = 1, Remark = "查看全国所有数据，统一下发标准、生成全国报表，管理省级账号", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
-                new { Id = 2L, Name = "省级管理员", Code = "ROLE_PROVINCE", Level = 2, Status = 1, Remark = "查看本省及各地市数据，生成省级报表、监控地市防控，管理市级账号", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
-                new { Id = 3L, Name = "市级管理员", Code = "ROLE_CITY", Level = 3, Status = 1, Remark = "查看本市及各县区数据，监控数据质量、发布预警，管理县级账号", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
-                new { Id = 4L, Name = "县级管理员", Code = "ROLE_DISTRICT", Level = 4, Status = 1, Remark = "查看本县所有学校数据，审核数据、督导防控工作，管理学校账号", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
-                new { Id = 5L, Name = "学校管理员", Code = "ROLE_SCHOOL", Level = 5, Status = 1, Remark = "仅管理本校数据，录入/审核视力档案，查看本校统计", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
-                new { Id = 6L, Name = "校医", Code = "ROLE_DOCTOR", Level = 5, Status = 1, Remark = "录入/审核视力数据，查看本校统计分析", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
-                new { Id = 7L, Name = "班主任", Code = "ROLE_TEACHER", Level = 5, Status = 1, Remark = "仅管理本班学生数据，录入视力档案，查看本班统计", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) }
+                new { Id = 1L, Name = "国家管理员", Code = "ROLE_NATIONAL", Permission = "system:national", Level = 1, Status = 1, DataScope = "1", Remark = "查看全国所有数据，统一下发标准、生成全国报表，管理省级账号", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
+                new { Id = 2L, Name = "省级管理员", Code = "ROLE_PROVINCE", Permission = "system:province", Level = 2, Status = 1, DataScope = "4", Remark = "查看本省及各地市数据，生成省级报表、监控地市防控，管理市级账号", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
+                new { Id = 3L, Name = "市级管理员", Code = "ROLE_CITY", Permission = "system:city", Level = 3, Status = 1, DataScope = "4", Remark = "查看本市及各县区数据，监控数据质量、发布预警，管理县级账号", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
+                new { Id = 4L, Name = "县级管理员", Code = "ROLE_DISTRICT", Permission = "system:district", Level = 4, Status = 1, DataScope = "4", Remark = "查看本县所有学校数据，审核数据、督导防控工作，管理学校账号", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
+                new { Id = 5L, Name = "学校管理员", Code = "ROLE_SCHOOL", Permission = "system:school", Level = 5, Status = 1, DataScope = "3", Remark = "仅管理本校数据，录入/审核视力档案，查看本校统计", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
+                new { Id = 6L, Name = "校医", Code = "ROLE_DOCTOR", Permission = "system:doctor", Level = 5, Status = 1, DataScope = "3", Remark = "录入/审核视力数据，查看本校统计分析", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) },
+                new { Id = 7L, Name = "班主任", Code = "ROLE_TEACHER", Permission = "system:teacher", Level = 5, Status = 1, DataScope = "5", Remark = "仅管理本班学生数据，录入视力档案，查看本班统计", CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Local) }
             );
         });
 

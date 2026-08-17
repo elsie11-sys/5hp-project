@@ -9,7 +9,7 @@ import { useVbenForm } from '#/adapter/form';
 import { orgApi } from '#/api/vision-archive/system';
 import type { OrgDto } from '#/api/vision-archive/system';
 
-import { useFormSchema } from '../data';
+import { loadOrgLevelOptions, useFormSchema } from '../data';
 
 const emits = defineEmits(['success']);
 
@@ -19,21 +19,28 @@ const [Form, formApi] = useVbenForm({
 });
 
 const id = ref<number | string>();
-// 编辑场景：保留原始 level，避免被父级推断逻辑覆盖
-const originalLevel = ref<string | undefined>();
 // 组织树缓存，用于从 parentId 推断子级 level
 const orgTree = ref<OrgDto[]>([]);
+// 字典项列表（顺序：国家级→学校级），用于推断默认值
+const levelOptions = ref<Array<{ label: string; value: string }>>([]);
 
-/** 组织级别从高到低 */
-const LEVEL_ORDER = ['国家级', '省级', '市级', '区县级', '学校级'];
-
-/** 根据父级 level 推算子级 level；父级为空则为顶级"国家级" */
-function getNextLevel(parentLevel: string | undefined): string {
-  if (!parentLevel) return LEVEL_ORDER[0];
-  const idx = LEVEL_ORDER.indexOf(parentLevel);
-  if (idx === -1) return LEVEL_ORDER[0];
-  // 已经是最末级（学校级）就保持同级别（按需可改为禁止继续添加）
-  return LEVEL_ORDER[Math.min(idx + 1, LEVEL_ORDER.length - 1)];
+/**
+ * 根据父级 level 推算子级 level。
+ * 顺序以字典项为准（不再是硬编码 LEVEL_ORDER）：
+ * - 无父级 → 顶级（options[0]）
+ * - 父级在 options 中 → 下一项；已是最后一级则保持原级
+ * - 父级不在 options 中（脏数据/字典改了） → 兜底 options[0]
+ */
+function getNextLevel(
+  parentLevel: string | undefined,
+  options: Array<{ value: string }>,
+): string | undefined {
+  const first = options[0]?.value;
+  if (!options.length || first === undefined) return undefined;
+  if (!parentLevel) return first;
+  const idx = options.findIndex((o) => o.value === parentLevel);
+  if (idx === -1) return first;
+  return options[Math.min(idx + 1, options.length - 1)]?.value ?? first;
 }
 
 /** 在组织树里按 id 查找节点 */
@@ -66,24 +73,13 @@ const [Drawer, drawerApi] = useVbenDrawer({
     const values = await formApi.getValues();
     drawerApi.lock();
     try {
+      // values.level 已经是字典项标签本身（ApiSelect 的 value=itemLabel），
+      // 直接落到后端 sys_org.level 列即可。
       if (id.value) {
-        // 编辑：保留原 level（如果原数据没 level 才用推断）
-        const level = originalLevel.value ?? getNextLevel(undefined);
-        await orgApi.update(id.value, {
-          ...values,
-          id: id.value,
-          level,
-        } as any);
+        await orgApi.update(id.value, { ...values, id: id.value } as any);
         message.success('保存成功');
       } else {
-        // 新增：根据 parentId 推断 level
-        const parentId = values.parentId as number | string | undefined;
-        let level = LEVEL_ORDER[0];
-        if (parentId !== undefined && parentId !== null && parentId !== '') {
-          const parent = findOrgById(orgTree.value, parentId);
-          level = getNextLevel(parent?.level);
-        }
-        await orgApi.create({ ...values, level } as any);
+        await orgApi.create(values as any);
         message.success('创建成功');
       }
       emits('success');
@@ -97,15 +93,21 @@ const [Drawer, drawerApi] = useVbenDrawer({
       const data = drawerApi.getData<any>();
       formApi.resetForm();
       id.value = undefined;
-      originalLevel.value = undefined;
-      // 拉组织树（ApiTreeSelect 自己也会拉，但我们要用于 level 推断，提前拉一次）
-      await loadOrgTree();
+      // 拉组织树 + 字典项。
+      // ApiTreeSelect / ApiSelect 自己也会拉，但 form.vue 这里要：
+      // 1) 用 orgTree 根据 parentId 推断默认 level
+      // 2) 用 levelOptions 校验父级 level 在不在选项里
+      // 所以提前拉一次，并行起来更省时。
+      await Promise.all([
+        loadOrgTree(),
+        loadOrgLevelOptions().then((opts) => {
+          levelOptions.value = opts;
+        }),
+      ]);
+
       if (data) {
         if (data.id !== undefined) {
           id.value = data.id;
-        }
-        if (data.level) {
-          originalLevel.value = data.level;
         }
         await nextTick();
         formApi.setValues({
@@ -117,6 +119,32 @@ const [Drawer, drawerApi] = useVbenDrawer({
           email: data.email,
           status: data.status,
         });
+      }
+
+      // 编辑：用原 level（itemValue，如 "1"）；新增：根据父级 itemValue 推断下一级
+      // options 里的 value 也是 itemValue，所以比对时是数字字符串与数字字符串比对
+      let defaultLevel: string | undefined;
+      if (id.value) {
+        defaultLevel = data?.level;
+      } else {
+        // 新增场景：onAppend 会把 parentId 透传到 drawer（index.vue 的 onAppend），
+        // 新建顶级时则没 parentId。直接用 data.parentId，不再去 form 里兜底取。
+        const parentId = data?.parentId as number | string | undefined;
+        if (
+          parentId !== undefined &&
+          parentId !== null &&
+          parentId !== ''
+        ) {
+          const parent = findOrgById(orgTree.value, parentId);
+          // parent.level 来自后端 sys_org.level，是字典 itemValue（如 "1"）
+          defaultLevel = getNextLevel(parent?.level, levelOptions.value);
+        } else {
+          // 无父级 → 顶级（options[0]，即 "1"）
+          defaultLevel = levelOptions.value[0]?.value;
+        }
+      }
+      if (defaultLevel !== undefined) {
+        formApi.setFieldValue('level', defaultLevel);
       }
     }
   },

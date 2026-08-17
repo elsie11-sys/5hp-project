@@ -10,6 +10,14 @@ namespace Application.Services;
 /// </summary>
 public class RoleService : IRoleService
 {
+    /// <summary>
+    /// 合法的数据权限范围（与 sys_dict 中 DictType=role_based_data_permissions 的 ItemValue 一致：1~5）
+    /// </summary>
+    private static readonly HashSet<string> ValidDataScopes = new(StringComparer.Ordinal)
+    {
+        "1", "2", "3", "4", "5"
+    };
+
     private readonly IApplicationDbContext _context;
 
     public RoleService(IApplicationDbContext context)
@@ -24,7 +32,8 @@ public class RoleService : IRoleService
         if (!string.IsNullOrWhiteSpace(query.Name))
             q = q.Where(r => r.Name.Contains(query.Name));
         if (!string.IsNullOrWhiteSpace(query.Code))
-            q = q.Where(r => r.Code.Contains(query.Code));
+            // 兼容前端单个搜索框：同时匹配「角色编号」和「权限字符」
+            q = q.Where(r => r.Code.Contains(query.Code) || (r.Permission != null && r.Permission.Contains(query.Code)));
         if (query.Level.HasValue)
             q = q.Where(r => r.Level == query.Level.Value);
         if (query.Status.HasValue)
@@ -100,19 +109,22 @@ public class RoleService : IRoleService
         if (string.IsNullOrWhiteSpace(form.Name))
             throw new ArgumentException("角色名称不能为空");
         if (string.IsNullOrWhiteSpace(form.Code))
-            throw new ArgumentException("角色权限字符不能为空");
+            throw new ArgumentException("角色编号不能为空");
+        var dataScope = NormalizeDataScope(form.DataScope);
 
         // 校验 Code 唯一性
-        var exists = await _context.Roles.AnyAsync(r => r.Code == form.Code);
-        if (exists)
-            throw new InvalidOperationException($"权限字符 {form.Code} 已存在");
+        var codeExists = await _context.Roles.AnyAsync(r => r.Code == form.Code);
+        if (codeExists)
+            throw new InvalidOperationException($"角色编号 {form.Code} 已存在");
 
         var role = new SysRole
         {
             Name = form.Name.Trim(),
             Code = form.Code.Trim(),
+            Permission = string.IsNullOrWhiteSpace(form.Permission) ? null : form.Permission.Trim(),
             Level = form.Level,
             Status = form.Status,
+            DataScope = dataScope,
             Remark = form.Remark,
             CreatedAt = DateTime.UtcNow
         };
@@ -128,26 +140,44 @@ public class RoleService : IRoleService
         if (string.IsNullOrWhiteSpace(form.Name))
             throw new ArgumentException("角色名称不能为空");
         if (string.IsNullOrWhiteSpace(form.Code))
-            throw new ArgumentException("角色权限字符不能为空");
+            throw new ArgumentException("角色编号不能为空");
 
         var role = await _context.Roles.FindAsync(id);
         if (role == null)
             throw new KeyNotFoundException($"找不到 ID 为 {id} 的角色");
 
         // 校验 Code 唯一性（排除自身）
-        var exists = await _context.Roles.AnyAsync(r => r.Code == form.Code && r.Id != id);
-        if (exists)
-            throw new InvalidOperationException($"权限字符 {form.Code} 已存在");
+        var codeExists = await _context.Roles.AnyAsync(r => r.Code == form.Code && r.Id != id);
+        if (codeExists)
+            throw new InvalidOperationException($"角色编号 {form.Code} 已存在");
 
         role.Name = form.Name.Trim();
         role.Code = form.Code.Trim();
+        role.Permission = string.IsNullOrWhiteSpace(form.Permission) ? null : form.Permission.Trim();
         role.Level = form.Level;
         role.Status = form.Status;
+        role.DataScope = NormalizeDataScope(form.DataScope);
         role.Remark = form.Remark;
         role.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
         return MapToDto(role);
+    }
+
+    private static string NormalizeDataScope(string? input)
+    {
+        // 空值兜底为 "1"（全部数据权限）
+        if (string.IsNullOrWhiteSpace(input)) return "1";
+        var trimmed = input.Trim();
+        if (!ValidDataScopes.Contains(trimmed))
+        {
+            // 历史脏值（之前版本误把 ALL/DEPT/DEPT_AND_BELOW/SELF 等英文 enum 写进来）
+            // 都会落在这里：打 warning 但不阻塞业务，fallback 到 "1"。
+            Console.WriteLine(
+                $"[RoleService.NormalizeDataScope] 收到非法的 dataScope={input!}, 已 fallback 到 1");
+            return "1";
+        }
+        return trimmed;
     }
 
     public async Task<bool> DeleteRoleAsync(long id)
@@ -231,6 +261,57 @@ public class RoleService : IRoleService
             .ToListAsync();
     }
 
+    public async Task<DataPermissionDto> GetDataPermissionAsync(long roleId)
+    {
+        var role = await _context.Roles.AsNoTracking()
+            .Where(r => r.Id == roleId)
+            .Select(r => new { r.DataScope })
+            .FirstOrDefaultAsync();
+
+        if (role == null)
+            throw new KeyNotFoundException($"找不到 ID 为 {roleId} 的角色");
+
+        // TODO: 2=自定义 时返回关联的部门 ID 列表（目前先返回空，等建 sys_role_data_scope_dept 表后再补）
+        return new DataPermissionDto
+        {
+            DataScope = string.IsNullOrWhiteSpace(role.DataScope) ? "1" : role.DataScope,
+            DeptIds = new List<long>()
+        };
+    }
+
+    public async Task AssignDataPermissionAsync(long roleId, AssignDataPermissionRequest request)
+    {
+        var role = await _context.Roles.FindAsync(roleId);
+        if (role == null)
+            throw new KeyNotFoundException($"找不到 ID 为 {roleId} 的角色");
+
+        role.DataScope = NormalizeDataScope(request?.DataScope);
+        role.UpdatedAt = DateTime.UtcNow;
+
+        // TODO: CUSTOM 时同步 sys_role_data_scope_dept 关联表
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<RoleDto>> ExportRolesAsync(RoleQuery query)
+    {
+        var q = _context.Roles.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(query.Name))
+            q = q.Where(r => r.Name.Contains(query.Name));
+        if (!string.IsNullOrWhiteSpace(query.Code))
+            q = q.Where(r => r.Code.Contains(query.Code) || (r.Permission != null && r.Permission.Contains(query.Code)));
+        if (query.Level.HasValue)
+            q = q.Where(r => r.Level == query.Level.Value);
+        if (query.Status.HasValue)
+            q = q.Where(r => r.Status == query.Status.Value);
+
+        return await q
+            .OrderBy(r => r.Level)
+            .ThenBy(r => r.Id)
+            .Select(r => MapToDto(r))
+            .ToListAsync();
+    }
+
     private static RoleDto MapToDto(SysRole r)
     {
         return new RoleDto
@@ -238,8 +319,10 @@ public class RoleService : IRoleService
             Id = r.Id,
             Name = r.Name,
             Code = r.Code,
+            Permission = r.Permission,
             Level = r.Level,
             Status = r.Status,
+            DataScope = string.IsNullOrWhiteSpace(r.DataScope) ? "1" : r.DataScope,
             Remark = r.Remark,
             CreatedAt = r.CreatedAt,
             UpdatedAt = r.UpdatedAt

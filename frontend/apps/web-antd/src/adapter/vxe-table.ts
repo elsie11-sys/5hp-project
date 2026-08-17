@@ -82,10 +82,15 @@ setupVbenVxeTable({
             row[loadingKey] = false;
           }
         }
+        // 关键修复：valueField 是数字 0/1 时，原来的 `!!row.status` 会把 0 正确判定为关
+        // 但会把 row.status === undefined/NaN/null 等都判为关（视觉上跟真关一样）
+        // 用 `String(x) === String(y)` 同时兼容 number 和 string 后端
+        const checkedValue = props?.checkedValue ?? 1;
+        const unCheckedValue = props?.unCheckedValue ?? 0;
         return h(Switch, {
-          checked: !!row[valueField],
-          checkedValue: 1,
-          unCheckedValue: 0,
+          checked: String(row[valueField]) === String(checkedValue),
+          checkedValue,
+          unCheckedValue,
           checkedChildren: attrs?.checkedChildren || props?.checkedChildren,
           unCheckedChildren: attrs?.unCheckedChildren || props?.unCheckedChildren,
           loading: row[loadingKey] ?? false,

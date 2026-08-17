@@ -243,8 +243,8 @@ export const userApi = {
 export interface RoleDto {
   id: number;
   name: string;           // 角色名称
-  roleCode: string;       // 角色编号
-  code: string;           // 权限字符
+  code: string;           // 角色编号（业务标识，唯一）
+  permission?: string;    // 权限字符（控制器/注解中使用的权限标识）
   level: number;          // 等级
   status: number;         // 1:启用 0:停用
   remark?: string;        // 备注
@@ -259,8 +259,8 @@ export interface RoleDto {
 export interface RoleForm {
   id?: number;
   name: string;
-  roleCode: string;       // 角色编号
-  code: string;           // 权限字符
+  code: string;           // 角色编号（业务标识，唯一）
+  permission?: string;    // 权限字符
   level: number;
   status: number;
   remark?: string;
@@ -327,13 +327,13 @@ export interface MenuQuery {
   type?: number;
 }
 
-/** 数据权限范围选项 */
+/** 数据权限范围选项：value 与 sys_dict 中 DictType=role_based_data_permissions 的 ItemValue 一一对应 */
 export const DATA_SCOPE_OPTIONS = [
-  { label: '全部数据权限', value: 'ALL' },
-  { label: '自定义数据权限', value: 'CUSTOM' },
-  { label: '本部门数据权限', value: 'DEPT' },
-  { label: '本部门及以下数据权限', value: 'DEPT_AND_BELOW' },
-  { label: '仅本人数据权限', value: 'SELF' },
+  { label: '全部数据权限', value: '1' },
+  { label: '自定义数据权限', value: '2' },
+  { label: '本部门数据权限', value: '3' },
+  { label: '本部门及以下数据权限', value: '4' },
+  { label: '仅本人数据权限', value: '5' },
 ];
 
 /** 角色 API */
@@ -462,14 +462,23 @@ export const ROLE_STATUS_MAP: Record<number, { text: string; color: string }> = 
   0: { text: '停用', color: '#ff4d4f' },
 };
 
-/** 角色等级选项 */
+/** 角色等级选项（数值越小权限越高，1=国家级 最高，5=学校级 最低） */
 export const ROLE_LEVEL_OPTIONS = [
-  { label: '1', value: 1 },
-  { label: '2', value: 2 },
-  { label: '3', value: 3 },
-  { label: '4', value: 4 },
-  { label: '5', value: 5 },
+  { label: '1 - 国家级', value: 1 },
+  { label: '2 - 省级', value: 2 },
+  { label: '3 - 市级', value: 3 },
+  { label: '4 - 区县级', value: 4 },
+  { label: '5 - 学校级', value: 5 },
 ];
+
+/** 角色等级数值到名称的映射（用于表格列展示） */
+export const ROLE_LEVEL_MAP: Record<number, string> = {
+  1: '国家级',
+  2: '省级',
+  3: '市级',
+  4: '区县级',
+  5: '学校级',
+};
 
 /** 角色下拉数据（保留兼容） */
 export const ROLE_OPTIONS = Object.keys(ROLE_NAME_TO_ID).map((k) => ({ label: k, value: k }));

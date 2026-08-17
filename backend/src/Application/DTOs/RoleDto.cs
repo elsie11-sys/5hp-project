@@ -7,9 +7,20 @@ public class RoleDto
 {
     public long Id { get; set; }
     public string Name { get; set; } = string.Empty;
+    /// <summary>
+    /// 角色编号（业务标识，唯一）
+    /// </summary>
     public string Code { get; set; } = string.Empty;
+    /// <summary>
+    /// 权限字符（控制器/注解中使用的权限标识）
+    /// </summary>
+    public string? Permission { get; set; }
     public int Level { get; set; }
     public int Status { get; set; }
+    /// <summary>
+    /// 数据权限范围：1=全部 / 2=自定义 / 3=本部门 / 4=本部门及以下 / 5=仅本人
+    /// </summary>
+    public string DataScope { get; set; } = "1";
     public string? Remark { get; set; }
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
@@ -37,9 +48,20 @@ public class RoleForm
 {
     public long? Id { get; set; }
     public string Name { get; set; } = string.Empty;
+    /// <summary>
+    /// 角色编号（业务标识，唯一）
+    /// </summary>
     public string Code { get; set; } = string.Empty;
+    /// <summary>
+    /// 权限字符（控制器/注解中使用的权限标识，可选）
+    /// </summary>
+    public string? Permission { get; set; }
     public int Level { get; set; }
     public int Status { get; set; } = 1;
+    /// <summary>
+    /// 数据权限范围：1=全部 / 2=自定义 / 3=本部门 / 4=本部门及以下 / 5=仅本人
+    /// </summary>
+    public string DataScope { get; set; } = "1";
     public string? Remark { get; set; }
 }
 
@@ -57,6 +79,31 @@ public class RoleBatchDeleteRequest
 public class AssignMenuPermissionRequest
 {
     public List<long> MenuIds { get; set; } = new();
+}
+
+/// <summary>
+/// 分配数据权限请求
+/// </summary>
+public class AssignDataPermissionRequest
+{
+    /// <summary>
+    /// 数据权限范围：1=全部 / 2=自定义 / 3=本部门 / 4=本部门及以下 / 5=仅本人
+    /// </summary>
+    public string DataScope { get; set; } = "1";
+
+    /// <summary>
+    /// 自定义数据权限时的部门 ID 列表（仅 2=自定义 生效；目前先透传，后续可建关联表）
+    /// </summary>
+    public List<long>? DeptIds { get; set; }
+}
+
+/// <summary>
+/// 数据权限响应
+/// </summary>
+public class DataPermissionDto
+{
+    public string DataScope { get; set; } = "1";
+    public List<long> DeptIds { get; set; } = new();
 }
 
 /// <summary>

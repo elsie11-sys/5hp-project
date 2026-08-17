@@ -1,6 +1,7 @@
 using Application.DTOs;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using MiniExcelLibs;
 
 namespace API.Controllers;
 
@@ -89,8 +90,11 @@ public class SysRoleController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateRole(long id, [FromBody] RoleForm form)
     {
-        if (id != form.Id)
+        // 兼容处理：前端表单经常只发字段不发 id，
+        // 这里以 URL 上的 id 为准回填；只有当前端显式传了 id 且与 URL 不一致时才报错
+        if (form.Id.HasValue && form.Id.Value != id)
             return BadRequest(new { message = "URL中的ID与请求体中的ID不匹配" });
+        form.Id = id;
 
         try
         {
@@ -160,5 +164,80 @@ public class SysRoleController : ControllerBase
     {
         var menuIds = await _roleService.GetRoleMenuIdsAsync(id);
         return Ok(menuIds);
+    }
+
+    // GET: api/role/{id}/data-permission
+    [HttpGet("{id}/data-permission")]
+    public async Task<IActionResult> GetDataPermission(long id)
+    {
+        try
+        {
+            var data = await _roleService.GetDataPermissionAsync(id);
+            return Ok(data);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    // POST: api/role/{id}/data-permission
+    [HttpPost("{id}/data-permission")]
+    public async Task<IActionResult> AssignDataPermission(long id, [FromBody] AssignDataPermissionRequest? request)
+    {
+        try
+        {
+            await _roleService.AssignDataPermissionAsync(id, request ?? new AssignDataPermissionRequest());
+            return Ok(new { message = "数据权限分配成功" });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    // GET: api/role/export?name=xxx&code=xxx&level=1&status=1
+    [HttpGet("export")]
+    public async Task<IActionResult> Export(
+        [FromQuery] string? name = null,
+        [FromQuery] string? code = null,
+        [FromQuery] int? level = null,
+        [FromQuery] int? status = null)
+    {
+        var query = new RoleQuery
+        {
+            Name = name,
+            Code = code,
+            Level = level,
+            Status = status
+        };
+        var items = await _roleService.ExportRolesAsync(query);
+
+        // MiniExcel 用匿名对象的属性名作为表头；
+        // 用中文名以贴近前端“角色列表”的展示
+        var rows = items.Select(r => new
+        {
+            编号 = r.Id,
+            角色名称 = r.Name,
+            角色编号 = r.Code,
+            权限字符 = r.Permission ?? string.Empty,
+            等级 = r.Level,
+            状态 = r.Status == 1 ? "启用" : "停用",
+            关联用户数 = r.UserCount,
+            备注 = r.Remark ?? string.Empty,
+            创建时间 = r.CreatedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? string.Empty,
+            更新时间 = r.UpdatedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? string.Empty,
+        });
+
+        using var ms = new MemoryStream();
+        await MiniExcel.SaveAsAsync(ms, rows);
+        return File(
+            ms.ToArray(),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            $"角色导出_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
     }
 }

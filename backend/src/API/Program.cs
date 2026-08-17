@@ -6,6 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
+// ==========================================
+// 启用 Npgsql 旧版时间戳行为
+// 必须放在数据库上下文注册之前，确保 EF Core 在初始化时能读取到该配置
+// ==========================================
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 
 // ==========================================
 // 1. 服务注册 (Services Registration)

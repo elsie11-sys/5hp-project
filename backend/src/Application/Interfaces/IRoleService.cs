@@ -51,6 +51,21 @@ public interface IRoleService
     /// 获取角色已分配的菜单ID列表
     /// </summary>
     Task<List<long>> GetRoleMenuIdsAsync(long roleId);
+
+    /// <summary>
+    /// 按查询条件导出角色列表（用于 Excel 导出）
+    /// </summary>
+    Task<List<RoleDto>> ExportRolesAsync(RoleQuery query);
+
+    /// <summary>
+    /// 获取角色的数据权限
+    /// </summary>
+    Task<DataPermissionDto> GetDataPermissionAsync(long roleId);
+
+    /// <summary>
+    /// 分配角色的数据权限
+    /// </summary>
+    Task AssignDataPermissionAsync(long roleId, AssignDataPermissionRequest request);
 }
 
 /// <summary>

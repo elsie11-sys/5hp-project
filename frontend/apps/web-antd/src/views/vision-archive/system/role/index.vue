@@ -5,7 +5,7 @@ import type { RoleDto as SystemRole } from '#/api/vision-archive/system';
 import { computed, ref } from 'vue';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
-import { Download, Plus } from '@vben/icons';
+import { IconifyIcon, Plus } from '@vben/icons';
 
 import {
   Button,
@@ -15,13 +15,12 @@ import {
   Input,
   message,
   Modal,
-  Popconfirm,
   Select,
   Tooltip,
 } from 'ant-design-vue';
 
 import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';
-import { DATA_SCOPE_OPTIONS, roleApi } from '#/api/vision-archive/system';
+import { DATA_SCOPE_OPTIONS, dictApi, roleApi } from '#/api/vision-archive/system';
 
 import { useColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';
@@ -30,6 +29,17 @@ const [FormDrawer, formDrawerApi] = useVbenDrawer({
   connectedComponent: Form,
   destroyOnClose: true,
 });
+
+// 版本标记：方便确认浏览器拿到的就是最新 bundle（dev tools 控制台搜 "v-role-fix" 即可）
+console.info(
+  '%c[v-role-fix] CellSwitch activeValue=1/inactiveValue=0 + onStatusChange onRefresh 修复已加载',
+  'color:#52c41a;font-weight:bold',
+);
+
+// 工具栏批量按钮需要根据勾选状态控制 disabled
+const selectedRowIds = ref<Array<number | string>>([]);
+const hasSelection = computed(() => selectedRowIds.value.length > 0);
+const hasSingleSelection = computed(() => selectedRowIds.value.length === 1);
 
 function confirm(content: string, title: string) {
   return new Promise<void>((resolve, reject) => {
@@ -53,7 +63,11 @@ async function onStatusChange(newStatus: number, row: SystemRole) {
     // 后端会校验 URL 中的 id 和 body 中的 id 一致，且必填字段（如 name）不能为空
     // 所以把整行原样带上，再覆盖 status 为新值
     await roleApi.update(row.id, { ...row, id: row.id, status: newStatus } as any);
+    // 1) 手动同步 grid 行内 status 字段，避免 CellSwitch 内部 state 与 grid 数据脱节
+    row.status = newStatus;
     message.success('状态更新成功');
+    // 2) 强制 reload grid，从后端拉最新数据，避免所有行都显示成关
+    onRefresh();
     return true;
   } catch {
     return false;
@@ -86,25 +100,22 @@ function getCheckedRows(): SystemRole[] {
   return ((gridApi as any).grid?.getCheckboxRecords?.() ?? []) as SystemRole[];
 }
 
-function onToolbarEdit() {
+async function onToolbarEdit() {
+  // 按钮已通过 :disabled="!hasSingleSelection" 控制启用，
+  // 这里只做一次选中行的兜底校验，避免外部绕过 disabled 触发
   const rows = getCheckedRows();
-  if (rows.length === 0) {
-    message.warning('请先选择一行');
+  if (rows.length !== 1) {
+    message.warning('请选择一行后再修改');
     return;
   }
-  if (rows.length > 1) {
-    message.warning('一次只能修改一行，请勿多选');
-    return;
-  }
-  onEdit(rows[0]);
+  const row = rows[0];
+  if (!row) return; // 兜底：strict 模式下 rows[0] 仍可能被推为 undefined
+  onEdit(row);
 }
 
 async function onToolbarDelete() {
   const rows = getCheckedRows();
-  if (rows.length === 0) {
-    message.warning('请先选择要删除的角色');
-    return;
-  }
+  if (rows.length === 0) return;
   // 过滤掉内置 admin
   const deletable = rows.filter((r) => !isSystemRole(r));
   if (deletable.length === 0) {
@@ -115,6 +126,7 @@ async function onToolbarDelete() {
     await confirm(`确定要删除选中的 ${deletable.length} 个角色吗？`, '删除确认');
     await roleApi.batchDelete(deletable.map((r) => r.id) as number[]);
     message.success(`已删除 ${deletable.length} 个角色`);
+    selectedRowIds.value = [];
     onRefresh();
   } catch {
     // 用户取消
@@ -128,38 +140,114 @@ function onToolbarExport() {
 }
 
 // ============== 数据权限 ==============
+// 权限范围下拉选项：来源是 sys_dict 中 DictType=role_based_data_permissions 的字典项
+const DATA_SCOPE_DICT_TYPE = 'role_based_data_permissions';
 const dataScopeDrawer = ref<{
   open: boolean;
   row: SystemRole | null;
   dataScope: string;
+  options: Array<{ label: string; value: string }>;
+  loadingDict: boolean;
 }>({
   open: false,
   row: null,
   dataScope: 'ALL',
+  // 兜底：字典没加载到时用硬编码常量，不让抽屉打不开
+  options: DATA_SCOPE_OPTIONS as Array<{ label: string; value: string }>,
+  loadingDict: false,
 });
 
-async function onAssignDataScope(row: SystemRole) {
-  // 拉取角色当前的数据权限，回填到 Drawer
-  let initial: string = row.dataScope ?? 'ALL';
+async function loadDataScopeDict(): Promise<Array<{ label: string; value: string }>> {
   try {
-    const cur = await roleApi.getDataPermission(row.id);
-    initial = cur?.dataScope ?? initial;
+    const dict = await dictApi.getByType(DATA_SCOPE_DICT_TYPE);
+    const items = (dict?.dictItems ?? [])
+      .filter((it) => it.status === 1 || it.status === undefined)
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .map((it) => ({ label: it.itemLabel, value: it.itemValue }));
+    return items.length > 0 ? items : (DATA_SCOPE_OPTIONS as Array<{ label: string; value: string }>);
   } catch {
-    // 拉不到当前值就用 row.dataScope 兜底
+    // 字典接口不可用时兜底为硬编码常量
+    return DATA_SCOPE_OPTIONS as Array<{ label: string; value: string }>;
   }
-  dataScopeDrawer.value = { open: true, row, dataScope: initial };
+}
+
+/**
+ * 把任意来源的 dataScope（可能是 row.dataScope / getDataPermission 返回 / 历史脏值）
+ * 归一化为 options 里的一个有效 value。
+ * - 优先匹配 itemValue（ALL/CUSTOM/DEPT/DEPT_AND_BELOW/SELF）
+ * - 找不到时回退到第一个有效选项
+ * 避免出现「select v-model 是脏值 → 用户没点下拉 → 提交脏值」的情况
+ */
+function resolveDataScopeValue(
+  raw: unknown,
+  options: Array<{ label: string; value: string }>,
+): string {
+  const fallback = options[0]?.value ?? 'ALL';
+  if (raw === undefined || raw === null || raw === '') return fallback;
+  const s = String(raw).trim();
+  if (!s) return fallback;
+  return options.some((o) => o.value === s) ? s : fallback;
+}
+
+async function onAssignDataScope(row: SystemRole) {
+  // 打开抽屉时进入 loading：v-model 暂用空串（绝不能是脏值），
+  // 等字典项 + 当前值都拉完，归一化后再一次性放开（loadingDict=false）。
+  // 这样用户点击「确定」时 v-model 必然是合法 value。
+  dataScopeDrawer.value = {
+    open: true,
+    row,
+    dataScope: '',
+    options: [],
+    loadingDict: true,
+  };
+
+  const fallbackOptions = DATA_SCOPE_OPTIONS as Array<{ label: string; value: string }>;
+  let options: Array<{ label: string; value: string }> = fallbackOptions;
+  let currentDataScope: string | undefined;
+
+  try {
+    await Promise.all([
+      (async () => {
+        try {
+          const cur = await roleApi.getDataPermission(row.id);
+          if (cur?.dataScope) currentDataScope = String(cur.dataScope);
+        } catch {
+          /* 拉不到当前值就用 row.dataScope 兜底 */
+        }
+      })(),
+      (async () => {
+        options = await loadDataScopeDict();
+      })(),
+    ]);
+  } finally {
+    // 一次性把 options + 归一化后的 v-model + loading=false 写回去，
+    // 避免中间态被 select 抢渲染
+    const sourceValue = currentDataScope ?? row.dataScope;
+    dataScopeDrawer.value = {
+      ...dataScopeDrawer.value,
+      options,
+      dataScope: resolveDataScopeValue(sourceValue, options),
+      loadingDict: false,
+    };
+  }
 }
 
 async function onConfirmDataScope() {
   const m = dataScopeDrawer.value;
   if (!m.row) return;
+  // 强转 String，避免历史脏数据把 number 传出去
+  const dataScope = String(m.dataScope ?? '').trim();
+  if (!dataScope) {
+    message.warning('请选择权限范围');
+    return;
+  }
+  // 兜底：如果字典项里有更标准的值（比如字典没加载到时），用归一化函数再校一遍
+  const normalized = resolveDataScopeValue(dataScope, m.options);
   try {
-    await roleApi.assignDataPermission(m.row.id, { dataScope: m.dataScope });
-    message.success(
-      `已为【${m.row.name}】分配数据权限：${
-        DATA_SCOPE_OPTIONS.find((o) => o.value === m.dataScope)?.label ?? m.dataScope
-      }`,
-    );
+    await roleApi.assignDataPermission(m.row.id, { dataScope: normalized });
+    const label =
+      m.options.find((o) => o.value === normalized)?.label ?? normalized;
+    message.success(`已为【${m.row.name}】分配数据权限：${label}`);
     m.open = false;
     onRefresh();
   } catch {
@@ -173,8 +261,8 @@ function onAssignUsers(row: SystemRole) {
   message.warning(`分配用户功能开发中（角色：${row.name}）`);
 }
 
-// 内置系统角色（roleCode === 'admin'）不允许任何操作
-const isSystemRole = (row: SystemRole) => row.roleCode === 'admin';
+// 内置系统角色（code === 'admin'）不允许任何操作
+const isSystemRole = (row: SystemRole) => row.code === 'admin';
 
 // 备注列：截断显示 + hover 提示全量
 const REMARK_MAX_LEN = 15;
@@ -190,10 +278,18 @@ const [Grid, gridApi] = useVbenVxeGrid({
     schema: useGridFormSchema(),
     submitOnChange: true,
   },
+  gridEvents: {
+    checkboxChange: () => {
+      selectedRowIds.value = getCheckedRows().map((r: any) => r.id);
+    },
+    checkboxAll: () => {
+      selectedRowIds.value = getCheckedRows().map((r: any) => r.id);
+    },
+  },
   gridOptions: {
     columns: [
       { type: 'checkbox', width: 50 },
-      ...(useColumns(onStatusChange) as any[]),
+      ...(useColumns({ onStatusChange }) as any[]),
     ],
     height: 'auto',
     keepSource: true,
@@ -203,18 +299,45 @@ const [Grid, gridApi] = useVbenVxeGrid({
           // 把 RangePicker 的 [start, end] 拆成后端要的 startDate / endDate
           const { createdAtRange, ...rest } = formValues as Record<string, any>;
           const [startDate, endDate] = Array.isArray(createdAtRange) ? createdAtRange : [undefined, undefined];
-          return await roleApi.getPagedList({
+          const result = await roleApi.getPagedList({
             page: page.currentPage,
             pageSize: page.pageSize,
             ...rest,
             startDate,
             endDate,
           });
+          // 调试：把 grid 实际拿到的第一条行打出来，方便核对字段名/值
+          // dev tools 控制台搜 "v-role-paged" 即可
+          // eslint-disable-next-line no-console
+          console.info(
+            '%c[v-role-paged] grid query result:',
+            'color:#1677ff',
+            {
+              total: (result as any)?.total,
+              firstRow: (result as any)?.items?.[0],
+              firstRowStatus: (result as any)?.items?.[0]?.status,
+            },
+          );
+          return result;
         },
       },
     },
     rowConfig: {
       keyField: 'id',
+    },
+    pagerConfig: {
+      enabled: true,
+      pageSize: 10,
+      pageSizes: [10, 20, 50, 100],
+      // 顺序对齐设计稿：Total(共 N 条) → Sizes(10条/页) → 上下页 + 页码 → FullJump(前往 N 页)
+      layouts: [
+        'Total',
+        'Sizes',
+        'PrevPage',
+        'JumpNumber',
+        'NextPage',
+        'FullJump',
+      ],
     },
     toolbarConfig: {
       custom: true,
@@ -231,31 +354,32 @@ const [Grid, gridApi] = useVbenVxeGrid({
     <FormDrawer @success="onRefresh" />
     <Grid table-title="角色列表">
       <template #toolbar-tools>
-        <Button type="primary" @click="onCreate">
-          <Plus class="size-5" />
-          新增
-        </Button>
-        <Button
-          type="primary"
-          ghost
-          @click="onToolbarEdit"
-        >
-          <Edit class="size-4" />
-          修改
-        </Button>
-        <Popconfirm
-          :title="`确定要删除选中的角色吗?`"
-          @confirm="onToolbarDelete"
-        >
-          <Button danger ghost>
-            <Trash2 class="size-4" />
+        <div class="flex items-center gap-2">
+          <Button type="primary" @click="onCreate">
+            <Plus class="mr-1 size-4" />
+            新增
+          </Button>
+          <Button
+            class="btn-success"
+            :disabled="!hasSingleSelection"
+            @click="onToolbarEdit"
+          >
+            <IconifyIcon icon="lucide:pencil" class="mr-1 size-4" />
+            修改
+          </Button>
+          <Button
+            class="btn-danger-outline"
+            :disabled="!hasSelection"
+            @click="onToolbarDelete"
+          >
+            <IconifyIcon icon="lucide:trash-2" class="mr-1 size-4" />
             删除
           </Button>
-        </Popconfirm>
-        <Button @click="onToolbarExport">
-          <Download class="size-4" />
-          导出
-        </Button>
+          <Button @click="onToolbarExport">
+            <IconifyIcon icon="lucide:download" class="mr-1 size-4" />
+            导出
+          </Button>
+        </div>
       </template>
 
       <!-- 备注列：截断 + hover 显示全量 -->
@@ -335,22 +459,53 @@ const [Grid, gridApi] = useVbenVxeGrid({
         </FormItem>
         <FormItem label="权限范围">
           <Select
-            v-model:value="dataScopeDrawer.dataScope"
-            :options="DATA_SCOPE_OPTIONS"
+            :value="dataScopeDrawer.dataScope"
+            :options="dataScopeDrawer.options"
+            :loading="dataScopeDrawer.loadingDict"
+            :disabled="dataScopeDrawer.loadingDict"
             placeholder="请选择数据权限"
             class="w-full"
+            @change="
+              (v: any) => {
+                // 显式归一化，杜绝任何非法值提交到后端
+                const normalized = resolveDataScopeValue(
+                  String(v ?? '').trim(),
+                  dataScopeDrawer.options,
+                );
+                dataScopeDrawer.dataScope = normalized;
+              }
+            "
           />
         </FormItem>
       </AntForm>
       <template #footer>
         <Button @click="dataScopeDrawer.open = false">取消</Button>
-        <Button type="primary" @click="onConfirmDataScope">确定</Button>
+        <Button
+          type="primary"
+          :disabled="dataScopeDrawer.loadingDict"
+          @click="onConfirmDataScope"
+        >
+          确定
+        </Button>
       </template>
     </Drawer>
   </Page>
 </template>
 
 <style scoped>
+/*
+ * 分页器：用 vxe-pager 默认的右对齐紧凑排列（Total → Sizes → 分页按钮 → FullJump），
+ * 与设计稿红圈标出的样式一致。不要再加 flex / order / auto margin 把它们撑开。
+ *
+ * 唯一额外调整：把分页按钮激活色统一成项目主色 #52c41a（绿色），与设计稿一致。
+ */
+:deep(.vxe-pager--num-btn.is--active),
+:deep(.vxe-pager--num-btn.active) {
+  background-color: #52c41a;
+  border-color: #52c41a;
+  color: #fff;
+}
+
 :deep(.ant-tag-green) {
   background: #f6ffed;
   border-color: #b7eb8f;
@@ -375,5 +530,43 @@ const [Grid, gridApi] = useVbenVxeGrid({
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle;
+}
+
+/*
+ * 工具栏批量按钮配色（与用户管理保持一致）
+ *  - .btn-success       绿色实色（修改）
+ *  - .btn-danger-outline 红色描边（删除）
+ */
+.btn-success {
+  color: #52c41a;
+  border-color: #b7eb8f;
+  background: #f6ffed;
+}
+.btn-success:hover,
+.btn-success:focus {
+  color: #389e0d;
+  border-color: #52c41a;
+  background: #d9f7be;
+}
+.btn-success:disabled {
+  color: rgba(0, 0, 0, 0.25);
+  border-color: #d9d9d9;
+  background: #f5f5f5;
+}
+.btn-danger-outline {
+  color: #ff4d4f;
+  border-color: #ffa39e;
+  background: #fff1f0;
+}
+.btn-danger-outline:hover,
+.btn-danger-outline:focus {
+  color: #cf1322;
+  border-color: #ff4d4f;
+  background: #ffccc7;
+}
+.btn-danger-outline:disabled {
+  color: rgba(0, 0, 0, 0.25);
+  border-color: #d9d9d9;
+  background: #f5f5f5;
 }
 </style>

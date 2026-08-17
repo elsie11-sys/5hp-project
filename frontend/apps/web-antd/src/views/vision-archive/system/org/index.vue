@@ -24,7 +24,9 @@ import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';
 import { orgApi } from '#/api/vision-archive/system';
 
 import {
-  LEVEL_COLOR_MAP,
+  ensureLevelDictLoaded,
+  getLevelColor,
+  getLevelLabel,
   useColumns,
   useGridFormSchema,
 } from './data';
@@ -151,7 +153,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
         // 注入到 query 的「第二参数」里（第一参数里的 formValues 字段在 vxe-table 4.x 已废弃，
         // 写错位置会导致永远拿不到值，filter 永远走不过滤分支）
         query: async (_params, formValues) => {
-          const tree = await orgApi.getTree();
+          // 并行拉树和字典：ensureLevelDictLoaded 是单例 Promise，重复调用不会重复打接口
+          const [tree] = await Promise.all([
+            orgApi.getTree(),
+            ensureLevelDictLoaded(),
+          ]);
           const fv = (formValues || {}) as { name?: string; status?: number };
           if (!fv.name && fv.status === undefined) {
             expandAllOnNextTick();
@@ -211,10 +217,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
         <div class="flex w-full items-center gap-2">
           <Tag
             v-if="row.level"
-            :color="LEVEL_COLOR_MAP[row.level] || 'default'"
+            :color="getLevelColor(row.level)"
             class="!m-0 shrink-0"
           >
-            {{ row.level }}
+            {{ getLevelLabel(row.level) }}
           </Tag>
           <span class="truncate">{{ row.name }}</span>
         </div>

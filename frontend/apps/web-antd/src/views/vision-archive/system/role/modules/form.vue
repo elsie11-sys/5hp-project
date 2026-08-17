@@ -3,7 +3,8 @@
  * 角色管理 - 表单弹窗
  *
  * 对齐截图字段布局与交互：
- *   - 角色名称 *  ｜ 权限字符 *(带 ? 提示)
+ *   - 角色名称 *  ｜ 角色编号 *(必填，唯一)
+ *   - 权限字符（带 ? 提示，可选）
  *   - 等级 *(步进器，1~5，越小等级越高)
  *   - 状态（正常 / 停用，单选）
  *   - 菜单权限（展开/折叠、全选/全不选、父子联动 + 菜单树）
@@ -137,26 +138,23 @@ async function handleConfirm() {
   const values = await formApi.getValues();
   drawerApi.lock();
   try {
+    const payload = {
+      id: id.value as any, // 显式带上 id，让后端做 URL/body 一致性校验
+      name: values.name,
+      code: values.code,
+      permission: values.permission,
+      level: values.level,
+      status: values.status,
+      remark: values.remark,
+    };
     if (id.value) {
-      await roleApi.update(id.value, {
-        name: values.name,
-        roleCode: values.roleCode,
-        code: values.code,
-        level: values.level,
-        status: values.status,
-        remark: values.remark,
-      } as any);
+      await roleApi.update(id.value, payload);
       await roleApi.assignMenuPermission(id.value, checkedKeys.value as number[]);
       message.success('保存成功');
     } else {
-      const created = await roleApi.create({
-        name: values.name,
-        roleCode: values.roleCode,
-        code: values.code,
-        level: values.level,
-        status: values.status,
-        remark: values.remark,
-      } as any);
+      // 创建时不需要带 id（后端会自动生成）
+      const { id: _drop, ...createPayload } = payload;
+      const created = await roleApi.create(createPayload as any);
       if (created?.id && checkedKeys.value.length > 0) {
         await roleApi.assignMenuPermission(created.id, checkedKeys.value as number[]);
       }
@@ -188,8 +186,8 @@ const [Drawer, drawerApi] = useVbenDrawer({
         await nextTick();
         formApi.setValues({
           name: data.name,
-          roleCode: data.roleCode,
           code: data.code,
+          permission: data.permission,
           level: data.level,
           status: data.status,
           remark: data.remark,

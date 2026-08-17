@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260817071157_SeedRoleDataScopeDict")]
+    partial class SeedRoleDataScopeDict
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,7 +126,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             DictType = "role_based_data_permissions",
-                            ItemValue = "1",
+                            ItemValue = "ALL",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
                             ItemLabel = "全部数据权限",
                             Remark = "可访问所有数据",
@@ -133,7 +136,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             DictType = "role_based_data_permissions",
-                            ItemValue = "2",
+                            ItemValue = "CUSTOM",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
                             ItemLabel = "自定义数据权限",
                             Remark = "按指定部门范围访问",
@@ -143,7 +146,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             DictType = "role_based_data_permissions",
-                            ItemValue = "3",
+                            ItemValue = "DEPT",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
                             ItemLabel = "本部门数据权限",
                             Remark = "仅访问本部门数据",
@@ -153,7 +156,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             DictType = "role_based_data_permissions",
-                            ItemValue = "4",
+                            ItemValue = "DEPT_AND_BELOW",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
                             ItemLabel = "本部门及以下数据权限",
                             Remark = "可访问本部门及下级部门数据",
@@ -163,7 +166,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             DictType = "role_based_data_permissions",
-                            ItemValue = "5",
+                            ItemValue = "SELF",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
                             ItemLabel = "仅本人数据权限",
                             Remark = "仅能访问自己的数据",
@@ -791,7 +794,7 @@ namespace Infrastructure.Migrations
                             Id = 1L,
                             Code = "ROLE_NATIONAL",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
-                            DataScope = "1",
+                            DataScope = "ALL",
                             Level = 1,
                             Name = "国家管理员",
                             Permission = "system:national",
@@ -803,7 +806,7 @@ namespace Infrastructure.Migrations
                             Id = 2L,
                             Code = "ROLE_PROVINCE",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
-                            DataScope = "4",
+                            DataScope = "DEPT_AND_BELOW",
                             Level = 2,
                             Name = "省级管理员",
                             Permission = "system:province",
@@ -815,7 +818,7 @@ namespace Infrastructure.Migrations
                             Id = 3L,
                             Code = "ROLE_CITY",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
-                            DataScope = "4",
+                            DataScope = "DEPT_AND_BELOW",
                             Level = 3,
                             Name = "市级管理员",
                             Permission = "system:city",
@@ -827,7 +830,7 @@ namespace Infrastructure.Migrations
                             Id = 4L,
                             Code = "ROLE_DISTRICT",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
-                            DataScope = "4",
+                            DataScope = "DEPT_AND_BELOW",
                             Level = 4,
                             Name = "县级管理员",
                             Permission = "system:district",
@@ -839,7 +842,7 @@ namespace Infrastructure.Migrations
                             Id = 5L,
                             Code = "ROLE_SCHOOL",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
-                            DataScope = "3",
+                            DataScope = "DEPT",
                             Level = 5,
                             Name = "学校管理员",
                             Permission = "system:school",
@@ -851,7 +854,7 @@ namespace Infrastructure.Migrations
                             Id = 6L,
                             Code = "ROLE_DOCTOR",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
-                            DataScope = "3",
+                            DataScope = "DEPT",
                             Level = 5,
                             Name = "校医",
                             Permission = "system:doctor",
@@ -863,7 +866,7 @@ namespace Infrastructure.Migrations
                             Id = 7L,
                             Code = "ROLE_TEACHER",
                             CreatedAt = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Local),
-                            DataScope = "5",
+                            DataScope = "SELF",
                             Level = 5,
                             Name = "班主任",
                             Permission = "system:teacher",
