@@ -22,6 +22,1061 @@ namespace Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Domain.Entities.BoneRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BoneAge")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("bone_age");
+
+                    b.Property<string>("BoneDensity")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("bone_density");
+
+                    b.Property<string>("CalciumLevel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("calcium_level");
+
+                    b.Property<DateTime>("CheckDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("check_date");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("student_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("VitaminD")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("vitamin_d");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId", "CheckDate");
+
+                    b.ToTable("bone_record", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            BoneAge = "12岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "充足"
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            BoneAge = "11.5岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "充足"
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            BoneAge = "11岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "良好"
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            BoneAge = "12.5岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "充足"
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            BoneAge = "12岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "充足"
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            BoneAge = "11.5岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "良好"
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            BoneAge = "12岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "充足"
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            BoneAge = "11.5岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "充足"
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            BoneAge = "11岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "良好"
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            BoneAge = "11.5岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "充足"
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            BoneAge = "11岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "充足"
+                        },
+                        new
+                        {
+                            Id = 12L,
+                            BoneAge = "10.5岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "良好"
+                        },
+                        new
+                        {
+                            Id = 13L,
+                            BoneAge = "11岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "充足"
+                        },
+                        new
+                        {
+                            Id = 14L,
+                            BoneAge = "10.5岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "良好"
+                        },
+                        new
+                        {
+                            Id = 15L,
+                            BoneAge = "10岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "良好"
+                        },
+                        new
+                        {
+                            Id = 16L,
+                            BoneAge = "12.5岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "充足"
+                        },
+                        new
+                        {
+                            Id = 17L,
+                            BoneAge = "12岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "充足"
+                        },
+                        new
+                        {
+                            Id = 18L,
+                            BoneAge = "11.5岁",
+                            BoneDensity = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "良好"
+                        });
+                });
+
+            modelBuilder.Entity("Domain.Entities.MentalRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CheckDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("check_date");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("MoodStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("mood_status");
+
+                    b.Property<string>("SleepQuality")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("sleep_quality");
+
+                    b.Property<string>("StressLevel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("stress_level");
+
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("student_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId", "CheckDate");
+
+                    b.ToTable("mental_record", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "波动",
+                            SleepQuality = "一般",
+                            StressLevel = "中度",
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "波动",
+                            SleepQuality = "一般",
+                            StressLevel = "中度",
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "波动",
+                            SleepQuality = "一般",
+                            StressLevel = "中度",
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 12L,
+                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 13L,
+                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 14L,
+                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "波动",
+                            SleepQuality = "一般",
+                            StressLevel = "中度",
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 15L,
+                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 16L,
+                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 17L,
+                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 18L,
+                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            MoodStatus = "稳定",
+                            SleepQuality = "良好",
+                            StressLevel = "轻度",
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        });
+                });
+
+            modelBuilder.Entity("Domain.Entities.OralRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("CavityCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("cavity_count");
+
+                    b.Property<DateTime>("CheckDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("check_date");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("student_id");
+
+                    b.Property<string>("ToothStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("tooth_status");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId", "CheckDate");
+
+                    b.ToTable("oral_record", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 6L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 6L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            CavityCount = 1,
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 6L,
+                            ToothStatus = "轻微龋齿",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            CavityCount = 2,
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 1L,
+                            ToothStatus = "轻微龋齿",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            CavityCount = 1,
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 1L,
+                            ToothStatus = "轻微龋齿",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 1L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 2L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 2L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 2L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 3L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 3L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 12L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 3L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 13L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 4L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 14L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 4L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 15L,
+                            CavityCount = 1,
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 4L,
+                            ToothStatus = "轻微龋齿",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 16L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 5L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 17L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 5L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 18L,
+                            CavityCount = 0,
+                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            StudentId = 5L,
+                            ToothStatus = "良好",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        });
+                });
+
+            modelBuilder.Entity("Domain.Entities.Student", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("address");
+
+                    b.Property<string>("AllergyHistory")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("allergy_history");
+
+                    b.Property<string>("Avatar")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("avatar");
+
+                    b.Property<DateTime?>("Birthday")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("birthday");
+
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("class_name");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("DataSource")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("data_source");
+
+                    b.Property<string>("FatherMyopia")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("father_myopia");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("gender");
+
+                    b.Property<string>("GradeYear")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("grade_year");
+
+                    b.Property<string>("IdCard")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("id_card");
+
+                    b.Property<bool>("Intervention")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("intervention");
+
+                    b.Property<string>("MotherMyopia")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("mother_myopia");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Nation")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("nation");
+
+                    b.Property<string>("NativePlace")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("native_place");
+
+                    b.Property<string>("ParentContact")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("parent_contact");
+
+                    b.Property<string>("ParentPhone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("parent_phone");
+
+                    b.Property<string>("School")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("school");
+
+                    b.Property<string>("StudentNo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("student_no");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassName");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Intervention");
+
+                    b.HasIndex("Name");
+
+                    b.HasIndex("School");
+
+                    b.HasIndex("StudentNo")
+                        .IsUnique();
+
+                    b.ToTable("student_archive", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Address = "江苏淮安淮安区淮安区新城广场22栋",
+                            AllergyHistory = "未知",
+                            Avatar = "👦",
+                            Birthday = new DateTime(2011, 2, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DataSource = "sjwjuser1",
+                            FatherMyopia = "未知",
+                            Gender = "男",
+                            GradeYear = "2022级",
+                            IdCard = "320829201108090012",
+                            Intervention = true,
+                            MotherMyopia = "未知",
+                            Name = "陈熙航",
+                            Nation = "汉族",
+                            NativePlace = "江苏淮安",
+                            ParentContact = "chenxh_2022",
+                            ParentPhone = "15952305677",
+                            School = "淮安外国语学校",
+                            StudentNo = "2022001",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            Address = "江苏淮安淮安区小区8栋301",
+                            AllergyHistory = "未知",
+                            Avatar = "👦",
+                            Birthday = new DateTime(2011, 8, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DataSource = "sjwjuser1",
+                            FatherMyopia = "未知",
+                            Gender = "男",
+                            GradeYear = "2022级",
+                            IdCard = "320829201108090012",
+                            Intervention = false,
+                            MotherMyopia = "未知",
+                            Name = "席振轩",
+                            Nation = "汉族",
+                            NativePlace = "江苏淮安",
+                            ParentContact = "xizhenxuan",
+                            ParentPhone = "15949198257",
+                            School = "淮安外国语学校",
+                            StudentNo = "2022002",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            Address = "江苏淮安淮安区花苑3栋502",
+                            AllergyHistory = "未知",
+                            Avatar = "👧",
+                            Birthday = new DateTime(2011, 2, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DataSource = "sjwjuser1",
+                            FatherMyopia = "未知",
+                            Gender = "女",
+                            GradeYear = "2022级",
+                            IdCard = "320831201102121422",
+                            Intervention = false,
+                            MotherMyopia = "未知",
+                            Name = "丁书婉",
+                            Nation = "汉族",
+                            NativePlace = "江苏淮安",
+                            ParentContact = "dingshuwan",
+                            ParentPhone = "13952371506",
+                            School = "淮安外国语学校",
+                            StudentNo = "2022003",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            Address = "江苏淮安淮安区小区1幢2单元403",
+                            AllergyHistory = "未知",
+                            Avatar = "👧",
+                            Birthday = new DateTime(2011, 3, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DataSource = "sjwjuser1",
+                            FatherMyopia = "未知",
+                            Gender = "女",
+                            GradeYear = "2022级",
+                            IdCard = "320803201103140048",
+                            Intervention = true,
+                            MotherMyopia = "未知",
+                            Name = "周梓萌",
+                            Nation = "汉族",
+                            NativePlace = "江苏淮安",
+                            ParentContact = "zhouzimeng",
+                            ParentPhone = "13952390315",
+                            School = "淮安外国语学校",
+                            StudentNo = "2022004",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            Address = "江苏淮安淮安区小区9栋304",
+                            AllergyHistory = "未知",
+                            Avatar = "👦",
+                            Birthday = new DateTime(2011, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DataSource = "sjwjuser1",
+                            FatherMyopia = "未知",
+                            Gender = "男",
+                            GradeYear = "2022级",
+                            IdCard = "320831201105021422",
+                            Intervention = false,
+                            MotherMyopia = "未知",
+                            Name = "朱宇土",
+                            Nation = "汉族",
+                            NativePlace = "江苏淮安",
+                            ParentContact = "zhuyutu",
+                            ParentPhone = "15152566388",
+                            School = "淮安外国语学校",
+                            StudentNo = "2022005",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            Address = "江苏淮安淮安区小区2栋1001",
+                            AllergyHistory = "未知",
+                            Avatar = "👦",
+                            Birthday = new DateTime(2010, 11, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DataSource = "sjwjuser1",
+                            FatherMyopia = "未知",
+                            Gender = "男",
+                            GradeYear = "2022级",
+                            IdCard = "320831201011232637",
+                            Intervention = false,
+                            MotherMyopia = "未知",
+                            Name = "招崧熙",
+                            Nation = "汉族",
+                            NativePlace = "江苏淮安",
+                            ParentContact = "zhaosongxi",
+                            ParentPhone = "13805285721",
+                            School = "淮安外国语学校",
+                            StudentNo = "2022006",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
+                        });
+                });
+
             modelBuilder.Entity("Domain.Entities.SysDict", b =>
                 {
                     b.Property<long>("Id")
@@ -31,7 +1086,7 @@ namespace Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("DictName")
                         .IsRequired()
@@ -58,7 +1113,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -91,7 +1146,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("ItemLabel")
                         .IsRequired()
@@ -113,7 +1168,7 @@ namespace Infrastructure.Migrations
                         .HasDefaultValue(1);
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("DictType", "ItemValue");
 
@@ -193,7 +1248,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("NOW()");
 
@@ -265,7 +1320,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
@@ -564,6 +1619,177 @@ namespace Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Domain.Entities.SysOperationLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BizData")
+                        .HasColumnType("text")
+                        .HasColumnName("biz_data");
+
+                    b.Property<string>("Content")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("content");
+
+                    b.Property<int?>("CostMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("cost_ms");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("ErrorMsg")
+                        .HasColumnType("text")
+                        .HasColumnName("error_msg");
+
+                    b.Property<string>("Ip")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("ip");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("location");
+
+                    b.Property<string>("Method")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("method");
+
+                    b.Property<string>("Module")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("module");
+
+                    b.Property<string>("Operator")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("operator");
+
+                    b.Property<string>("RequestMethod")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("request_method");
+
+                    b.Property<string>("RequestParams")
+                        .HasColumnType("text")
+                        .HasColumnName("request_params");
+
+                    b.Property<string>("RequestUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("request_url");
+
+                    b.Property<string>("ResponseParams")
+                        .HasColumnType("text")
+                        .HasColumnName("response_params");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1)
+                        .HasColumnName("status");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("user_agent");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Operator");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("sys_operation_log", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.SysLoginLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Browser")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("browser");
+
+                    b.Property<string>("Ip")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("ip");
+
+                    b.Property<DateTime?>("LoginTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("login_time")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("location");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("message");
+
+                    b.Property<string>("Os")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("os");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1)
+                        .HasColumnName("status");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("user_name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ip");
+
+                    b.HasIndex("LoginTime");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserName");
+
+                    b.ToTable("sys_login_log", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.SysOrg", b =>
                 {
                     b.Property<long>("Id")
@@ -580,7 +1806,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("NOW()");
 
@@ -618,7 +1844,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("status");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
@@ -736,7 +1962,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("NOW()");
 
@@ -775,7 +2001,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("status");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
@@ -883,7 +2109,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("NOW()");
 
@@ -954,6 +2180,606 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("sys_user");
+                });
+
+            modelBuilder.Entity("Domain.Entities.VisionRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CheckDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("check_date");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("LeftEye")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("left_eye");
+
+                    b.Property<string>("RightEye")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("right_eye");
+
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("student_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("VisionLevel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("vision_level");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId", "CheckDate");
+
+                    b.ToTable("vision_record", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.8",
+                            RightEye = "4.9",
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "轻度近视"
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.7",
+                            RightEye = "4.8",
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "轻度近视"
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.9",
+                            RightEye = "4.9",
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "正常"
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.5",
+                            RightEye = "4.6",
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "中度近视"
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.7",
+                            RightEye = "4.7",
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "轻度近视"
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.8",
+                            RightEye = "4.9",
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "正常"
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "5.0",
+                            RightEye = "5.0",
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "正常"
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.9",
+                            RightEye = "5.0",
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "正常"
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.9",
+                            RightEye = "4.9",
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "正常"
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.9",
+                            RightEye = "4.8",
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "轻度近视"
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.9",
+                            RightEye = "4.9",
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "正常"
+                        },
+                        new
+                        {
+                            Id = 12L,
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "5.0",
+                            RightEye = "5.0",
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "正常"
+                        },
+                        new
+                        {
+                            Id = 13L,
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.6",
+                            RightEye = "4.7",
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "轻度近视"
+                        },
+                        new
+                        {
+                            Id = 14L,
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.8",
+                            RightEye = "4.8",
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "轻度近视"
+                        },
+                        new
+                        {
+                            Id = 15L,
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.9",
+                            RightEye = "4.9",
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "正常"
+                        },
+                        new
+                        {
+                            Id = 16L,
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "5.0",
+                            RightEye = "4.9",
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "正常"
+                        },
+                        new
+                        {
+                            Id = 17L,
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.9",
+                            RightEye = "4.8",
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "正常"
+                        },
+                        new
+                        {
+                            Id = 18L,
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            LeftEye = "4.9",
+                            RightEye = "4.8",
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VisionLevel = "正常"
+                        });
+                });
+
+            modelBuilder.Entity("Domain.Entities.WeightRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Bmi")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("bmi");
+
+                    b.Property<string>("BmiLevel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("bmi_level");
+
+                    b.Property<DateTime>("CheckDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("check_date");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("Height")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("height");
+
+                    b.Property<string>("HipCircumference")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("hip_circumference");
+
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("student_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("WaistCircumference")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("waist_circumference");
+
+                    b.Property<string>("Weight")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("weight");
+
+                    b.Property<string>("Whr")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("whr");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId", "CheckDate");
+
+                    b.ToTable("weight_record", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Bmi = "19.1",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "165cm",
+                            HipCircumference = "88cm",
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "68cm",
+                            Weight = "52kg",
+                            Whr = "0.77"
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            Bmi = "18.8",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "163cm",
+                            HipCircumference = "86cm",
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "66cm",
+                            Weight = "50kg",
+                            Whr = "0.77"
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            Bmi = "18.8",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "160cm",
+                            HipCircumference = "84cm",
+                            StudentId = 6L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "64cm",
+                            Weight = "48kg",
+                            Whr = "0.76"
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            Bmi = "21.0",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "162cm",
+                            HipCircumference = "90cm",
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "72cm",
+                            Weight = "55kg",
+                            Whr = "0.80"
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            Bmi = "20.7",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "160cm",
+                            HipCircumference = "88cm",
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "70cm",
+                            Weight = "53kg",
+                            Whr = "0.80"
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            Bmi = "20.0",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "158cm",
+                            HipCircumference = "86cm",
+                            StudentId = 1L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "68cm",
+                            Weight = "50kg",
+                            Whr = "0.79"
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            Bmi = "18.8",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "160cm",
+                            HipCircumference = "85cm",
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "65cm",
+                            Weight = "48kg",
+                            Whr = "0.76"
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            Bmi = "18.8",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "158cm",
+                            HipCircumference = "84cm",
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "64cm",
+                            Weight = "47kg",
+                            Whr = "0.76"
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            Bmi = "18.5",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "156cm",
+                            HipCircumference = "83cm",
+                            StudentId = 2L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "63cm",
+                            Weight = "45kg",
+                            Whr = "0.76"
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            Bmi = "18.0",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "158cm",
+                            HipCircumference = "84cm",
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "62cm",
+                            Weight = "45kg",
+                            Whr = "0.74"
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            Bmi = "18.1",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "156cm",
+                            HipCircumference = "83cm",
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "61cm",
+                            Weight = "44kg",
+                            Whr = "0.73"
+                        },
+                        new
+                        {
+                            Id = 12L,
+                            Bmi = "17.7",
+                            BmiLevel = "偏瘦",
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "154cm",
+                            HipCircumference = "82cm",
+                            StudentId = 3L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "60cm",
+                            Weight = "42kg",
+                            Whr = "0.73"
+                        },
+                        new
+                        {
+                            Id = 13L,
+                            Bmi = "19.2",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "155cm",
+                            HipCircumference = "85cm",
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "63cm",
+                            Weight = "46kg",
+                            Whr = "0.74"
+                        },
+                        new
+                        {
+                            Id = 14L,
+                            Bmi = "19.2",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "153cm",
+                            HipCircumference = "84cm",
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "62cm",
+                            Weight = "45kg",
+                            Whr = "0.74"
+                        },
+                        new
+                        {
+                            Id = 15L,
+                            Bmi = "18.9",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "151cm",
+                            HipCircumference = "83cm",
+                            StudentId = 4L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "61cm",
+                            Weight = "43kg",
+                            Whr = "0.73"
+                        },
+                        new
+                        {
+                            Id = 16L,
+                            Bmi = "20.3",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "163cm",
+                            HipCircumference = "89cm",
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "70cm",
+                            Weight = "54kg",
+                            Whr = "0.79"
+                        },
+                        new
+                        {
+                            Id = 17L,
+                            Bmi = "20.1",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "161cm",
+                            HipCircumference = "88cm",
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "68cm",
+                            Weight = "52kg",
+                            Whr = "0.77"
+                        },
+                        new
+                        {
+                            Id = 18L,
+                            Bmi = "19.8",
+                            BmiLevel = "正常",
+                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Height = "159cm",
+                            HipCircumference = "87cm",
+                            StudentId = 5L,
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            WaistCircumference = "67cm",
+                            Weight = "50kg",
+                            Whr = "0.77"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.SysDictItem", b =>

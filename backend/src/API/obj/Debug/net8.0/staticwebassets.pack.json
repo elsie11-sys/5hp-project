@@ -1,0 +1,57 @@
+{
+  "Files": [
+    {
+      "Id": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\uploads\\avatars\\20260818161022_09f56f790b204122ab4c49c1d8a5592d.jpg",
+      "PackagePath": "staticwebassets\\uploads\\avatars\\20260818161022_09f56f790b204122ab4c49c1d8a5592d.jpg"
+    },
+    {
+      "Id": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\uploads\\avatars\\20260818161033_021bd561843446c5a97e8f9e4071c266.jpg",
+      "PackagePath": "staticwebassets\\uploads\\avatars\\20260818161033_021bd561843446c5a97e8f9e4071c266.jpg"
+    },
+    {
+      "Id": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\uploads\\avatars\\20260818161309_3fe03a157f4541a5bbc1fe7a7477b282.jpg",
+      "PackagePath": "staticwebassets\\uploads\\avatars\\20260818161309_3fe03a157f4541a5bbc1fe7a7477b282.jpg"
+    },
+    {
+      "Id": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\uploads\\avatars\\20260818161850_fc7f46b444ad4326895f529a4670d168.jpg",
+      "PackagePath": "staticwebassets\\uploads\\avatars\\20260818161850_fc7f46b444ad4326895f529a4670d168.jpg"
+    },
+    {
+      "Id": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\uploads\\avatars\\20260818162342_de690e3b5a4a4eb7b9be6146e4cff7d5.jpg",
+      "PackagePath": "staticwebassets\\uploads\\avatars\\20260818162342_de690e3b5a4a4eb7b9be6146e4cff7d5.jpg"
+    },
+    {
+      "Id": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\uploads\\avatars\\20260818162354_946669ffa2b84ff2ba07d62bc1f51d80.jpg",
+      "PackagePath": "staticwebassets\\uploads\\avatars\\20260818162354_946669ffa2b84ff2ba07d62bc1f51d80.jpg"
+    },
+    {
+      "Id": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\uploads\\avatars\\20260818164112_574ddf36e517484c9d6d5214a2351d2f.jpg",
+      "PackagePath": "staticwebassets\\uploads\\avatars\\20260818164112_574ddf36e517484c9d6d5214a2351d2f.jpg"
+    },
+    {
+      "Id": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\uploads\\avatars\\20260818164231_cbcf88f6692c4948a2cb65a0b4883d6f.jpg",
+      "PackagePath": "staticwebassets\\uploads\\avatars\\20260818164231_cbcf88f6692c4948a2cb65a0b4883d6f.jpg"
+    },
+    {
+      "Id": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\uploads\\avatars\\20260818164253_390de5629f1f4ab390ef51d799a6af51.jpg",
+      "PackagePath": "staticwebassets\\uploads\\avatars\\20260818164253_390de5629f1f4ab390ef51d799a6af51.jpg"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.API.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.API.props",
+      "PackagePath": "build\\API.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.API.props",
+      "PackagePath": "buildMultiTargeting\\API.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.API.props",
+      "PackagePath": "buildTransitive\\API.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

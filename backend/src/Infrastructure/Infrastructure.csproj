@@ -15,6 +15,13 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.*" />
   </ItemGroup>
 
+  <!-- ip2region 离线库 xdb 文件：发布时一并复制到 bin 目录 -->
+  <ItemGroup>
+    <None Update="Resources\ip2region_v4.xdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

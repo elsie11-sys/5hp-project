@@ -3,6 +3,8 @@ using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using MiniExcelLibs;
 
+using API.Filters;
+
 namespace API.Controllers;
 
 /// <summary>
@@ -74,6 +76,17 @@ public class SysRoleController : ControllerBase
         try
         {
             var created = await _roleService.CreateRoleAsync(form);
+
+            // 写操作日志：把"新增的角色"摘要塞进 biz_data
+            OperationLogContext.SetBizData(HttpContext, new
+            {
+                roleId = created.Id,
+                roleName = created.Name,
+                roleCode = created.Code,
+                level = created.Level,
+                action = "create",
+            });
+
             return Ok(new { id = created.Id, message = "创建成功", createdAt = created.CreatedAt });
         }
         catch (ArgumentException ex)
@@ -99,6 +112,19 @@ public class SysRoleController : ControllerBase
         try
         {
             var updated = await _roleService.UpdateRoleAsync(id, form);
+
+            // 写操作日志：把"被修改的角色 + 关键字段"塞进 biz_data
+            OperationLogContext.SetBizData(HttpContext, new
+            {
+                roleId = updated.Id,
+                roleName = updated.Name,
+                roleCode = updated.Code,
+                status = updated.Status,
+                dataScope = updated.DataScope,
+                level = updated.Level,
+                action = "update",
+            });
+
             return Ok(new { message = "更新成功", updatedAt = updated.UpdatedAt });
         }
         catch (KeyNotFoundException ex)
@@ -121,6 +147,19 @@ public class SysRoleController : ControllerBase
     {
         try
         {
+            // 写操作日志：删除前先把要删的角色名记下来（删完就拿不到了）
+            var before = await _roleService.GetRoleByIdAsync(id);
+            if (before != null)
+            {
+                OperationLogContext.SetBizData(HttpContext, new
+                {
+                    roleId = before.Id,
+                    roleName = before.Name,
+                    roleCode = before.Code,
+                    action = "delete",
+                });
+            }
+
             var success = await _roleService.DeleteRoleAsync(id);
             if (!success)
                 return NotFound(new { message = "角色不存在，删除失败" });
@@ -138,6 +177,14 @@ public class SysRoleController : ControllerBase
     {
         if (request?.Ids == null || request.Ids.Count == 0)
             return BadRequest(new { message = "请选择要删除的角色" });
+
+        // 写操作日志：把要删的 id 列表和数量塞进 biz_data
+        OperationLogContext.SetBizData(HttpContext, new
+        {
+            ids = request.Ids,
+            count = request.Ids.Count,
+            action = "batchDelete",
+        });
 
         var (deletedCount, message) = await _roleService.BatchDeleteRolesAsync(request.Ids);
         return Ok(new { deletedCount, message });

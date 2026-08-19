@@ -24,6 +24,11 @@ export default defineConfig(async () => {
             target: 'http://localhost:5224/api',
             ws: true,
           },
+          // 头像/上传文件等 wwwroot 静态资源：后端 UseStaticFiles() 在 /uploads 下提供访问
+          '/uploads': {
+            changeOrigin: true,
+            target: 'http://localhost:5224',
+          },
         },
       },
     },

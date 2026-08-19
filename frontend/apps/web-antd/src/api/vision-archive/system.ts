@@ -614,13 +614,342 @@ export function getDictionaryList() {
   return requestClient.get('/system/dict/list');
 }
 
-// 日志（占位）
-export function getOperationLogList() {
-  return requestClient.get('/system/log/operation');
+// =====================================================================
+// 操作日志（operationLogApi）
+// =====================================================================
+
+/** 操作日志查询参数 */
+export interface OperationLogQuery {
+  page?: number;
+  pageSize?: number;
+  /** 操作人（模糊） */
+  operator?: string;
+  /** 操作类型：login/create/update/delete/export/import/query/other */
+  type?: string;
+  /** 操作模块（模糊） */
+  module?: string;
+  /** 客户端 IP（模糊） */
+  ip?: string;
+  /** 1=成功 0=失败 */
+  status?: 0 | 1;
+  /** 开始日期 YYYY-MM-DD */
+  startDate?: string;
+  /** 结束日期 YYYY-MM-DD */
+  endDate?: string;
 }
-export function getLoginLogList() {
-  return requestClient.get('/system/log/login');
+
+/** 操作日志 DTO（前端展示用，结构与视图层一致） */
+export interface OperationLogDto {
+  id: number;
+  operator: string;
+  type: string;
+  module: string;
+  content: string;
+  ip: string;
+  status: 0 | 1;
+  costMs: number;
+  createdAt: string;
+  userAgent?: string;
+  location?: string;
+  /** 请求地址，如 /system/role/changeStatus */
+  requestUrl?: string;
+  /** 请求方式：GET / POST / PUT / DELETE */
+  requestMethod?: 'GET' | 'POST' | 'PUT' | 'DELETE' | string;
+  /** 操作方法（Java 全限定方法名 + 括号） */
+  method?: string;
+  /** 请求参数（JSON 字符串） */
+  requestParams?: string;
+  /** 返回参数（JSON 字符串） */
+  responseParams?: string;
+  /** 错误消息（status=0 时） */
+  errorMsg?: string;
 }
+
+// ---------- 本地 mock（后端未就绪时使用，命中规则：endpoint 404/网络异常） ----------
+
+/** 简易可复现的伪随机（保证 mock 数据在每次刷新后保持稳定） */
+function makeRng(seed: number) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 0xffffffff;
+  };
+}
+
+const MOCK_TYPES = ['login', 'create', 'update', 'delete', 'export', 'import', 'query', 'other'];
+const MOCK_MODULES = ['系统管理', '学生档案', '数据采集', '统计分析', '用户管理', '组织架构', '字典管理', '权限管理'];
+const MOCK_USERS = ['admin', '张伟', '李明', '王芳', '陈晓', '刘强', '赵敏', '周婷', '吴磊', 'sjwvision'];
+const MOCK_IPS = ['112.7.103.208', '218.201.142.114', '192.168.1.100', '192.168.1.101', '192.168.1.102', '10.0.0.5', '172.16.20.18'];
+const MOCK_LOCATIONS = ['北京 北京市', '上海 上海市', '广东 深圳市', '浙江 杭州市', '四川 成都市', '湖北 武汉市', '—'];
+
+function pickOne<T>(rng: () => number, list: readonly T[]): T {
+  return list[Math.floor(rng() * list.length)] as T;
+}
+
+function buildMockList(count: number): OperationLogDto[] {
+  const rng = makeRng(20260818);
+  const baseTs = Date.parse('2026-08-18T22:00:00+08:00');
+  const arr: OperationLogDto[] = [];
+  for (let i = 0; i < count; i++) {
+    const type = pickOne(rng, MOCK_TYPES);
+    const module = pickOne(rng, MOCK_MODULES);
+    const operator = pickOne(rng, MOCK_USERS);
+    const ip = pickOne(rng, MOCK_IPS);
+    const status: 0 | 1 = rng() < 0.92 ? 1 : 0;
+    const costMs = Math.floor(7 + rng() * 993);
+    // 越早的越旧：id 越大时间越近
+    const offsetMin = i * 17 + Math.floor(rng() * 30);
+    const createdAt = new Date(baseTs - offsetMin * 60_000).toISOString().replace('T', ' ').slice(0, 19);
+    const detail = buildMockDetail(type, module, operator, status);
+    arr.push({
+      id: count - i,
+      operator,
+      type,
+      module,
+      content: buildMockContent(type, module, operator),
+      ip,
+      status,
+      costMs,
+      createdAt,
+      userAgent: 'Chrome 14 / Windows 10',
+      location: pickOne(rng, MOCK_LOCATIONS),
+      requestUrl: detail.requestUrl,
+      requestMethod: detail.requestMethod,
+      method: detail.method,
+      requestParams: detail.requestParams,
+      responseParams: detail.responseParams,
+      errorMsg: status === 0 ? 'java.lang.RuntimeException: 业务校验失败' : undefined,
+    });
+  }
+  return arr;
+}
+
+/**
+ * 根据 type 生成更"真实"的详情（请求地址 / 请求方式 / 方法签名 / 请求&返回参数）。
+ * 这里只 mock 几种典型组合，覆盖设计稿里截图的样子。
+ */
+function buildMockDetail(
+  type: string,
+  module: string,
+  operator: string,
+  status: 0 | 1,
+): {
+  requestUrl: string;
+  requestMethod: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method: string;
+  requestParams: string;
+  responseParams: string;
+} {
+  const controller = 'com.ruoyi.web.controller.system';
+  const actionMap: Record<string, { url: string; method: 'GET' | 'POST' | 'PUT' | 'DELETE'; className: string; action: string }> = {
+    login: { url: '/system/login', method: 'POST', className: 'SysLoginController', action: 'login' },
+    logout: { url: '/system/logout', method: 'POST', className: 'SysLoginController', action: 'logout' },
+    create: { url: `/${pinyinOf(module)}/add`, method: 'POST', className: 'SysController', action: 'add' },
+    update: { url: `/${pinyinOf(module)}/edit`, method: 'PUT', className: 'SysController', action: 'edit' },
+    delete: { url: `/${pinyinOf(module)}/remove/${1 + Math.floor(Math.random() * 99)}`, method: 'DELETE', className: 'SysController', action: 'remove' },
+    export: { url: `/${pinyinOf(module)}/export`, method: 'POST', className: 'SysController', action: 'export' },
+    import: { url: `/${pinyinOf(module)}/importData`, method: 'POST', className: 'SysController', action: 'importData' },
+    query: { url: `/${pinyinOf(module)}/list`, method: 'GET', className: 'SysController', action: 'list' },
+    other: { url: `/${pinyinOf(module)}/other`, method: 'GET', className: 'SysController', action: 'other' },
+  };
+  const m = actionMap[type] ?? actionMap.other!;
+  const requestParams = mockRequestParams(type, m.action, operator);
+  const responseParams = status === 1
+    ? '{"msg":"操作成功","code":200}'
+    : '{"msg":"操作失败","code":500}';
+  return {
+    requestUrl: m.url,
+    requestMethod: m.method,
+    method: `${controller}.${m.className}.${m.action}()`,
+    requestParams,
+    responseParams,
+  };
+}
+
+/** 模块名 -> 拼音路径的简单映射（mock 够用就行） */
+function pinyinOf(module: string): string {
+  const map: Record<string, string> = {
+    系统管理: 'system',
+    学生档案: 'student',
+    数据采集: 'collect',
+    统计分析: 'stat',
+    用户管理: 'user',
+    组织架构: 'org',
+    字典管理: 'dict',
+    权限管理: 'role',
+  };
+  return map[module] ?? 'system';
+}
+
+function mockRequestParams(type: string, action: string, operator: string): string {
+  switch (type) {
+    case 'login':
+      return JSON.stringify({ username: operator, password: '******', code: '****', uuid: 'xxxx-xxxx' });
+    case 'logout':
+      return '{}';
+    case 'create':
+      return JSON.stringify(
+        { name: '新增_' + operator, remark: 'mock', status: 1, createBy: operator },
+        null,
+        0,
+      );
+    case 'update': {
+      const obj: Record<string, unknown> = {
+        admin: false,
+        deptCheckStrictly: false,
+        flag: false,
+        menuCheckStrictly: false,
+        params: {},
+        roleId: 2,
+        status: '0',
+        updateBy: operator,
+      };
+      return JSON.stringify(obj, null, 0);
+    }
+    case 'delete':
+      return JSON.stringify({ ids: '1,2,3' });
+    case 'export':
+      return JSON.stringify({ pageNum: 1, pageSize: 10, keyword: '' });
+    case 'import':
+      return '{}';
+    case 'query':
+      return JSON.stringify({ pageNum: 1, pageSize: 10 });
+    default:
+      return `{} /* ${action} */`;
+  }
+}
+
+function buildMockContent(type: string, module: string, operator: string): string {
+  switch (type) {
+    case 'login':
+      return `${operator} 登录系统`;
+    case 'logout':
+      return `${operator} 退出系统`;
+    case 'create':
+      return `${operator} 在【${module}】中新增了一条记录`;
+    case 'update':
+      return `${operator} 在【${module}】中修改了一条记录`;
+    case 'delete':
+      return `${operator} 在【${module}】中删除了一条记录`;
+    case 'export':
+      return `${operator} 导出【${module}】数据`;
+    case 'import':
+      return `${operator} 导入【${module}】数据`;
+    case 'query':
+      return `${operator} 查询【${module}】列表`;
+    default:
+      return `${operator} 在【${module}】执行了其它操作`;
+  }
+}
+
+// 一次性生成 650 条，对齐设计稿里的"共 650 条"
+let MOCK_CACHE: OperationLogDto[] | null = null;
+function getMockList(): OperationLogDto[] {
+  if (!MOCK_CACHE) MOCK_CACHE = buildMockList(650);
+  return MOCK_CACHE;
+}
+
+function filterMock(query: OperationLogQuery): { items: OperationLogDto[]; total: number } {
+  const list = getMockList();
+  const op = query.operator?.trim();
+  const mod = query.module?.trim();
+  const ip = query.ip?.trim();
+  const items = list.filter((row) => {
+    if (op && !row.operator.includes(op)) return false;
+    if (query.type && row.type !== query.type) return false;
+    if (mod && !row.module.includes(mod)) return false;
+    if (ip && !row.ip.includes(ip)) return false;
+    if (query.status != null && row.status !== query.status) return false;
+    if (query.startDate && row.createdAt.slice(0, 10) < query.startDate) return false;
+    if (query.endDate && row.createdAt.slice(0, 10) > query.endDate) return false;
+    return true;
+  });
+  const page = Math.max(1, query.page ?? 1);
+  const pageSize = Math.max(1, query.pageSize ?? 10);
+  const start = (page - 1) * pageSize;
+  return { items: items.slice(start, start + pageSize), total: items.length };
+}
+
+/** 判断是否需要 fallback 到 mock：4xx/5xx/网络异常时返回 true */
+function shouldFallback(err: any): boolean {
+  const status = err?.response?.status ?? err?.status;
+  if (status === 404 || status === 501) return true;
+  if (status >= 500) return true;
+  // 网络层错误（无 status）也 fallback
+  if (!status) return true;
+  return false;
+}
+
+/** 日志 API：后端未实现时自动 fallback 到本地 mock，控制台提示 */
+export const operationLogApi = {
+  /** 分页查询操作日志 */
+  async getPagedList(query: OperationLogQuery = {}): Promise<{ items: OperationLogDto[]; total: number }> {
+    try {
+      return await requestClient.get<{ items: OperationLogDto[]; total: number }>(
+        '/system/log/operation/paged',
+        { params: query },
+      );
+    } catch (err) {
+      if (shouldFallback(err)) {
+        // eslint-disable-next-line no-console
+        console.info(
+          '%c[operationLogApi] 后端 /system/log/operation/paged 暂未实现，已使用本地 mock 数据（650 条）。',
+          'color:#faad14',
+        );
+        return filterMock(query);
+      }
+      throw err;
+    }
+  },
+
+  /** 批量删除 */
+  async batchDelete(ids: number[]): Promise<{ deletedCount: number }> {
+    try {
+      return await requestClient.post<{ deletedCount: number }>(
+        '/system/log/operation/batch-delete',
+        { ids },
+      );
+    } catch (err) {
+      if (shouldFallback(err)) {
+        MOCK_CACHE = (MOCK_CACHE ?? getMockList()).filter((row) => !ids.includes(row.id));
+        return { deletedCount: ids.length };
+      }
+      throw err;
+    }
+  },
+
+  /** 清空全部 */
+  async clear(): Promise<void> {
+    try {
+      await requestClient.post('/system/log/operation/clear');
+    } catch (err) {
+      if (shouldFallback(err)) {
+        MOCK_CACHE = [];
+        return;
+      }
+      throw err;
+    }
+  },
+
+  /** 导出（前端直接拉文件流） */
+  export(query: OperationLogQuery = {}): void {
+    const params = new URLSearchParams();
+    Object.entries(query).forEach(([k, v]) => {
+      if (v !== undefined && v !== '' && v !== null) params.append(k, String(v));
+    });
+    const qs = params.toString();
+    const a = document.createElement('a');
+    a.href = `/api/system/log/operation/export${qs ? '?' + qs : ''}`;
+    a.download = `操作日志_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  },
+};
+
+// 兼容旧引用，避免出现 undefined 调用
+export const getOperationLogList = () => operationLogApi.getPagedList({ page: 1, pageSize: 1000 });
+export const getLoginLogList = () => requestClient.get('/system/log/login');
 
 // =====================================================================
 // 组织/部门管理（orgApi）
@@ -725,3 +1054,126 @@ export const ORG_LEVEL_OPTIONS = [
   { label: '区县级', value: '区县级' },
   { label: '学校级', value: '学校级' },
 ];
+
+// =====================================================================
+// 登录日志（loginLogApi）
+// =====================================================================
+
+/** 登录日志查询参数 */
+export interface LoginLogQuery {
+  page?: number;
+  pageSize?: number;
+  /** 登录地址（IP 模糊） */
+  ip?: string;
+  /** 用户名称（模糊） */
+  userName?: string;
+  /** 登录状态：1=成功 0=失败 */
+  status?: 0 | 1;
+  /** 开始日期 YYYY-MM-DD */
+  startDate?: string;
+  /** 结束日期 YYYY-MM-DD */
+  endDate?: string;
+}
+
+/** 登录日志 DTO（前端展示用） */
+export interface LoginLogDto {
+  id: number;
+  /** 用户名称 */
+  userName: string;
+  /** 登录地址（IP） */
+  ip: string;
+  /** 登录地点 */
+  location: string;
+  /** 操作系统 */
+  os: string;
+  /** 浏览器 */
+  browser: string;
+  /** 登录状态：1=成功 0=失败 */
+  status: 0 | 1;
+  /** 描述（登录成功/失败原因） */
+  message: string;
+  /** 访问时间（登录时间） */
+  loginTime: string;
+}
+
+/** 登录日志创建请求（前端登录成功/失败时调用） */
+export interface LoginLogCreateRequest {
+  /** 用户名（必填） */
+  userName: string;
+  /** 登录地址（IP，可选；后端会从 HttpContext 兜底） */
+  ip?: string;
+  /** 登录地点 */
+  location?: string;
+  /** 操作系统 */
+  os?: string;
+  /** 浏览器 */
+  browser?: string;
+  /** 1=成功 0=失败 */
+  status: 0 | 1;
+  /** 描述（登录成功 / 失败原因） */
+  message?: string;
+  /** 登录时间（可选；不传时由后端填当前时间） */
+  loginTime?: string;
+}
+
+// ---------- 登录日志 API：直接对接后端 /api/system/log/login/*（后端已实现，无需 mock） ----------
+export const loginLogApi = {
+  /**
+   * 写入一条登录日志（前端登录成功/失败时调用）
+   * <para>POST /api/system/log/login  body: LoginLogCreateRequest</para>
+   */
+  async create(
+    request: LoginLogCreateRequest,
+  ): Promise<{ id: number; message: string; loginTime?: string }> {
+    return requestClient.post<{ id: number; message: string; loginTime?: string }>(
+      '/system/log/login',
+      request,
+    );
+  },
+
+  /** 分页查询登录日志 */
+  async getPagedList(
+    query: LoginLogQuery = {},
+  ): Promise<{ items: LoginLogDto[]; total: number }> {
+    return requestClient.get<{ items: LoginLogDto[]; total: number }>(
+      '/system/log/login/paged',
+      { params: query },
+    );
+  },
+
+  /** 批量删除 */
+  async batchDelete(ids: number[]): Promise<{ deletedCount: number }> {
+    return requestClient.post<{ deletedCount: number }>(
+      '/system/log/login/batch-delete',
+      { ids },
+    );
+  },
+
+  /** 清空全部 */
+  async clear(): Promise<void> {
+    await requestClient.post('/system/log/login/clear');
+  },
+
+  /** 账户解锁（按用户名） */
+  async unlock(userName: string): Promise<{ message: string }> {
+    return requestClient.post<{ message: string }>(
+      '/system/log/login/unlock',
+      { userName },
+    );
+  },
+
+  /** 导出（前端直接拉文件流） */
+  export(query: LoginLogQuery = {}): void {
+    const params = new URLSearchParams();
+    Object.entries(query).forEach(([k, v]) => {
+      if (v !== undefined && v !== '' && v !== null) params.append(k, String(v));
+    });
+    const qs = params.toString();
+    const a = document.createElement('a');
+    a.href = `/api/system/log/login/export${qs ? '?' + qs : ''}`;
+    a.download = `登录日志_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  },
+};

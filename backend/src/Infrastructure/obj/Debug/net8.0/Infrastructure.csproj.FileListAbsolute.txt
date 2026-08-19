@@ -61,3 +61,4 @@ D:\5HP_ProjectD\backend\src\Infrastructure\obj\Debug\net8.0\refint\Infrastructur
 D:\5HP_ProjectD\backend\src\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
 D:\5HP_ProjectD\backend\src\Infrastructure\obj\Debug\net8.0\Infrastructure.genruntimeconfig.cache
 D:\5HP_ProjectD\backend\src\Infrastructure\obj\Debug\net8.0\ref\Infrastructure.dll
+E:\5HP_Project\backend\src\Infrastructure\bin\Debug\net8.0\Resources\ip2region_v4.xdb

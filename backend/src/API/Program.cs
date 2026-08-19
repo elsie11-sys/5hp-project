@@ -1,4 +1,5 @@
 using API.Filters;
+using Application;
 using Application.Interfaces;
 using Application.Services;
 using Infrastructure.Data;
@@ -17,11 +18,12 @@ AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 // 1. 服务注册 (Services Registration)
 // ==========================================
 
-// 1.1 添加控制器支持 + 全局过滤器（统一响应包装、异常处理）
+// 1.1 添加控制器支持 + 全局过滤器（统一响应包装、异常处理、操作日志）
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ResultWrapperFilter>();
     options.Filters.Add<GlobalExceptionFilter>();
+    options.Filters.Add<OperationLogFilter>();
 })
 .AddJsonOptions(options =>
 {
@@ -53,6 +55,21 @@ builder.Services.AddScoped<IDictService, DictService>();
 builder.Services.AddScoped<IOrgService, OrgService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IMenuService, MenuService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IHealthArchiveService, HealthArchiveService>();
+builder.Services.AddScoped<IOperationLogService, OperationLogService>();
+builder.Services.AddScoped<ILoginLogService, LoginLogService>();
+
+// 1.4.1 IP 归属地查询（基于 ip2region 离线库）
+//   xdb 文件由 Infrastructure.csproj 配置 CopyToOutputDirectory，发布后位于 bin 根目录
+var xdbPath = Path.Combine(AppContext.BaseDirectory, "ip2region_v4.xdb");
+if (!File.Exists(xdbPath))
+{
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine($"[ip2region] 警告：未找到 xdb 文件 {xdbPath}，IP 归属地查询将退化为「未知」");
+    Console.ResetColor();
+}
+builder.Services.AddIpLocation(xdbPath);
 
 // 1.5 添加 Swagger/OpenAPI 支持 (强烈建议：方便脱离前端，直接在浏览器测试接口)
 builder.Services.AddEndpointsApiExplorer();
@@ -89,12 +106,15 @@ if (app.Environment.IsDevelopment())
 // 2.2 启用跨域 (必须放在 UseRouting 和 UseAuthorization 之前)
 app.UseCors("AllowFrontend");
 
-// 2.3 路由与鉴权
+// 2.3 启用 wwwroot 静态文件服务（用于访问上传的头像 /uploads/avatars/xxx.png）
+app.UseStaticFiles();
+
+// 2.4 路由与鉴权
 app.UseRouting();
 // app.UseAuthentication(); // 如果后续加了 JWT 登录鉴权，请取消这行的注释
 app.UseAuthorization();
 
-// 2.4 映射控制器路由
+// 2.5 映射控制器路由
 app.MapControllers();
 
 // ==========================================

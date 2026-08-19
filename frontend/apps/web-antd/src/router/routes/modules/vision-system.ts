@@ -59,13 +59,35 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        name: 'VisionLog',
-        path: '/vision-system/log',
-        component: () => import('#/views/vision-archive/system/log/index.vue'),
         meta: {
           icon: 'lucide:file-text',
-          title: '操作日志',
+          title: '日志管理',
         },
+        name: 'VisionLog',
+        path: '/vision-system/log',
+        // 父路由不带页面，访问 /vision-system/log 默认重定向到操作日志，兼容老链接
+        redirect: '/vision-system/log/operation',
+        children: [
+          {
+            name: 'VisionOperationLog',
+            path: '/vision-system/log/operation',
+            component: () => import('#/views/vision-archive/system/log/index.vue'),
+            meta: {
+              title: '操作日志',
+            },
+          },
+          {
+            name: 'VisionLoginLog',
+            path: '/vision-system/log/login',
+            component: () => import(
+              '#/views/vision-archive/system/log/login_index.vue'
+            ),
+            meta: {
+              icon: 'lucide:key-round',
+              title: '登录日志',
+            },
+          },
+        ],
       },
     ],
   },

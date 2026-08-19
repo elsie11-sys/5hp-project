@@ -12,6 +12,14 @@ public interface IApplicationDbContext
     DbSet<SysRole> Roles { get; set; }
     DbSet<SysMenu> Menus { get; set; }
     DbSet<SysRoleMenu> RoleMenus { get; set; }
+    DbSet<Student> Students { get; set; }
+    DbSet<VisionRecord> VisionRecords { get; set; }
+    DbSet<OralRecord> OralRecords { get; set; }
+    DbSet<MentalRecord> MentalRecords { get; set; }
+    DbSet<WeightRecord> WeightRecords { get; set; }
+    DbSet<BoneRecord> BoneRecords { get; set; }
+    DbSet<SysOperationLog> OperationLogs { get; set; }
+    DbSet<SysLoginLog> LoginLogs { get; set; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

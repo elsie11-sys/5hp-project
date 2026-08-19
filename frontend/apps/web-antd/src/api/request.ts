@@ -15,6 +15,8 @@ import { useAccessStore } from '@vben/stores';
 
 import { message } from 'ant-design-vue';
 
+import { useUserStore } from '@vben/stores';
+
 import { useAuthStore } from '#/store';
 
 import { refreshTokenApi } from './core';
@@ -67,6 +69,19 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
 
       config.headers.Authorization = formatToken(accessStore.accessToken);
       config.headers['Accept-Language'] = preferences.app.locale;
+
+      // 把当前登录用户名塞到 X-Operator 头里，给后端 OperationLogFilter 写操作日志用
+      // userInfo 在登录后由 userStore 写入；未登录时跳过
+      try {
+        const userStore = useUserStore();
+        const userInfo = (userStore as any).userInfo as { realName?: string; username?: string } | null;
+        const operator = userInfo?.realName || userInfo?.username;
+        if (operator) {
+          config.headers['X-Operator'] = operator;
+        }
+      } catch {
+        // 取不到就当没传，不影响请求
+      }
       return config;
     },
   });

@@ -494,16 +494,88 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <style scoped>
 /*
- * 分页器：用 vxe-pager 默认的右对齐紧凑排列（Total → Sizes → 分页按钮 → FullJump），
- * 与设计稿红圈标出的样式一致。不要再加 flex / order / auto margin 把它们撑开。
- *
- * 唯一额外调整：把分页按钮激活色统一成项目主色 #52c41a（绿色），与设计稿一致。
+ * 分页器样式：antd 默认浅色风格 + 靠右对齐
  */
+:deep(.vxe-pager) {
+  background: #fff !important;
+  border-top: 1px solid #f0f0f0 !important;
+  border-radius: 0 !important;
+  padding: 12px 16px !important;
+  min-height: auto !important;
+  font-size: 13px !important;
+  color: rgba(0, 0, 0, 0.65) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+:deep(.vxe-pager .vxe-pager--total) {
+  color: rgba(0, 0, 0, 0.65) !important;
+  font-size: 13px !important;
+  margin-right: 0 !important;
+}
+:deep(.vxe-pager .vxe-pager--btn),
+:deep(.vxe-pager--num-btn) {
+  background: #f5f5f5 !important;
+  border: 1px solid transparent !important;
+  color: rgba(0, 0, 0, 0.65) !important;
+  font-size: 13px !important;
+  min-width: 32px !important;
+  height: 30px !important;
+  margin: 0 !important;
+  border-radius: 4px !important;
+  padding: 0 8px !important;
+  transition: all 0.2s ease !important;
+}
+:deep(.vxe-pager .vxe-pager--btn:hover),
+:deep(.vxe-pager--num-btn:hover) {
+  color: #52c41a !important;
+  background: #f5f5f5 !important;
+  border-color: transparent !important;
+}
+:deep(.vxe-pager .vxe-pager--btn.is--active),
 :deep(.vxe-pager--num-btn.is--active),
 :deep(.vxe-pager--num-btn.active) {
-  background-color: #52c41a;
-  border-color: #52c41a;
-  color: #fff;
+  background: #52c41a !important;
+  border-color: #52c41a !important;
+  color: #fff !important;
+  font-weight: 500 !important;
+}
+:deep(.vxe-pager .vxe-pager--btn.is--disabled) {
+  color: rgba(0, 0, 0, 0.25) !important;
+  cursor: not-allowed !important;
+  background: #f5f5f5 !important;
+  border-color: transparent !important;
+}
+:deep(.vxe-pager .vxe-pager--sizes) {
+  margin: 0 !important;
+}
+:deep(.vxe-pager .vxe-pager--sizes select),
+:deep(.vxe-pager .vxe-pager--jump input) {
+  background: #fff !important;
+  border: 1px solid #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.85) !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  height: 30px !important;
+  padding: 0 8px !important;
+  transition: all 0.2s ease !important;
+}
+:deep(.vxe-pager .vxe-pager--sizes select:focus),
+:deep(.vxe-pager .vxe-pager--jump input:focus) {
+  outline: none !important;
+  border-color: #52c41a !important;
+}
+:deep(.vxe-pager .vxe-pager--jump) {
+  color: rgba(0, 0, 0, 0.65) !important;
+  font-size: 13px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+:deep(.vxe-pager .vxe-pager--jump input) {
+  width: 50px !important;
+  text-align: center !important;
 }
 
 :deep(.ant-tag-green) {

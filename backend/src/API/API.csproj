@@ -21,4 +21,19 @@
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
+  <!-- wwwroot 静态资源（头像上传 /uploads/...）随 build 一起拷贝到 bin/Debug/net8.0/wwwroot -->
+  <ItemGroup>
+    <Content Update="wwwroot\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- 把 Infrastructure 项目里的 ip2region xdb 复制到 API 的 bin 根目录 -->
+  <Target Name="CopyIp2RegionXdb" AfterTargets="Build">
+    <ItemGroup>
+      <_Xdb Include="..\Infrastructure\Resources\ip2region_v4.xdb" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_Xdb)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>

@@ -315,6 +315,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
       enabled: true,
       pageSize: 10,
       pageSizes: [10, 20, 50, 100],
+      layouts: [
+        'Total',
+        'Sizes',
+        'PrevPage',
+        'JumpNumber',
+        'NextPage',
+        'FullJump',
+      ],
     },
     toolbarConfig: {
       custom: true,
@@ -563,74 +571,85 @@ onMounted(async () => {
   background: #f5f5f5;
 }
 
-/* ========== 分页样式优化 ========== */
+/* ========== 分页样式（antd 默认浅色风格 + 靠右对齐） ========== */
 .grid-container :deep(.vxe-pager) {
-  background: #1f2937;
-  border-radius: 0 0 6px 6px;
-  padding: 6px 12px;
-  min-height: 36px;
-  font-size: 13px;
+  background: #fff !important;
+  border-top: 1px solid #f0f0f0 !important;
+  border-radius: 0 !important;
+  padding: 12px 16px !important;
+  min-height: auto !important;
+  font-size: 13px !important;
+  color: rgba(0, 0, 0, 0.65) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 8px !important;
 }
 
 .grid-container :deep(.vxe-pager .vxe-pager--total) {
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 13px;
-  margin-right: 8px;
+  color: rgba(0, 0, 0, 0.65) !important;
+  font-size: 13px !important;
+  margin-right: 0 !important;
 }
 
 .grid-container :deep(.vxe-pager .vxe-pager--btn) {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 13px;
-  min-width: 28px;
-  height: 28px;
-  margin: 0 2px;
-  border-radius: 4px;
-  padding: 0 6px;
+  background: #f5f5f5 !important;
+  border: 1px solid transparent !important;
+  color: rgba(0, 0, 0, 0.65) !important;
+  font-size: 13px !important;
+  min-width: 32px !important;
+  height: 30px !important;
+  margin: 0 !important;
+  border-radius: 4px !important;
+  padding: 0 8px !important;
+  transition: all 0.2s ease !important;
 }
 .grid-container :deep(.vxe-pager .vxe-pager--btn:hover) {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  color: #52c41a !important;
+  background: #f5f5f5 !important;
+  border-color: transparent !important;
 }
 .grid-container :deep(.vxe-pager .vxe-pager--btn.is--active) {
-  color: #fff;
-  background: #3b82f6;
-  font-weight: 600;
+  background: #52c41a !important;
+  border-color: #52c41a !important;
+  color: #fff !important;
+  font-weight: 500 !important;
 }
 .grid-container :deep(.vxe-pager .vxe-pager--btn.is--disabled) {
-  color: rgba(255, 255, 255, 0.25);
-  cursor: not-allowed;
-  background: transparent;
+  color: rgba(0, 0, 0, 0.25) !important;
+  cursor: not-allowed !important;
+  background: #f5f5f5 !important;
+  border-color: transparent !important;
 }
 
 .grid-container :deep(.vxe-pager .vxe-pager--sizes) {
-  margin: 0 8px;
+  margin: 0 !important;
 }
 .grid-container :deep(.vxe-pager .vxe-pager--sizes select),
 .grid-container :deep(.vxe-pager .vxe-pager--jump input) {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  border-radius: 4px;
-  font-size: 13px;
-  padding: 2px 6px;
-  height: 28px;
+  background: #fff !important;
+  border: 1px solid #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.85) !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  height: 30px !important;
+  padding: 0 8px !important;
+  transition: all 0.2s ease !important;
 }
 .grid-container :deep(.vxe-pager .vxe-pager--sizes select:focus),
 .grid-container :deep(.vxe-pager .vxe-pager--jump input:focus) {
-  outline: none;
-  border-color: #3b82f6;
+  outline: none !important;
+  border-color: #52c41a !important;
 }
 .grid-container :deep(.vxe-pager .vxe-pager--jump) {
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  color: rgba(0, 0, 0, 0.65) !important;
+  font-size: 13px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
 }
 .grid-container :deep(.vxe-pager .vxe-pager--jump input) {
-  width: 48px;
-  text-align: center;
+  width: 50px !important;
+  text-align: center !important;
 }
 </style>

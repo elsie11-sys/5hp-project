@@ -238,3 +238,15 @@ D:\5HP_ProjectD\backend\src\API\obj\Debug\net8.0\refint\API.dll
 D:\5HP_ProjectD\backend\src\API\obj\Debug\net8.0\API.pdb
 D:\5HP_ProjectD\backend\src\API\obj\Debug\net8.0\API.genruntimeconfig.cache
 D:\5HP_ProjectD\backend\src\API\obj\Debug\net8.0\ref\API.dll
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\wwwroot\uploads\avatars\20260818161022_09f56f790b204122ab4c49c1d8a5592d.jpg
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\wwwroot\uploads\avatars\20260818161033_021bd561843446c5a97e8f9e4071c266.jpg
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\wwwroot\uploads\avatars\20260818161309_3fe03a157f4541a5bbc1fe7a7477b282.jpg
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\wwwroot\uploads\avatars\20260818161850_fc7f46b444ad4326895f529a4670d168.jpg
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\API.staticwebassets.runtime.json
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\wwwroot\uploads\avatars\20260818162342_de690e3b5a4a4eb7b9be6146e4cff7d5.jpg
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\wwwroot\uploads\avatars\20260818162354_946669ffa2b84ff2ba07d62bc1f51d80.jpg
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\wwwroot\uploads\avatars\20260818164112_574ddf36e517484c9d6d5214a2351d2f.jpg
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\wwwroot\uploads\avatars\20260818164231_cbcf88f6692c4948a2cb65a0b4883d6f.jpg
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\wwwroot\uploads\avatars\20260818164253_390de5629f1f4ab390ef51d799a6af51.jpg
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\Resources\ip2region_v4.xdb
+E:\5HP_Project\backend\src\API\bin\Debug\net8.0\IP2Region.Net.dll

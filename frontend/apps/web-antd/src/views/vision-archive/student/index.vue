@@ -1,8 +1,23 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
 import { message, Modal } from 'ant-design-vue';
 import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons-vue';
+import {
+  studentApi,
+  mapDtoToForm,
+  uploadAvatar,
+  type BackendStudentDto,
+  type StudentForm,
+} from '#/api/vision-archive/student';
+import {
+  healthArchiveApi,
+  type VisionRecordDto,
+  type OralRecordDto,
+  type MentalRecordDto,
+  type WeightRecordDto,
+  type BoneRecordDto,
+} from '#/api/vision-archive/health-archive';
 
 // ================= Theme Detection =================
 const isLight = ref(false);
@@ -24,87 +39,77 @@ const searchForm = reactive({
   school: '',
   grade: '',
   name: '',
-  intervention: '',
+  intervention: '' as '' | 'true' | 'false',
 });
 
 // ================= 2. 数据管理 =================
-const initialData = [
-  {
-    id: 1, studentNo: '2022001', avatar: '👦', gradeYear: '2022级', school: '淮安外国语学校', className: '七年级五班', name: '陈熙航', gender: '男', nation: '汉族', birthday: '2011-02-18', idCard: '320829201108090012', nativePlace: '江苏淮安', address: '江苏淮安淮安区淮安区新城广场22栋',
-    parentPhone: '15952305677', parentContact: 'chenxh_2022', allergyHistory: '未知', fatherMyopia: '未知', motherMyopia: '未知', dataSource: 'sjwjuser1', intervention: true
-  },
-  {
-    id: 2, studentNo: '2022002', avatar: '👦', gradeYear: '2022级', school: '淮安外国语学校', className: '七年级五班', name: '席振轩', gender: '男', nation: '汉族', birthday: '2011-08-09', idCard: '320829201108090012', nativePlace: '江苏淮安', address: '江苏淮安淮安区小区8栋301',
-    parentPhone: '15949198257', parentContact: 'xizhenxuan', allergyHistory: '未知', fatherMyopia: '未知', motherMyopia: '未知', dataSource: 'sjwjuser1', intervention: false
-  },
-  {
-    id: 3, studentNo: '2022003', avatar: '👧', gradeYear: '2022级', school: '淮安外国语学校', className: '七年级五班', name: '丁书婉', gender: '女', nation: '汉族', birthday: '2011-02-12', idCard: '320831201102121422', nativePlace: '江苏淮安', address: '江苏淮安淮安区花苑3栋502',
-    parentPhone: '13952371506', parentContact: 'dingshuwan', allergyHistory: '未知', fatherMyopia: '未知', motherMyopia: '未知', dataSource: 'sjwjuser1', intervention: false
-  },
-  {
-    id: 4, studentNo: '2022004', avatar: '👧', gradeYear: '2022级', school: '淮安外国语学校', className: '七年级五班', name: '周梓萌', gender: '女', nation: '汉族', birthday: '2011-03-14', idCard: '320803201103140048', nativePlace: '江苏淮安', address: '江苏淮安淮安区小区1幢2单元403',
-    parentPhone: '13952390315', parentContact: 'zhouzimeng', allergyHistory: '未知', fatherMyopia: '未知', motherMyopia: '未知', dataSource: 'sjwjuser1', intervention: true
-  },
-  {
-    id: 5, studentNo: '2022005', avatar: '👦', gradeYear: '2022级', school: '淮安外国语学校', className: '七年级五班', name: '朱宇土', gender: '男', nation: '汉族', birthday: '2011-05-02', idCard: '320831201105021422', nativePlace: '江苏淮安', address: '江苏淮安淮安区小区9栋304',
-    parentPhone: '15152566388', parentContact: 'zhuyutu', allergyHistory: '未知', fatherMyopia: '未知', motherMyopia: '未知', dataSource: 'sjwjuser1', intervention: false
-  },
-  {
-    id: 6, studentNo: '2022006', avatar: '👦', gradeYear: '2022级', school: '淮安外国语学校', className: '七年级五班', name: '招崧熙', gender: '男', nation: '汉族', birthday: '2010-11-23', idCard: '320831201011232637', nativePlace: '江苏淮安', address: '江苏淮安淮安区小区2栋1001',
-    parentPhone: '13805285721', parentContact: 'zhaosongxi', allergyHistory: '未知', fatherMyopia: '未知', motherMyopia: '未知', dataSource: 'sjwjuser1', intervention: false
-  },
-];
-
-const tableData = ref(initialData);
-let nextId = 7;
+const tableData = ref<BackendStudentDto[]>([]);
+const loading = ref(false);
+const totalCount = ref(0);
 
 // ================= 3. 分页状态 =================
 const currentPage = ref(1);
-const pageSize = 5;
+const pageSize = ref(10);
+const pageSizeOptions = [10, 20, 50, 100];
+const jumpPage = ref<number | null>(null);
 
-// ================= 4. 过滤 & 分页计算 =================
-const filteredData = computed(() => {
-  return tableData.value.filter(item => {
-    const matchSchool = searchForm.school ? item.school === searchForm.school : true;
-    const matchGrade = searchForm.grade ? item.className === searchForm.grade : true;
-    const matchName = searchForm.name ? item.name.includes(searchForm.name) : true;
-    let matchIntervention = true;
-    if (searchForm.intervention === 'true') matchIntervention = item.intervention === true;
-    else if (searchForm.intervention === 'false') matchIntervention = item.intervention === false;
-    return matchSchool && matchGrade && matchName && matchIntervention;
-  });
-});
+// ================= 4. 加载数据 =================
+async function loadList() {
+  loading.value = true;
+  try {
+    const intervention =
+      searchForm.intervention === 'true'
+        ? true
+        : searchForm.intervention === 'false'
+        ? false
+        : undefined;
 
-const totalCount = computed(() => filteredData.value.length);
-const totalPages = computed(() => Math.ceil(totalCount.value / pageSize));
-const pagedData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize;
-  const end = start + pageSize;
-  return filteredData.value.slice(start, end);
-});
+    const res = await studentApi.getPagedList({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      school: searchForm.school || undefined,
+      className: searchForm.grade || undefined, // 搜索条件里的 grade 实际就是班级
+      name: searchForm.name || undefined,
+      intervention,
+    });
+    tableData.value = res.items;
+    totalCount.value = res.total;
+  } catch (e: any) {
+    // 错误提示由 requestClient 的 errorMessageResponseInterceptor 统一处理
+    tableData.value = [];
+    totalCount.value = 0;
+  } finally {
+    loading.value = false;
+  }
+}
+
+const totalPages = computed(() => Math.max(1, Math.ceil(totalCount.value / pageSize.value)));
+const pagedData = computed(() => tableData.value);
 
 const resetPage = () => { currentPage.value = 1; };
 
 // ================= 5. 搜索 / 重置 =================
-const handleSearch = () => {
+const handleSearch = async () => {
   resetPage();
-  message.success('已搜索');
+  await loadList();
 };
 
-const handleReset = () => {
+const handleReset = async () => {
   searchForm.school = '';
   searchForm.grade = '';
   searchForm.name = '';
   searchForm.intervention = '';
   resetPage();
-  handleSearch();
+  await loadList();
 };
 
 // ================= 6. 新增 / 编辑弹窗 =================
 const modalVisible = ref(false);
 const modalTitle = ref('新增学生');
 const isEdit = ref(false);
-const formData = reactive({
+const submitting = ref(false);
+
+const defaultForm = (): StudentForm => ({
   id: 0,
   studentNo: '',
   avatar: '👦',
@@ -127,71 +132,207 @@ const formData = reactive({
   intervention: false,
 });
 
+const formData = reactive<StudentForm>(defaultForm());
+
+// ================= 6.1 头像上传 =================
+const avatarInputRef = ref<HTMLInputElement | null>(null);
+const avatarUploading = ref(false);
+
+// 根据性别返回默认 emoji 头像（男=👦，女=👧，其他=👦）
+const defaultAvatar = computed(() => (formData.gender === '女' ? '👧' : '👦'));
+
+// 判断当前 avatar 是否为图片（后端 URL、绝对链接、base64）
+const isAvatarImage = computed(() => {
+  const v = formData.avatar;
+  if (!v) return false;
+  return (
+    v.startsWith('data:image') ||
+    /^https?:\/\//.test(v) ||
+    v.startsWith('/uploads/') ||
+    v.startsWith('uploads/')
+  );
+});
+
+const triggerAvatarInput = () => {
+  avatarInputRef.value?.click();
+};
+
+/**
+ * 把图片 File 压缩到 maxSide px，最长边不超过 maxSide，输出 JPEG Blob。
+ * 用于上传前压缩，避免原图太大上传慢。
+ */
+const compressImage = (file: File, maxSide = 512, quality = 0.85): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        let { width, height } = img;
+        if (width > maxSide || height > maxSide) {
+          if (width >= height) {
+            height = Math.round((height * maxSide) / width);
+            width = maxSide;
+          } else {
+            width = Math.round((width * maxSide) / height);
+            height = maxSide;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          URL.revokeObjectURL(url);
+          reject(new Error('canvas 不可用'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            URL.revokeObjectURL(url);
+            if (!blob) {
+              reject(new Error('压缩失败'));
+              return;
+            }
+            resolve(blob);
+          },
+          'image/jpeg',
+          quality,
+        );
+      } catch (err) {
+        URL.revokeObjectURL(url);
+        reject(err);
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('图片加载失败'));
+    };
+    img.src = url;
+  });
+};
+
+const handleAvatarChange = async (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  const file = target.files?.[0];
+  // 允许重复选择同一张图
+  target.value = '';
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    message.warning('请选择图片文件');
+    return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    message.warning('图片大小不能超过 2MB');
+    return;
+  }
+
+  avatarUploading.value = true;
+  try {
+    // 先压缩（最长边 512、JPEG 质量 0.85），再上传
+    const blob = await compressImage(file);
+    const res = await uploadAvatar(blob, `avatar_${Date.now()}.jpg`);
+    formData.avatar = res.url; // 后端返回的相对 URL，例如 /uploads/avatars/xxx.jpg
+    message.success('头像上传成功');
+  } catch (err: any) {
+    // 错误已由 requestClient 统一处理，这里仅给一个轻提示
+    message.error(err?.message || '头像上传失败');
+  } finally {
+    avatarUploading.value = false;
+  }
+};
+
+const clearAvatar = () => {
+  // 清除自定义头像，回退到根据当前性别动态计算的默认 emoji
+  formData.avatar = defaultAvatar.value;
+};
+
+/**
+ * 把后端返回的相对路径（如 /uploads/avatars/xxx.png）拼成可访问的完整 URL。
+ * 绝对 URL、base64、空值原样返回。
+ */
+const resolveAvatarUrl = (avatar: string): string => {
+  if (!avatar) return '';
+  if (
+    avatar.startsWith('data:image') ||
+    avatar.startsWith('http://') ||
+    avatar.startsWith('https://') ||
+    avatar.startsWith('blob:')
+  ) {
+    return avatar;
+  }
+  // 相对路径：拼当前 origin
+  if (avatar.startsWith('/')) {
+    return `${window.location.origin}${avatar}`;
+  }
+  return `${window.location.origin}/${avatar}`;
+};
+
+/** 判断行级 avatar 是否为图片（用于表格列） */
+const isRowAvatarImage = (avatar: string): boolean => {
+  if (!avatar) return false;
+  return (
+    avatar.startsWith('data:image') ||
+    /^https?:\/\//.test(avatar) ||
+    avatar.startsWith('/uploads/') ||
+    avatar.startsWith('uploads/')
+  );
+};
+
 const handleAdd = () => {
   isEdit.value = false;
   modalTitle.value = '新增学生';
-  Object.assign(formData, {
-    id: 0,
-    studentNo: '',
-    avatar: '👦',
-    gradeYear: '',
-    school: '',
-    className: '',
-    name: '',
-    gender: '男',
-    nation: '汉族',
-    birthday: '',
-    idCard: '',
-    nativePlace: '',
-    address: '',
-    parentPhone: '',
-    parentContact: '',
-    allergyHistory: '未知',
-    fatherMyopia: '未知',
-    motherMyopia: '未知',
-    dataSource: '手动录入',
-    intervention: false,
-  });
+  Object.assign(formData, defaultForm());
   modalVisible.value = true;
 };
 
-const handleEditStudent = (record: any) => {
+const handleEditStudent = (record: BackendStudentDto) => {
   isEdit.value = true;
   modalTitle.value = '编辑学生';
-  Object.assign(formData, record);
+  Object.assign(formData, mapDtoToForm(record));
   modalVisible.value = true;
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (!formData.name || !formData.studentNo) {
     message.warning('请填写姓名和学号');
     return;
   }
-  if (isEdit.value) {
-    const index = tableData.value.findIndex(item => item.id === formData.id);
-    if (index !== -1) {
-      tableData.value[index] = { ...formData };
+  submitting.value = true;
+  try {
+    if (isEdit.value) {
+      await studentApi.update(formData.id!, { ...formData });
       message.success('编辑成功');
+    } else {
+      await studentApi.create({ ...formData });
+      message.success('新增成功');
     }
-  } else {
-    formData.id = nextId++;
-    tableData.value.push({ ...formData });
-    message.success('新增成功');
+    modalVisible.value = false;
+    await loadList();
+  } catch (e: any) {
+    // 错误提示已由 requestClient 统一处理
+  } finally {
+    submitting.value = false;
   }
-  modalVisible.value = false;
-  resetPage();
 };
 
 // ================= 7. 删除 =================
-const handleDelete = (record: any) => {
+const handleDelete = (record: BackendStudentDto) => {
   Modal.confirm({
     title: '确认删除',
     content: `确定要删除学生 ${record.name} 的档案吗？`,
-    onOk: () => {
-      tableData.value = tableData.value.filter(item => item.id !== record.id);
-      message.success('删除成功');
-      if (pagedData.value.length === 0 && currentPage.value > 1) {
-        currentPage.value--;
+    okButtonProps: { danger: true },
+    onOk: async () => {
+      try {
+        await studentApi.delete(record.id);
+        message.success('删除成功');
+        // 如果当前页被删空，自动回退一页
+        if (pagedData.value.length === 1 && currentPage.value > 1) {
+          currentPage.value--;
+        }
+        await loadList();
+      } catch (e: any) {
+        // 错误由拦截器统一处理
       }
     }
   });
@@ -205,24 +346,36 @@ const handleBatchDelete = () => {
   Modal.confirm({
     title: '确认批量删除',
     content: `确定要删除选中的 ${selectedRowKeys.value.length} 名学生吗？`,
-    onOk: () => {
-      tableData.value = tableData.value.filter(item => !selectedRowKeys.value.includes(item.id));
-      selectedRowKeys.value = [];
-      message.success('批量删除成功！');
-      if (pagedData.value.length === 0 && currentPage.value > 1) {
-        currentPage.value--;
+    okButtonProps: { danger: true },
+    onOk: async () => {
+      try {
+        const res = await studentApi.batchDelete(selectedRowKeys.value);
+        message.success(res.message || '批量删除成功！');
+        selectedRowKeys.value = [];
+        if (pagedData.value.length === 0 && currentPage.value > 1) {
+          currentPage.value--;
+        }
+        await loadList();
+      } catch (e: any) {
+        // 错误由拦截器统一处理
       }
     }
   });
 };
 
-const toggleIntervention = (row: any) => {
-  row.intervention = !row.intervention;
-  message.success(`已${row.intervention ? '开启' : '关闭'} ${row.name} 的干预状态`);
+const toggleIntervention = async (row: BackendStudentDto) => {
+  const next = !row.intervention;
+  try {
+    await studentApi.toggleIntervention(row.id, next);
+    row.intervention = next;
+    message.success(`已${next ? '开启' : '关闭'} ${row.name} 的干预状态`);
+  } catch (e: any) {
+    // 错误由拦截器统一处理
+  }
 };
 
 // ================= 8. 勾选状态 =================
-const selectedRowKeys = ref<any[]>([]);
+const selectedRowKeys = ref<number[]>([]);
 
 const toggleSelectAll = () => {
   const allIds = pagedData.value.map(item => item.id);
@@ -234,126 +387,198 @@ const toggleSelectAll = () => {
 };
 
 // ================= 9. 分页操作 =================
-const goToPage = (page: number) => {
-  if (page >= 1 && page <= totalPages.value) {
+const goToPage = async (page: number) => {
+  if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
     currentPage.value = page;
+    await loadList();
   }
 };
 
-const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--;
+const prevPage = async () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    await loadList();
+  }
 };
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++;
+const nextPage = async () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    await loadList();
+  }
 };
+
+// 跳转到指定页（从跳页输入框触发）
+const handleJump = async () => {
+  const p = Number(jumpPage.value);
+  if (!Number.isFinite(p) || p < 1) {
+    jumpPage.value = null;
+    return;
+  }
+  await goToPage(Math.min(p, totalPages.value));
+  jumpPage.value = null;
+};
+
+// 切换每页大小
+const handleSizeChange = async (size: number) => {
+  pageSize.value = size;
+  currentPage.value = 1;
+  await loadList();
+};
+
+// Element Plus 风格页码算法：左右各 2 个 + 1 + 1 ... + 末页
+// 例（total=164, current=1）: [1,2,3,4,5,6, '...', 164]
+// 例（total=164, current=80）: [1, '...', 78,79,80,81,82, '...', 164]
+// 例（total=164, current=160）: [1, '...', 159,160,161,162,163,164]
+const SIDE = 2;
+const displayedPages = computed<(number | '...')[]>(() => {
+  const total = totalPages.value;
+  const current = currentPage.value;
+  if (total <= 2 * SIDE + 5) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const result: (number | '...')[] = [];
+  if (current <= SIDE + 4) {
+    // 左侧不折叠
+    for (let i = 1; i <= SIDE + 4; i++) result.push(i);
+    result.push('...');
+    result.push(total);
+  } else if (current >= total - SIDE - 3) {
+    // 右侧不折叠
+    result.push(1);
+    result.push('...');
+    for (let i = total - (SIDE + 3); i <= total; i++) result.push(i);
+  } else {
+    // 两边都折叠
+    result.push(1);
+    result.push('...');
+    for (let i = current - SIDE; i <= current + SIDE; i++) result.push(i);
+    result.push('...');
+    result.push(total);
+  }
+  return result;
+});
+
+// ================= 9.1 性别变化时同步默认 emoji 头像 =================
+// 仅在当前 avatar 是默认 emoji（不是用户上传的图片）时，才跟着性别切换。
+watch(
+  () => formData.gender,
+  () => {
+    if (!isAvatarImage.value) {
+      formData.avatar = defaultAvatar.value;
+    }
+  },
+);
 
 // ================= 10. 学生详情弹窗 =================
 const studentDetailVisible = ref(false);
-const currentStudent = ref<any>(null);
+const currentStudent = ref<BackendStudentDto | null>(null);
 const activeDetailTab = ref('vision');
+const detailLoading = ref(false);
 
-const studentDetailData = ref({
-  vision: {
-    leftEye: '4.8',
-    rightEye: '4.9',
-    visionLevel: '轻度近视',
-    checkDate: '2026-06-28',
-    history: [
-      { date: '2026-06-28', left: '4.8', right: '4.9', level: '轻度近视' },
-      { date: '2026-03-15', left: '4.7', right: '4.8', level: '轻度近视' },
-      { date: '2025-12-01', left: '4.9', right: '4.9', level: '正常' },
-    ]
-  },
-  oral: {
-    toothStatus: '良好',
-    cavityCount: 0,
-    lastCheck: '2026-06-20',
-    history: [
-      { date: '2026-06-20', status: '良好', cavity: 0 },
-      { date: '2026-03-10', status: '良好', cavity: 0 },
-      { date: '2025-11-15', status: '轻微龋齿', cavity: 1 },
-    ]
-  },
-  mental: {
-    stressLevel: '轻度',
-    sleepQuality: '良好',
-    moodStatus: '稳定',
-    lastCheck: '2026-06-25',
-    history: [
-      { date: '2026-06-25', stress: '轻度', sleep: '良好', mood: '稳定' },
-      { date: '2026-04-20', stress: '中度', sleep: '一般', mood: '波动' },
-      { date: '2026-02-10', stress: '轻度', sleep: '良好', mood: '稳定' },
-    ]
-  },
-  weight: {
-    height: '165cm',
-    weight: '52kg',
-    bmi: '19.1',
-    bmiLevel: '正常',
-    waistCircumference: '68cm',
-    hipCircumference: '88cm',
-    whr: '0.77',
-    lastCheck: '2026-06-28',
-    history: [
-      { date: '2026-06-28', height: '165cm', weight: '52kg', bmi: '19.1', bmiLevel: '正常', waist: '68cm', hip: '88cm', whr: '0.77' },
-      { date: '2026-03-15', height: '163cm', weight: '50kg', bmi: '18.8', bmiLevel: '正常', waist: '66cm', hip: '86cm', whr: '0.77' },
-      { date: '2025-12-01', height: '160cm', weight: '48kg', bmi: '18.8', bmiLevel: '正常', waist: '64cm', hip: '84cm', whr: '0.76' },
-    ]
-  },
-  bone: {
-    boneDensity: '正常',
-    boneAge: '12岁',
-    vitaminD: '充足',
-    calciumLevel: '正常',
-    lastCheck: '2026-06-20',
-    history: [
-      { date: '2026-06-20', boneDensity: '正常', boneAge: '12岁', vitaminD: '充足', calcium: '正常' },
-      { date: '2026-03-10', boneDensity: '正常', boneAge: '11.5岁', vitaminD: '充足', calcium: '正常' },
-      { date: '2025-11-15', boneDensity: '正常', boneAge: '11岁', vitaminD: '良好', calcium: '正常' },
-    ]
+// 5 个健康维度的历史记录
+const visionRecords = ref<VisionRecordDto[]>([]);
+const oralRecords = ref<OralRecordDto[]>([]);
+const mentalRecords = ref<MentalRecordDto[]>([]);
+const weightRecords = ref<WeightRecordDto[]>([]);
+const boneRecords = ref<BoneRecordDto[]>([]);
+
+// 计算属性：最新一条（数组第一项 = 后端按 check_date desc 已排好）
+const latestVision = computed(() => visionRecords.value[0]);
+const latestOral = computed(() => oralRecords.value[0]);
+const latestMental = computed(() => mentalRecords.value[0]);
+const latestWeight = computed(() => weightRecords.value[0]);
+const latestBone = computed(() => boneRecords.value[0]);
+
+async function loadHealthArchives(studentId: number) {
+  detailLoading.value = true;
+  try {
+    // 5 个维度并发拉取
+    const [v, o, m, w, b] = await Promise.all([
+      healthArchiveApi.vision.getByStudent(studentId),
+      healthArchiveApi.oral.getByStudent(studentId),
+      healthArchiveApi.mental.getByStudent(studentId),
+      healthArchiveApi.weight.getByStudent(studentId),
+      healthArchiveApi.bone.getByStudent(studentId),
+    ]);
+    visionRecords.value = v;
+    oralRecords.value = o;
+    mentalRecords.value = m;
+    weightRecords.value = w;
+    boneRecords.value = b;
+  } catch (e: any) {
+    // 错误由拦截器统一处理
+    visionRecords.value = [];
+    oralRecords.value = [];
+    mentalRecords.value = [];
+    weightRecords.value = [];
+    boneRecords.value = [];
+  } finally {
+    detailLoading.value = false;
   }
-});
+}
 
-const handleStudentNoClick = (record: any) => {
+const handleStudentNoClick = async (record: BackendStudentDto) => {
   currentStudent.value = record;
   studentDetailVisible.value = true;
   activeDetailTab.value = 'vision';
+  await loadHealthArchives(record.id);
 };
 
 const closeDetailModal = () => {
   studentDetailVisible.value = false;
   currentStudent.value = null;
+  // 清空 5 个维度数据，避免下次打开看到上次学生的内容
+  visionRecords.value = [];
+  oralRecords.value = [];
+  mentalRecords.value = [];
+  weightRecords.value = [];
+  boneRecords.value = [];
 };
 
 const switchDetailTab = (tab: string) => {
   activeDetailTab.value = tab;
 };
 
-const handlePrintStudent = (record: any) => {
+const handlePrintStudent = (record: BackendStudentDto) => {
   message.info(`打印学生 ${record.name} 的档案`);
 };
 
 const route = useRoute();
 
-onMounted(() => {
+onMounted(async () => {
   applySystemTheme();
   observeTheme();
 
+  // 首次进入页面时拉第一页
+  await loadList();
+
+  // 支持通过 ?studentId=xxx 路由参数定位学生
   const studentId = route.query.studentId as string;
   if (studentId) {
-    const student = tableData.value.find(
-      (item: any) => String(item.studentNo) === studentId || String(item.id) === studentId
+    let student = tableData.value.find(
+      (item) => String(item.studentNo) === studentId || String(item.id) === studentId
     );
+    if (!student) {
+      // 列表里没命中，主动去后端查
+      try {
+        student = await studentApi.getByNo(studentId);
+      } catch (_e) {
+        // 找不到也无所谓，当作未命中处理
+      }
+    }
     if (student) {
       searchForm.name = student.name;
       resetPage();
+      await loadList();
       message.success(`已定位到学生：${student.name}`);
       setTimeout(() => {
-        handleStudentNoClick(student);
-      }, 300);
+        handleStudentNoClick(student!);
+      }, 200);
     } else {
+      // 既然是路由定位，把学号放进搜索框尝试模糊匹配
       searchForm.name = studentId;
       resetPage();
+      await loadList();
       message.info('未在现有档案中找到该学生，可手动查询');
     }
   }
@@ -408,7 +633,7 @@ onBeforeUnmount(() => {
           <div class="header-stats">
             <div class="stat-item">
               <span class="stat-label">档案总数</span>
-              <span class="stat-value">{{ filteredData.length }}</span>
+              <span class="stat-value">{{ totalCount }}</span>
             </div>
             <span class="stat-divider"></span>
             <div class="stat-item">
@@ -516,7 +741,6 @@ onBeforeUnmount(() => {
                 <th class="col-mother">母亲近视</th>
                 <th class="col-source">数据来源</th>
                 <th class="col-intervention">是否干预</th>
-                <th class="col-action">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -526,7 +750,10 @@ onBeforeUnmount(() => {
                     <input type="checkbox" :value="row.id" v-model="selectedRowKeys" class="tech-checkbox" />
                   </td>
                   <td class="col-avatar">
-                    <div class="avatar-circle">{{ row.avatar }}</div>
+                    <div class="avatar-circle">
+                      <img v-if="isRowAvatarImage(row.avatar)" :src="resolveAvatarUrl(row.avatar)" class="avatar-circle__img" />
+                      <span v-else>{{ row.avatar }}</span>
+                    </div>
                   </td>
                   <td class="col-student-no">
                     <span @click="handleStudentNoClick(row)" class="student-no-link">{{ row.studentNo }}</span>
@@ -552,23 +779,13 @@ onBeforeUnmount(() => {
                       {{ row.intervention ? '是' : '否' }}
                     </span>
                   </td>
-                  <td class="col-action">
-                    <div class="action-btns">
-                      <button @click="handleEditStudent(row)" class="icon-btn icon-btn-success" title="编辑">
-                        <EditOutlined />
-                      </button>
-                      <button @click="handleDelete(row)" class="icon-btn icon-btn-danger" title="删除">
-                        <DeleteOutlined />
-                      </button>
-                    </div>
-                  </td>
                 </tr>
               </template>
               <tr v-else>
                 <td colspan="21" class="empty-state">
                   <div class="empty-content">
-                    <span class="empty-icon">📭</span>
-                    <span class="empty-text">暂无数据</span>
+                    <span class="empty-icon">{{ loading ? '⏳' : '📭' }}</span>
+                    <span class="empty-text">{{ loading ? '数据加载中…' : '暂无数据' }}</span>
                   </div>
                 </td>
               </tr>
@@ -576,22 +793,124 @@ onBeforeUnmount(() => {
           </table>
         </div>
 
-        <!-- 分页器 -->
+        <!-- 浮动操作列：从表格中独立出来，钉在 .table-panel 视口最右 -->
+        <div class="floating-actions">
+          <div class="floating-actions__head">操作</div>
+          <div
+            v-for="(row, idx) in pagedData"
+            :key="row.id"
+            class="floating-actions__row"
+            :class="{ 'row-alt': idx % 2 === 1 }"
+          >
+            <div class="action-btns">
+              <button @click="handleEditStudent(row)" class="icon-btn icon-btn-success" title="编辑">
+                <EditOutlined />
+              </button>
+              <button @click="handleDelete(row)" class="icon-btn icon-btn-danger" title="删除">
+                <DeleteOutlined />
+              </button>
+            </div>
+          </div>
+          <!-- 空状态行：保持与表格 empty 行同高 -->
+          <div v-if="pagedData.length === 0" class="floating-actions__row floating-actions__row--empty"></div>
+        </div>
+
+        <!-- 分页器（Element Plus 风格：左 2 右 2 + 省略 + 末页 + 跳页 + 每页大小） -->
         <div class="pagination">
           <div class="pagination-info">共 {{ totalCount }} 条</div>
+
           <div class="pagination-controls">
-            <button @click="prevPage" :disabled="currentPage === 1" class="page-btn">上一页</button>
-            <template v-for="page in totalPages" :key="page">
-              <button v-if="page === currentPage" class="page-btn page-btn-active">{{ page }}</button>
-              <button v-else @click="goToPage(page)" class="page-btn">{{ page }}</button>
+            <!-- 上一页 -->
+            <button
+              class="page-btn page-btn-icon"
+              :disabled="currentPage === 1"
+              @click="prevPage"
+              title="上一页"
+            >
+              <span class="page-btn-chevron">‹</span>
+            </button>
+
+            <!-- 页码 + 省略号 -->
+            <template v-for="(item, idx) in displayedPages" :key="`${item}-${idx}`">
+              <span v-if="item === '...'" class="page-ellipsis">···</span>
+              <button
+                v-else
+                class="page-btn"
+                :class="{ 'page-btn-active': item === currentPage }"
+                @click="goToPage(item)"
+              >
+                {{ item }}
+              </button>
             </template>
-            <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn">下一页</button>
+
+            <!-- 下一页 -->
+            <button
+              class="page-btn page-btn-icon"
+              :disabled="currentPage === totalPages"
+              @click="nextPage"
+              title="下一页"
+            >
+              <span class="page-btn-chevron">›</span>
+            </button>
+          </div>
+
+          <!-- 每页大小 -->
+          <div class="pagination-sizes">
+            <select
+              class="tech-select pagination-size-select"
+              :value="pageSize"
+              @change="(e) => handleSizeChange(Number((e.target as HTMLSelectElement).value))"
+            >
+              <option v-for="opt in pageSizeOptions" :key="opt" :value="opt">{{ opt }} 条/页</option>
+            </select>
+          </div>
+
+          <!-- 跳页 -->
+          <div class="pagination-jumper">
+            前往
+            <input
+              v-model.number="jumpPage"
+              type="number"
+              min="1"
+              :max="totalPages"
+              class="tech-input pagination-jumper__input"
+              @keyup.enter="handleJump"
+            />
+            页
           </div>
         </div>
       </div>
 
       <!-- ================= 新增/编辑弹窗 ================= -->
-      <Modal v-model:open="modalVisible" :title="modalTitle" width="700px" @ok="handleSubmit" @cancel="modalVisible = false" class="tech-modal" :getContainer="false">
+      <Modal v-model:open="modalVisible" :title="modalTitle" width="700px" @ok="handleSubmit" @cancel="modalVisible = false" :confirmLoading="submitting" class="tech-modal" :getContainer="false">
+        <!-- 头像上传 -->
+        <div class="avatar-uploader">
+          <label class="avatar-uploader__label">头像</label>
+          <div class="avatar-uploader__main">
+            <div class="avatar-uploader__preview" @click="triggerAvatarInput" :title="isAvatarImage ? '点击更换头像' : '点击添加头像'">
+              <img v-if="isAvatarImage" :src="resolveAvatarUrl(formData.avatar)" class="avatar-uploader__img" />
+              <span v-else-if="formData.avatar" class="avatar-uploader__emoji">{{ formData.avatar }}</span>
+              <span v-else-if="avatarUploading" class="avatar-uploader__plus">…</span>
+              <span v-else class="avatar-uploader__plus">+</span>
+            </div>
+            <div class="avatar-uploader__actions">
+              <button type="button" class="avatar-uploader__btn" :disabled="avatarUploading" @click="triggerAvatarInput">
+                {{ avatarUploading ? '上传中…' : (isAvatarImage ? '更换' : '添加') }}
+              </button>
+              <button v-if="!avatarUploading && isAvatarImage" type="button" class="avatar-uploader__btn avatar-uploader__btn--ghost" @click="clearAvatar">
+                清除
+              </button>
+            </div>
+          </div>
+          <input
+            ref="avatarInputRef"
+            type="file"
+            accept="image/*"
+            style="display: none"
+            @change="handleAvatarChange"
+          />
+        </div>
+
         <div class="form-grid">
           <div class="form-item">
             <label class="form-label">学号 *</label>
@@ -610,7 +929,65 @@ onBeforeUnmount(() => {
           </div>
           <div class="form-item">
             <label class="form-label">民族</label>
-            <input v-model="formData.nation" class="tech-input" />
+            <select v-model="formData.nation" class="tech-select">
+              <option value="">请选择民族</option>
+              <option value="汉族">汉族</option>
+              <option value="蒙古族">蒙古族</option>
+              <option value="回族">回族</option>
+              <option value="藏族">藏族</option>
+              <option value="维吾尔族">维吾尔族</option>
+              <option value="苗族">苗族</option>
+              <option value="彝族">彝族</option>
+              <option value="壮族">壮族</option>
+              <option value="布依族">布依族</option>
+              <option value="朝鲜族">朝鲜族</option>
+              <option value="满族">满族</option>
+              <option value="侗族">侗族</option>
+              <option value="瑶族">瑶族</option>
+              <option value="白族">白族</option>
+              <option value="土家族">土家族</option>
+              <option value="哈尼族">哈尼族</option>
+              <option value="哈萨克族">哈萨克族</option>
+              <option value="傣族">傣族</option>
+              <option value="黎族">黎族</option>
+              <option value="傈僳族">傈僳族</option>
+              <option value="佤族">佤族</option>
+              <option value="畲族">畲族</option>
+              <option value="高山族">高山族</option>
+              <option value="拉祜族">拉祜族</option>
+              <option value="水族">水族</option>
+              <option value="东乡族">东乡族</option>
+              <option value="纳西族">纳西族</option>
+              <option value="景颇族">景颇族</option>
+              <option value="柯尔克孜族">柯尔克孜族</option>
+              <option value="土族">土族</option>
+              <option value="达斡尔族">达斡尔族</option>
+              <option value="仫佬族">仫佬族</option>
+              <option value="羌族">羌族</option>
+              <option value="布朗族">布朗族</option>
+              <option value="撒拉族">撒拉族</option>
+              <option value="毛南族">毛南族</option>
+              <option value="仡佬族">仡佬族</option>
+              <option value="锡伯族">锡伯族</option>
+              <option value="阿昌族">阿昌族</option>
+              <option value="普米族">普米族</option>
+              <option value="塔吉克族">塔吉克族</option>
+              <option value="怒族">怒族</option>
+              <option value="乌孜别克族">乌孜别克族</option>
+              <option value="俄罗斯族">俄罗斯族</option>
+              <option value="鄂温克族">鄂温克族</option>
+              <option value="德昂族">德昂族</option>
+              <option value="保安族">保安族</option>
+              <option value="裕固族">裕固族</option>
+              <option value="京族">京族</option>
+              <option value="塔塔尔族">塔塔尔族</option>
+              <option value="独龙族">独龙族</option>
+              <option value="鄂伦春族">鄂伦春族</option>
+              <option value="赫哲族">赫哲族</option>
+              <option value="门巴族">门巴族</option>
+              <option value="珞巴族">珞巴族</option>
+              <option value="基诺族">基诺族</option>
+            </select>
           </div>
           <div class="form-item">
             <label class="form-label">出生日期</label>
@@ -642,19 +1019,50 @@ onBeforeUnmount(() => {
           </div>
           <div class="form-item">
             <label class="form-label">父亲近视</label>
-            <input v-model="formData.fatherMyopia" class="tech-input" />
+            <select v-model="formData.fatherMyopia" class="tech-select">
+              <option value="">请选择</option>
+              <option value="是">是</option>
+              <option value="否">否</option>
+              <option value="未知">未知</option>
+            </select>
           </div>
           <div class="form-item">
             <label class="form-label">母亲近视</label>
-            <input v-model="formData.motherMyopia" class="tech-input" />
+            <select v-model="formData.motherMyopia" class="tech-select">
+              <option value="">请选择</option>
+              <option value="是">是</option>
+              <option value="否">否</option>
+              <option value="未知">未知</option>
+            </select>
           </div>
           <div class="form-item">
             <label class="form-label">年级/届</label>
-            <input v-model="formData.gradeYear" class="tech-input" />
+            <select v-model="formData.gradeYear" class="tech-select">
+              <option value="">请选择年级</option>
+              <option value="一年级">一年级</option>
+              <option value="二年级">二年级</option>
+              <option value="三年级">三年级</option>
+              <option value="四年级">四年级</option>
+              <option value="五年级">五年级</option>
+              <option value="六年级">六年级</option>
+              <option value="初一">初一</option>
+              <option value="初二">初二</option>
+              <option value="初三">初三</option>
+              <option value="高一">高一</option>
+              <option value="高二">高二</option>
+              <option value="高三">高三</option>
+            </select>
           </div>
           <div class="form-item">
             <label class="form-label">学校</label>
-            <input v-model="formData.school" class="tech-input" />
+            <select v-model="formData.school" class="tech-select">
+              <option value="">请选择学校</option>
+              <option value="淮安外国语学校">淮安外国语学校</option>
+              <option value="大冶市基二实验小学">大冶市基二实验小学</option>
+              <option value="坊前中学">坊前中学</option>
+              <option value="学铺侨实验小学">学铺侨实验小学</option>
+              <option value="寒亭实验中学">寒亭实验中学</option>
+            </select>
           </div>
           <div class="form-item">
             <label class="form-label">班级</label>
@@ -707,18 +1115,26 @@ onBeforeUnmount(() => {
           <!-- 视力健康 -->
           <div v-show="activeDetailTab === 'vision'" class="detail-panel">
             <div class="current-status">
-              <div class="status-item"><span class="status-label">左眼视力</span><span class="status-value">{{ studentDetailData.vision.leftEye }}</span></div>
-              <div class="status-item"><span class="status-label">右眼视力</span><span class="status-value">{{ studentDetailData.vision.rightEye }}</span></div>
+              <div class="status-item"><span class="status-label">左眼视力</span><span class="status-value">{{ latestVision?.leftEye || '—' }}</span></div>
+              <div class="status-item"><span class="status-label">右眼视力</span><span class="status-value">{{ latestVision?.rightEye || '—' }}</span></div>
               <div class="status-item"><span class="status-label">视力等级</span>
-                <span class="status-value level-tag" :class="{'level-normal': studentDetailData.vision.visionLevel === '正常','level-low': studentDetailData.vision.visionLevel === '轻度近视','level-mid': studentDetailData.vision.visionLevel === '中度近视','level-high': studentDetailData.vision.visionLevel === '高度近视'}">{{ studentDetailData.vision.visionLevel }}</span>
+                <span class="status-value level-tag" :class="{'level-normal': latestVision?.visionLevel === '正常','level-low': latestVision?.visionLevel === '轻度近视','level-mid': latestVision?.visionLevel === '中度近视','level-high': latestVision?.visionLevel === '高度近视'}">{{ latestVision?.visionLevel || '—' }}</span>
               </div>
-              <div class="status-item"><span class="status-label">最近检查</span><span class="status-value">{{ studentDetailData.vision.checkDate }}</span></div>
+              <div class="status-item"><span class="status-label">最近检查</span><span class="status-value">{{ latestVision?.checkDate || '—' }}</span></div>
             </div>
             <div class="history-record">
               <h4 class="history-title">📋 历史记录</h4>
               <table class="history-table">
                 <thead><tr><th>检查日期</th><th>左眼</th><th>右眼</th><th>视力等级</th></tr></thead>
-                <tbody><tr v-for="(item, idx) in studentDetailData.vision.history" :key="idx"><td>{{ item.date }}</td><td>{{ item.left }}</td><td>{{ item.right }}</td><td>{{ item.level }}</td></tr></tbody>
+                <tbody>
+                  <tr v-if="visionRecords.length === 0"><td colspan="4" class="empty-row">{{ detailLoading ? '加载中…' : '暂无视力记录' }}</td></tr>
+                  <tr v-for="item in visionRecords" :key="item.id">
+                    <td>{{ item.checkDate }}</td>
+                    <td>{{ item.leftEye }}</td>
+                    <td>{{ item.rightEye }}</td>
+                    <td>{{ item.visionLevel }}</td>
+                  </tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -727,16 +1143,23 @@ onBeforeUnmount(() => {
           <div v-show="activeDetailTab === 'oral'" class="detail-panel">
             <div class="current-status">
               <div class="status-item"><span class="status-label">口腔状态</span>
-                <span class="status-value" :class="{'status-good': studentDetailData.oral.toothStatus === '良好','status-warning': studentDetailData.oral.toothStatus === '轻微龋齿'}">{{ studentDetailData.oral.toothStatus }}</span>
+                <span class="status-value" :class="{'status-good': latestOral?.toothStatus === '良好','status-warning': latestOral?.toothStatus === '轻微龋齿'}">{{ latestOral?.toothStatus || '—' }}</span>
               </div>
-              <div class="status-item"><span class="status-label">龋齿数量</span><span class="status-value">{{ studentDetailData.oral.cavityCount }} 颗</span></div>
-              <div class="status-item"><span class="status-label">最近检查</span><span class="status-value">{{ studentDetailData.oral.lastCheck }}</span></div>
+              <div class="status-item"><span class="status-label">龋齿数量</span><span class="status-value">{{ latestOral?.cavityCount ?? 0 }} 颗</span></div>
+              <div class="status-item"><span class="status-label">最近检查</span><span class="status-value">{{ latestOral?.checkDate || '—' }}</span></div>
             </div>
             <div class="history-record">
               <h4 class="history-title">📋 历史记录</h4>
               <table class="history-table">
                 <thead><tr><th>检查日期</th><th>口腔状态</th><th>龋齿数量</th></tr></thead>
-                <tbody><tr v-for="(item, idx) in studentDetailData.oral.history" :key="idx"><td>{{ item.date }}</td><td>{{ item.status }}</td><td>{{ item.cavity }} 颗</td></tr></tbody>
+                <tbody>
+                  <tr v-if="oralRecords.length === 0"><td colspan="3" class="empty-row">{{ detailLoading ? '加载中…' : '暂无口腔记录' }}</td></tr>
+                  <tr v-for="item in oralRecords" :key="item.id">
+                    <td>{{ item.checkDate }}</td>
+                    <td>{{ item.toothStatus }}</td>
+                    <td>{{ item.cavityCount }} 颗</td>
+                  </tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -745,21 +1168,29 @@ onBeforeUnmount(() => {
           <div v-show="activeDetailTab === 'mental'" class="detail-panel">
             <div class="current-status">
               <div class="status-item"><span class="status-label">压力水平</span>
-                <span class="status-value" :class="{'status-good': studentDetailData.mental.stressLevel === '轻度','status-warning': studentDetailData.mental.stressLevel === '中度','status-danger': studentDetailData.mental.stressLevel === '重度'}">{{ studentDetailData.mental.stressLevel }}</span>
+                <span class="status-value" :class="{'status-good': latestMental?.stressLevel === '轻度','status-warning': latestMental?.stressLevel === '中度','status-danger': latestMental?.stressLevel === '重度'}">{{ latestMental?.stressLevel || '—' }}</span>
               </div>
               <div class="status-item"><span class="status-label">睡眠质量</span>
-                <span class="status-value" :class="{'status-good': studentDetailData.mental.sleepQuality === '良好','status-warning': studentDetailData.mental.sleepQuality === '一般'}">{{ studentDetailData.mental.sleepQuality }}</span>
+                <span class="status-value" :class="{'status-good': latestMental?.sleepQuality === '良好','status-warning': latestMental?.sleepQuality === '一般'}">{{ latestMental?.sleepQuality || '—' }}</span>
               </div>
               <div class="status-item"><span class="status-label">情绪状态</span>
-                <span class="status-value" :class="{'status-good': studentDetailData.mental.moodStatus === '稳定','status-warning': studentDetailData.mental.moodStatus === '波动'}">{{ studentDetailData.mental.moodStatus }}</span>
+                <span class="status-value" :class="{'status-good': latestMental?.moodStatus === '稳定','status-warning': latestMental?.moodStatus === '波动'}">{{ latestMental?.moodStatus || '—' }}</span>
               </div>
-              <div class="status-item"><span class="status-label">最近评估</span><span class="status-value">{{ studentDetailData.mental.lastCheck }}</span></div>
+              <div class="status-item"><span class="status-label">最近评估</span><span class="status-value">{{ latestMental?.checkDate || '—' }}</span></div>
             </div>
             <div class="history-record">
               <h4 class="history-title">📋 历史记录</h4>
               <table class="history-table">
                 <thead><tr><th>评估日期</th><th>压力水平</th><th>睡眠质量</th><th>情绪状态</th></tr></thead>
-                <tbody><tr v-for="(item, idx) in studentDetailData.mental.history" :key="idx"><td>{{ item.date }}</td><td>{{ item.stress }}</td><td>{{ item.sleep }}</td><td>{{ item.mood }}</td></tr></tbody>
+                <tbody>
+                  <tr v-if="mentalRecords.length === 0"><td colspan="4" class="empty-row">{{ detailLoading ? '加载中…' : '暂无心理记录' }}</td></tr>
+                  <tr v-for="item in mentalRecords" :key="item.id">
+                    <td>{{ item.checkDate }}</td>
+                    <td>{{ item.stressLevel }}</td>
+                    <td>{{ item.sleepQuality }}</td>
+                    <td>{{ item.moodStatus }}</td>
+                  </tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -767,22 +1198,34 @@ onBeforeUnmount(() => {
           <!-- 健康体重 -->
           <div v-show="activeDetailTab === 'weight'" class="detail-panel">
             <div class="current-status">
-              <div class="status-item"><span class="status-label">身高</span><span class="status-value">{{ studentDetailData.weight.height }}</span></div>
-              <div class="status-item"><span class="status-label">体重</span><span class="status-value">{{ studentDetailData.weight.weight }}</span></div>
-              <div class="status-item"><span class="status-label">BMI</span><span class="status-value">{{ studentDetailData.weight.bmi }}</span></div>
+              <div class="status-item"><span class="status-label">身高</span><span class="status-value">{{ latestWeight?.height || '—' }}</span></div>
+              <div class="status-item"><span class="status-label">体重</span><span class="status-value">{{ latestWeight?.weight || '—' }}</span></div>
+              <div class="status-item"><span class="status-label">BMI</span><span class="status-value">{{ latestWeight?.bmi || '—' }}</span></div>
               <div class="status-item"><span class="status-label">BMI等级</span>
-                <span class="status-value level-tag" :class="{'level-normal': studentDetailData.weight.bmiLevel === '正常','level-low': studentDetailData.weight.bmiLevel === '偏瘦','level-mid': studentDetailData.weight.bmiLevel === '超重','level-high': studentDetailData.weight.bmiLevel === '肥胖'}">{{ studentDetailData.weight.bmiLevel }}</span>
+                <span class="status-value level-tag" :class="{'level-normal': latestWeight?.bmiLevel === '正常','level-low': latestWeight?.bmiLevel === '偏瘦','level-mid': latestWeight?.bmiLevel === '超重','level-high': latestWeight?.bmiLevel === '肥胖'}">{{ latestWeight?.bmiLevel || '—' }}</span>
               </div>
-              <div class="status-item"><span class="status-label">腰围</span><span class="status-value">{{ studentDetailData.weight.waistCircumference }}</span></div>
-              <div class="status-item"><span class="status-label">臀围</span><span class="status-value">{{ studentDetailData.weight.hipCircumference }}</span></div>
-              <div class="status-item"><span class="status-label">腰臀比</span><span class="status-value">{{ studentDetailData.weight.whr }}</span></div>
-              <div class="status-item"><span class="status-label">最近测量</span><span class="status-value">{{ studentDetailData.weight.lastCheck }}</span></div>
+              <div class="status-item"><span class="status-label">腰围</span><span class="status-value">{{ latestWeight?.waistCircumference || '—' }}</span></div>
+              <div class="status-item"><span class="status-label">臀围</span><span class="status-value">{{ latestWeight?.hipCircumference || '—' }}</span></div>
+              <div class="status-item"><span class="status-label">腰臀比</span><span class="status-value">{{ latestWeight?.whr || '—' }}</span></div>
+              <div class="status-item"><span class="status-label">最近测量</span><span class="status-value">{{ latestWeight?.checkDate || '—' }}</span></div>
             </div>
             <div class="history-record">
               <h4 class="history-title">📋 体重管理历史记录</h4>
               <table class="history-table">
                 <thead><tr><th>测量日期</th><th>身高</th><th>体重</th><th>BMI</th><th>BMI等级</th><th>腰围</th><th>臀围</th><th>腰臀比</th></tr></thead>
-                <tbody><tr v-for="(item, idx) in studentDetailData.weight.history" :key="idx"><td>{{ item.date }}</td><td>{{ item.height }}</td><td>{{ item.weight }}</td><td>{{ item.bmi }}</td><td>{{ item.bmiLevel }}</td><td>{{ item.waist }}</td><td>{{ item.hip }}</td><td>{{ item.whr }}</td></tr></tbody>
+                <tbody>
+                  <tr v-if="weightRecords.length === 0"><td colspan="8" class="empty-row">{{ detailLoading ? '加载中…' : '暂无体重记录' }}</td></tr>
+                  <tr v-for="item in weightRecords" :key="item.id">
+                    <td>{{ item.checkDate }}</td>
+                    <td>{{ item.height }}</td>
+                    <td>{{ item.weight }}</td>
+                    <td>{{ item.bmi }}</td>
+                    <td>{{ item.bmiLevel }}</td>
+                    <td>{{ item.waistCircumference }}</td>
+                    <td>{{ item.hipCircumference }}</td>
+                    <td>{{ item.whr }}</td>
+                  </tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -791,22 +1234,31 @@ onBeforeUnmount(() => {
           <div v-show="activeDetailTab === 'bone'" class="detail-panel">
             <div class="current-status">
               <div class="status-item"><span class="status-label">骨密度</span>
-                <span class="status-value" :class="{'status-good': studentDetailData.bone.boneDensity === '正常','status-warning': studentDetailData.bone.boneDensity === '偏低','status-danger': studentDetailData.bone.boneDensity === '骨质疏松'}">{{ studentDetailData.bone.boneDensity }}</span>
+                <span class="status-value" :class="{'status-good': latestBone?.boneDensity === '正常','status-warning': latestBone?.boneDensity === '偏低','status-danger': latestBone?.boneDensity === '骨质疏松'}">{{ latestBone?.boneDensity || '—' }}</span>
               </div>
-              <div class="status-item"><span class="status-label">骨龄</span><span class="status-value">{{ studentDetailData.bone.boneAge }}</span></div>
+              <div class="status-item"><span class="status-label">骨龄</span><span class="status-value">{{ latestBone?.boneAge || '—' }}</span></div>
               <div class="status-item"><span class="status-label">维生素D</span>
-                <span class="status-value" :class="{'status-good': studentDetailData.bone.vitaminD === '充足' || studentDetailData.bone.vitaminD === '良好','status-warning': studentDetailData.bone.vitaminD === '不足'}">{{ studentDetailData.bone.vitaminD }}</span>
+                <span class="status-value" :class="{'status-good': latestBone?.vitaminD === '充足' || latestBone?.vitaminD === '良好','status-warning': latestBone?.vitaminD === '不足'}">{{ latestBone?.vitaminD || '—' }}</span>
               </div>
               <div class="status-item"><span class="status-label">钙水平</span>
-                <span class="status-value" :class="{'status-good': studentDetailData.bone.calciumLevel === '正常','status-warning': studentDetailData.bone.calciumLevel === '偏低'}">{{ studentDetailData.bone.calciumLevel }}</span>
+                <span class="status-value" :class="{'status-good': latestBone?.calciumLevel === '正常','status-warning': latestBone?.calciumLevel === '偏低'}">{{ latestBone?.calciumLevel || '—' }}</span>
               </div>
-              <div class="status-item"><span class="status-label">最近检查</span><span class="status-value">{{ studentDetailData.bone.lastCheck }}</span></div>
+              <div class="status-item"><span class="status-label">最近检查</span><span class="status-value">{{ latestBone?.checkDate || '—' }}</span></div>
             </div>
             <div class="history-record">
               <h4 class="history-title">📋 骨骼健康历史记录</h4>
               <table class="history-table">
                 <thead><tr><th>检查日期</th><th>骨密度</th><th>骨龄</th><th>维生素D</th><th>钙水平</th></tr></thead>
-                <tbody><tr v-for="(item, idx) in studentDetailData.bone.history" :key="idx"><td>{{ item.date }}</td><td>{{ item.boneDensity }}</td><td>{{ item.boneAge }}</td><td>{{ item.vitaminD }}</td><td>{{ item.calcium }}</td></tr></tbody>
+                <tbody>
+                  <tr v-if="boneRecords.length === 0"><td colspan="5" class="empty-row">{{ detailLoading ? '加载中…' : '暂无骨骼记录' }}</td></tr>
+                  <tr v-for="item in boneRecords" :key="item.id">
+                    <td>{{ item.checkDate }}</td>
+                    <td>{{ item.boneDensity }}</td>
+                    <td>{{ item.boneAge }}</td>
+                    <td>{{ item.vitaminD }}</td>
+                    <td>{{ item.calciumLevel }}</td>
+                  </tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -1426,8 +1878,8 @@ onBeforeUnmount(() => {
 
 /* ===== Table Panel ===== */
 .table-panel {
-  overflow: hidden;
   position: relative;
+  /* overflow: visible 允许 .floating-actions 溢出到面板右边缘外 */
 }
 
 .table-panel::before {
@@ -1530,7 +1982,50 @@ onBeforeUnmount(() => {
 .col-mother { width: 80px; text-align: center; }
 .col-source { width: 90px; text-align: center; }
 .col-intervention { width: 72px; text-align: center; }
-.col-action { width: 80px; text-align: center; }
+
+/* ===== 浮动操作列（从表格中分离出来，钉在 .table-panel 视口最右） ===== */
+.floating-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  z-index: 5; /* 盖在表格之上 */
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 12px -2px rgba(0, 0, 0, 0.35);
+  /* 限制在 .table-panel 内部（不超出底部分页器） */
+  pointer-events: auto;
+}
+.floating-actions__head,
+.floating-actions__row {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  min-height: 44px; /* 与 .tech-table 单元格视觉对齐 */
+}
+.floating-actions__head {
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.floating-actions__row.row-alt {
+  background: var(--bg-soft);
+}
+.floating-actions__row--empty {
+  /* 空数据时占位，避免高度塌陷 */
+  min-height: 200px;
+  align-items: center;
+  color: var(--text-dim);
+}
 
 /* ===== Checkbox ===== */
 .tech-checkbox {
@@ -1567,6 +2062,14 @@ onBeforeUnmount(() => {
   border: 1px solid var(--primary);
   opacity: 0.3;
   animation: avatar-ring 3s ease-in-out infinite;
+}
+
+.avatar-circle__img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
 
 @keyframes avatar-ring {
@@ -1711,13 +2214,13 @@ onBeforeUnmount(() => {
 /* ===== Pagination ===== */
 .pagination {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   padding: 12px 16px;
   border-top: 1px solid var(--border);
   background: var(--bg-soft);
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 16px;
 }
 .pagination-info {
   font-size: 13px;
@@ -1756,6 +2259,61 @@ onBeforeUnmount(() => {
   background: var(--primary-hover);
   border-color: var(--primary-hover);
 }
+.page-btn-icon {
+  padding: 5px 10px;
+  min-width: 32px;
+}
+.page-btn-chevron {
+  display: inline-block;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 500;
+}
+.page-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 30px;
+  font-size: 14px;
+  color: var(--text-muted);
+  user-select: none;
+  letter-spacing: 1px;
+}
+.pagination-sizes {
+  display: flex;
+  align-items: center;
+}
+.pagination-size-select {
+  padding: 4px 10px;
+  font-size: 13px;
+  height: 30px;
+  border-radius: 6px;
+}
+.pagination-jumper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.pagination-jumper__input {
+  width: 56px;
+  height: 30px;
+  padding: 4px 8px;
+  font-size: 13px;
+  text-align: center;
+  border-radius: 6px;
+}
+/* 隐藏 number input 的箭头（更接近 Element Plus 风格） */
+.pagination-jumper__input::-webkit-inner-spin-button,
+.pagination-jumper__input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.pagination-jumper__input[type='number'] {
+  -moz-appearance: textfield;
+}
 
 /* ===== Form Grid (Modal) ===== */
 .form-grid {
@@ -1782,6 +2340,93 @@ onBeforeUnmount(() => {
 .checkbox-label {
   font-size: 14px;
   color: var(--text);
+}
+
+/* ===== Avatar Uploader (Modal) ===== */
+.avatar-uploader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: var(--bg-soft);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+.avatar-uploader__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.avatar-uploader__main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+.avatar-uploader__preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-soft);
+  border: 1.5px dashed var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.avatar-uploader__preview:hover {
+  border-color: var(--primary);
+  background: var(--bg-hover);
+  transform: scale(1.04);
+}
+.avatar-uploader__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.avatar-uploader__emoji {
+  font-size: 36px;
+  line-height: 1;
+}
+.avatar-uploader__plus {
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--primary);
+  line-height: 1;
+  user-select: none;
+}
+.avatar-uploader__actions {
+  display: flex;
+  gap: 8px;
+}
+.avatar-uploader__btn {
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--primary-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.avatar-uploader__btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.avatar-uploader__btn--ghost {
+  background: transparent;
+  color: var(--text-dim);
+}
+.avatar-uploader__btn--ghost:hover {
+  color: var(--danger);
+  border-color: var(--danger);
 }
 
 /* ===== Student Detail Modal ===== */
@@ -1926,6 +2571,12 @@ onBeforeUnmount(() => {
 }
 .history-table tr:hover td {
   background: var(--bg-hover);
+}
+.history-table .empty-row td {
+  text-align: center;
+  padding: 20px 12px;
+  color: var(--text-dim);
+  font-style: italic;
 }
 
 /* ===== Ant Design Modal Overrides ===== */
@@ -2558,6 +3209,20 @@ onBeforeUnmount(() => {
   border-right-color: rgba(8, 145, 178, 0.06);
 }
 
+/* ===== 亮色模式：浮动操作列 ===== */
+.app-root.theme-light .floating-actions {
+  background: #ffffff;
+  border-left-color: rgba(8, 145, 178, 0.12);
+  box-shadow: -4px 0 12px -2px rgba(8, 145, 178, 0.18);
+}
+.app-root.theme-light .floating-actions__head {
+  background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+  color: #0891b2;
+}
+.app-root.theme-light .floating-actions__row.row-alt {
+  background: linear-gradient(180deg, #fafcff 0%, #f5f9ff 100%);
+}
+
 .app-root.theme-light .tech-checkbox {
   border-color: rgba(8, 145, 178, 0.3);
   background: #fff;
@@ -2590,6 +3255,9 @@ onBeforeUnmount(() => {
 .app-root.theme-light .pagination {
   border-top-color: #e2e8f0;
   background: #fff;
+}
+.app-root.theme-light .page-ellipsis {
+  color: #94a3b8;
 }
 
 .app-root.theme-light .level-normal {
