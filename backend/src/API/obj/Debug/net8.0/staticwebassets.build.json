@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "acvsV7zNDgxcoDRea9X3+uT5JIlIQl7PmWsTDYHlcXY=",
+  "Hash": "Het9R9GDWaotiqijvF2FNu5fmGMFPYxwGXhPOGXCz88=",
   "Source": "API",
   "BasePath": "_content/API",
   "Mode": "Default",
@@ -186,6 +186,44 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\avatars\\20260818164253_390de5629f1f4ab390ef51d799a6af51.jpg"
+    },
+    {
+      "Identity": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\uploads\\avatars\\20260819151449_4a13341e20234e8cbc81a6c9e5e389af.jpg",
+      "SourceId": "API",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\",
+      "BasePath": "_content/API",
+      "RelativePath": "uploads/avatars/20260819151449_4a13341e20234e8cbc81a6c9e5e389af.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\avatars\\20260819151449_4a13341e20234e8cbc81a6c9e5e389af.jpg"
+    },
+    {
+      "Identity": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\uploads\\avatars\\20260819151503_1e937ca6febc495ba4b766d3cf00b874.jpg",
+      "SourceId": "API",
+      "SourceType": "Discovered",
+      "ContentRoot": "E:\\5HP_Project\\backend\\src\\API\\wwwroot\\",
+      "BasePath": "_content/API",
+      "RelativePath": "uploads/avatars/20260819151503_1e937ca6febc495ba4b766d3cf00b874.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\avatars\\20260819151503_1e937ca6febc495ba4b766d3cf00b874.jpg"
     }
   ]
 }

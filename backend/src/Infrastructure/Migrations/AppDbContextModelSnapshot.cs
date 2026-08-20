@@ -29,7 +29,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
 
                     b.Property<string>("BoneAge")
                         .IsRequired()
@@ -39,9 +39,15 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("BoneDensity")
                         .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("bone_density");
+
+                    b.Property<string>("BoneLevel")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasColumnName("bone_density");
+                        .HasColumnName("bone_level");
 
                     b.Property<string>("CalciumLevel")
                         .IsRequired()
@@ -53,15 +59,97 @@ namespace Infrastructure.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("check_date");
 
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("class_name");
+
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<string>("DeviceSn")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("device_sn");
+
+                    b.Property<string>("Grade")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("grade");
+
+                    b.Property<DateTime>("RecordTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("record_time");
+
+                    b.Property<long>("RecorderId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("recorder_id");
+
+                    b.Property<string>("RecorderName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("recorder_name");
+
+                    b.Property<string>("Remark")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("remark");
+
+                    b.Property<string>("ReviewRemark")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("review_remark");
+
+                    b.Property<DateTime?>("ReviewTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("review_time");
+
+                    b.Property<long?>("ReviewerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("reviewer_id");
+
+                    b.Property<string>("ReviewerName")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("reviewer_name");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("manual")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("pending")
+                        .HasColumnName("status");
+
                     b.Property<long>("StudentId")
                         .HasColumnType("bigint")
                         .HasColumnName("student_id");
+
+                    b.Property<string>("StudentName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("student_name");
+
+                    b.Property<string>("StudentNo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("student_no");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -75,226 +163,161 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RecordTime");
+
+                    b.HasIndex("Source");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("StudentNo");
+
                     b.HasIndex("StudentId", "CheckDate");
 
-                    b.ToTable("bone_record", (string)null);
+                    b.ToTable("student_bone_record", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1L,
                             BoneAge = "12岁",
-                            BoneDensity = "正常",
+                            BoneDensity = "0.85",
+                            BoneLevel = "正常",
                             CalciumLevel = "正常",
                             CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DeviceSn = "BONE-D004",
+                            Grade = "七年级",
+                            RecordTime = new DateTime(2026, 6, 20, 14, 0, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 6L,
+                            RecorderName = "校医李",
+                            Source = "device",
+                            Status = "pending",
                             StudentId = 6L,
+                            StudentName = "招崧熙",
+                            StudentNo = "2022006",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VitaminD = "充足"
                         },
                         new
                         {
                             Id = 2L,
-                            BoneAge = "11.5岁",
-                            BoneDensity = "正常",
+                            BoneAge = "12.5岁",
+                            BoneDensity = "0.82",
+                            BoneLevel = "正常",
                             CalciumLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 6L,
+                            DeviceSn = "BONE-D004",
+                            Grade = "七年级",
+                            RecordTime = new DateTime(2026, 6, 20, 14, 5, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 6L,
+                            RecorderName = "校医李",
+                            Source = "device",
+                            Status = "pending",
+                            StudentId = 1L,
+                            StudentName = "陈熙航",
+                            StudentNo = "2022001",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VitaminD = "充足"
                         },
                         new
                         {
                             Id = 3L,
-                            BoneAge = "11岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 6L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "良好"
-                        },
-                        new
-                        {
-                            Id = 4L,
-                            BoneAge = "12.5岁",
-                            BoneDensity = "正常",
+                            BoneAge = "12岁",
+                            BoneDensity = "0.88",
+                            BoneLevel = "正常",
                             CalciumLevel = "正常",
                             CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 1L,
+                            DeviceSn = "BONE-D004",
+                            Grade = "七年级",
+                            RecordTime = new DateTime(2026, 6, 20, 14, 10, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 6L,
+                            RecorderName = "校医李",
+                            ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 10L,
+                            ReviewerName = "专家王",
+                            Source = "device",
+                            Status = "approved",
+                            StudentId = 2L,
+                            StudentName = "席振轩",
+                            StudentNo = "2022002",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VitaminD = "充足"
                         },
                         new
                         {
-                            Id = 5L,
-                            BoneAge = "12岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = 4L,
+                            BoneAge = "11.5岁",
+                            BoneDensity = "0.65",
+                            BoneLevel = "偏低",
+                            CalciumLevel = "偏低",
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 1L,
+                            DeviceSn = "BONE-D004",
+                            Grade = "七年级",
+                            RecordTime = new DateTime(2026, 6, 20, 14, 15, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 6L,
+                            RecorderName = "校医李",
+                            Source = "device",
+                            Status = "abnormal",
+                            StudentId = 3L,
+                            StudentName = "丁书婉",
+                            StudentNo = "2022003",
+                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            VitaminD = "不足"
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            BoneAge = "11岁",
+                            BoneDensity = "0.78",
+                            BoneLevel = "正常",
+                            CalciumLevel = "正常",
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
+                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Grade = "七年级",
+                            RecordTime = new DateTime(2026, 6, 20, 14, 20, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 6L,
+                            RecorderName = "校医李",
+                            Source = "manual",
+                            Status = "pending",
+                            StudentId = 4L,
+                            StudentName = "周梓萌",
+                            StudentNo = "2022004",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VitaminD = "充足"
                         },
                         new
                         {
                             Id = 6L,
-                            BoneAge = "11.5岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 1L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "良好"
-                        },
-                        new
-                        {
-                            Id = 7L,
-                            BoneAge = "12岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 2L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "充足"
-                        },
-                        new
-                        {
-                            Id = 8L,
-                            BoneAge = "11.5岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 2L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "充足"
-                        },
-                        new
-                        {
-                            Id = 9L,
-                            BoneAge = "11岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 2L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "良好"
-                        },
-                        new
-                        {
-                            Id = 10L,
-                            BoneAge = "11.5岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "充足"
-                        },
-                        new
-                        {
-                            Id = 11L,
-                            BoneAge = "11岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "充足"
-                        },
-                        new
-                        {
-                            Id = 12L,
-                            BoneAge = "10.5岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "良好"
-                        },
-                        new
-                        {
-                            Id = 13L,
-                            BoneAge = "11岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "充足"
-                        },
-                        new
-                        {
-                            Id = 14L,
-                            BoneAge = "10.5岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "良好"
-                        },
-                        new
-                        {
-                            Id = 15L,
-                            BoneAge = "10岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "良好"
-                        },
-                        new
-                        {
-                            Id = 16L,
                             BoneAge = "12.5岁",
-                            BoneDensity = "正常",
+                            BoneDensity = "0.86",
+                            BoneLevel = "正常",
                             CalciumLevel = "正常",
                             CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DeviceSn = "BONE-D004",
+                            Grade = "七年级",
+                            RecordTime = new DateTime(2026, 6, 20, 14, 25, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 6L,
+                            RecorderName = "校医李",
+                            ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 10L,
+                            ReviewerName = "专家王",
+                            Source = "device",
+                            Status = "approved",
                             StudentId = 5L,
+                            StudentName = "朱宇土",
+                            StudentNo = "2022005",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VitaminD = "充足"
-                        },
-                        new
-                        {
-                            Id = 17L,
-                            BoneAge = "12岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 5L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "充足"
-                        },
-                        new
-                        {
-                            Id = 18L,
-                            BoneAge = "11.5岁",
-                            BoneDensity = "正常",
-                            CalciumLevel = "正常",
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 5L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VitaminD = "良好"
                         });
                 });
 
@@ -305,11 +328,21 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("AnxietyScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("anxiety_score");
 
                     b.Property<DateTime>("CheckDate")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("check_date");
+
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("class_name");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -317,27 +350,101 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("NOW()");
 
-                    b.Property<string>("MoodStatus")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("mood_status");
+                    b.Property<int>("DepressionScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("depression_score");
 
-                    b.Property<string>("SleepQuality")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("sleep_quality");
+                    b.Property<string>("DeviceSn")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("device_sn");
 
-                    b.Property<string>("StressLevel")
+                    b.Property<string>("Grade")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("grade");
+
+                    b.Property<string>("InterpersonalSensitivity")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasColumnName("stress_level");
+                        .HasColumnName("interpersonal_sensitivity");
+
+                    b.Property<string>("LearningAnxiety")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("learning_anxiety");
+
+                    b.Property<DateTime>("RecordTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("record_time");
+
+                    b.Property<long>("RecorderId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("recorder_id");
+
+                    b.Property<string>("RecorderName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("recorder_name");
+
+                    b.Property<string>("Remark")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("remark");
+
+                    b.Property<string>("ReviewRemark")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("review_remark");
+
+                    b.Property<DateTime?>("ReviewTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("review_time");
+
+                    b.Property<long?>("ReviewerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("reviewer_id");
+
+                    b.Property<string>("ReviewerName")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("reviewer_name");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("manual")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("pending")
+                        .HasColumnName("status");
 
                     b.Property<long>("StudentId")
                         .HasColumnType("bigint")
                         .HasColumnName("student_id");
+
+                    b.Property<string>("StudentName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("student_name");
+
+                    b.Property<string>("StudentNo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("student_no");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -345,207 +452,152 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RecordTime");
+
+                    b.HasIndex("Source");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("StudentNo");
+
                     b.HasIndex("StudentId", "CheckDate");
 
-                    b.ToTable("mental_record", (string)null);
+                    b.ToTable("student_mental_record", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1L,
+                            AnxietyScore = 8,
                             CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
+                            DepressionScore = 6,
+                            Grade = "七年级",
+                            InterpersonalSensitivity = "正常",
+                            LearningAnxiety = "轻度",
+                            RecordTime = new DateTime(2026, 6, 25, 14, 0, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2026, 6, 26, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 8L,
+                            ReviewerName = "心理张",
+                            Source = "manual",
+                            Status = "approved",
                             StudentId = 6L,
+                            StudentName = "招崧熙",
+                            StudentNo = "2022006",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 2L,
-                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            AnxietyScore = 14,
+                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "波动",
-                            SleepQuality = "一般",
-                            StressLevel = "中度",
-                            StudentId = 6L,
+                            DepressionScore = 10,
+                            Grade = "七年级",
+                            InterpersonalSensitivity = "中度",
+                            LearningAnxiety = "中度",
+                            RecordTime = new DateTime(2026, 6, 25, 14, 5, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            Source = "manual",
+                            Status = "pending",
+                            StudentId = 1L,
+                            StudentName = "陈熙航",
+                            StudentNo = "2022001",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 3L,
-                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            AnxietyScore = 6,
+                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 6L,
+                            DepressionScore = 5,
+                            Grade = "七年级",
+                            InterpersonalSensitivity = "正常",
+                            LearningAnxiety = "轻度",
+                            RecordTime = new DateTime(2026, 6, 25, 14, 10, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2026, 6, 26, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 8L,
+                            ReviewerName = "心理张",
+                            Source = "manual",
+                            Status = "approved",
+                            StudentId = 2L,
+                            StudentName = "席振轩",
+                            StudentNo = "2022002",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 4L,
+                            AnxietyScore = 10,
                             CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "波动",
-                            SleepQuality = "一般",
-                            StressLevel = "中度",
-                            StudentId = 1L,
+                            DepressionScore = 8,
+                            Grade = "七年级",
+                            InterpersonalSensitivity = "轻度",
+                            LearningAnxiety = "轻度",
+                            RecordTime = new DateTime(2026, 6, 25, 14, 15, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            Source = "manual",
+                            Status = "pending",
+                            StudentId = 3L,
+                            StudentName = "丁书婉",
+                            StudentNo = "2022003",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 5L,
-                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            AnxietyScore = 12,
+                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "波动",
-                            SleepQuality = "一般",
-                            StressLevel = "中度",
-                            StudentId = 1L,
+                            DepressionScore = 9,
+                            Grade = "七年级",
+                            InterpersonalSensitivity = "轻度",
+                            LearningAnxiety = "中度",
+                            RecordTime = new DateTime(2026, 6, 25, 14, 20, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            Source = "manual",
+                            Status = "abnormal",
+                            StudentId = 4L,
+                            StudentName = "周梓萌",
+                            StudentNo = "2022004",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 6L,
-                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 1L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 7L,
+                            AnxietyScore = 7,
                             CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 2L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 8L,
-                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 2L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 9L,
-                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 2L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 10L,
-                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 11L,
-                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 12L,
-                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 13L,
-                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 14L,
-                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "波动",
-                            SleepQuality = "一般",
-                            StressLevel = "中度",
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 15L,
-                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 16L,
-                            CheckDate = new DateTime(2026, 6, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
+                            DepressionScore = 5,
+                            Grade = "七年级",
+                            InterpersonalSensitivity = "正常",
+                            LearningAnxiety = "轻度",
+                            RecordTime = new DateTime(2026, 6, 25, 14, 25, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2026, 6, 26, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 8L,
+                            ReviewerName = "心理张",
+                            Source = "manual",
+                            Status = "approved",
                             StudentId = 5L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 17L,
-                            CheckDate = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 5L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 18L,
-                            CheckDate = new DateTime(2026, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            MoodStatus = "稳定",
-                            SleepQuality = "良好",
-                            StressLevel = "轻度",
-                            StudentId = 5L,
+                            StudentName = "朱宇土",
+                            StudentNo = "2022005",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         });
                 });
@@ -557,15 +609,17 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("CavityCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("cavity_count");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CheckDate")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("check_date");
+
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("class_name");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -573,15 +627,105 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<int>("DecayedBabyTeeth")
+                        .HasColumnType("integer")
+                        .HasColumnName("decayed_baby_teeth");
+
+                    b.Property<int>("DecayedPermanentTeeth")
+                        .HasColumnType("integer")
+                        .HasColumnName("decayed_permanent_teeth");
+
+                    b.Property<string>("DeviceSn")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("device_sn");
+
+                    b.Property<string>("Grade")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("grade");
+
+                    b.Property<string>("JawDevelopment")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("jaw_development");
+
+                    b.Property<DateTime>("RecordTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("record_time");
+
+                    b.Property<long>("RecorderId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("recorder_id");
+
+                    b.Property<string>("RecorderName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("recorder_name");
+
+                    b.Property<string>("Remark")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("remark");
+
+                    b.Property<string>("ReviewRemark")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("review_remark");
+
+                    b.Property<DateTime?>("ReviewTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("review_time");
+
+                    b.Property<long?>("ReviewerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("reviewer_id");
+
+                    b.Property<string>("ReviewerName")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("reviewer_name");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("manual")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("pending")
+                        .HasColumnName("status");
+
                     b.Property<long>("StudentId")
                         .HasColumnType("bigint")
                         .HasColumnName("student_id");
 
-                    b.Property<string>("ToothStatus")
+                    b.Property<string>("StudentName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasColumnName("tooth_status");
+                        .HasColumnName("student_name");
+
+                    b.Property<string>("StudentNo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("student_no");
+
+                    b.Property<string>("ToothStage")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("tooth_stage");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -589,189 +733,156 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RecordTime");
+
+                    b.HasIndex("Source");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("StudentNo");
+
                     b.HasIndex("StudentId", "CheckDate");
 
-                    b.ToTable("oral_record", (string)null);
+                    b.ToTable("student_oral_record", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1L,
-                            CavityCount = 0,
                             CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DecayedBabyTeeth = 0,
+                            DecayedPermanentTeeth = 0,
+                            Grade = "七年级",
+                            JawDevelopment = "正常",
+                            RecordTime = new DateTime(2026, 6, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
+                            Source = "manual",
+                            Status = "approved",
                             StudentId = 6L,
-                            ToothStatus = "良好",
+                            StudentName = "招崧熙",
+                            StudentNo = "2022006",
+                            ToothStage = "替牙期",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 2L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 6L,
-                            ToothStatus = "良好",
+                            DecayedBabyTeeth = 2,
+                            DecayedPermanentTeeth = 0,
+                            Grade = "七年级",
+                            JawDevelopment = "正常",
+                            RecordTime = new DateTime(2026, 6, 20, 10, 5, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            Source = "manual",
+                            Status = "pending",
+                            StudentId = 1L,
+                            StudentName = "陈熙航",
+                            StudentNo = "2022001",
+                            ToothStage = "替牙期",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 3L,
-                            CavityCount = 1,
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 6L,
-                            ToothStatus = "轻微龋齿",
+                            DecayedBabyTeeth = 0,
+                            DecayedPermanentTeeth = 0,
+                            Grade = "七年级",
+                            JawDevelopment = "正常",
+                            RecordTime = new DateTime(2026, 6, 20, 10, 10, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
+                            Source = "manual",
+                            Status = "approved",
+                            StudentId = 2L,
+                            StudentName = "席振轩",
+                            StudentNo = "2022002",
+                            ToothStage = "替牙期",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 4L,
-                            CavityCount = 2,
                             CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 1L,
-                            ToothStatus = "轻微龋齿",
+                            DecayedBabyTeeth = 0,
+                            DecayedPermanentTeeth = 0,
+                            Grade = "七年级",
+                            JawDevelopment = "正常",
+                            RecordTime = new DateTime(2026, 6, 20, 10, 15, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
+                            Source = "manual",
+                            Status = "approved",
+                            StudentId = 3L,
+                            StudentName = "丁书婉",
+                            StudentNo = "2022003",
+                            ToothStage = "替牙期",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 5L,
-                            CavityCount = 1,
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 1L,
-                            ToothStatus = "轻微龋齿",
+                            DecayedBabyTeeth = 1,
+                            DecayedPermanentTeeth = 0,
+                            Grade = "七年级",
+                            JawDevelopment = "正常",
+                            RecordTime = new DateTime(2026, 6, 20, 10, 20, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            Source = "manual",
+                            Status = "abnormal",
+                            StudentId = 4L,
+                            StudentName = "周梓萌",
+                            StudentNo = "2022004",
+                            ToothStage = "替牙期",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         },
                         new
                         {
                             Id = 6L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 1L,
-                            ToothStatus = "良好",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 7L,
-                            CavityCount = 0,
                             CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 2L,
-                            ToothStatus = "良好",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 8L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 2L,
-                            ToothStatus = "良好",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 9L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 2L,
-                            ToothStatus = "良好",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 10L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 3L,
-                            ToothStatus = "良好",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 11L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 3L,
-                            ToothStatus = "良好",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 12L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 3L,
-                            ToothStatus = "良好",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 13L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 4L,
-                            ToothStatus = "良好",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 14L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 4L,
-                            ToothStatus = "良好",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 15L,
-                            CavityCount = 1,
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 4L,
-                            ToothStatus = "轻微龋齿",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 16L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DecayedBabyTeeth = 0,
+                            DecayedPermanentTeeth = 0,
+                            DeviceSn = "ORAL-B002",
+                            Grade = "七年级",
+                            JawDevelopment = "正常",
+                            RecordTime = new DateTime(2026, 6, 20, 10, 25, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
+                            Source = "device",
+                            Status = "approved",
                             StudentId = 5L,
-                            ToothStatus = "良好",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 17L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2026, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 5L,
-                            ToothStatus = "良好",
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
-                        },
-                        new
-                        {
-                            Id = 18L,
-                            CavityCount = 0,
-                            CheckDate = new DateTime(2025, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            StudentId = 5L,
-                            ToothStatus = "良好",
+                            StudentName = "朱宇土",
+                            StudentNo = "2022005",
+                            ToothStage = "替牙期",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local)
                         });
                 });
@@ -1225,6 +1336,71 @@ namespace Infrastructure.Migrations
                             SortOrder = 5,
                             Status = 1
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.SysLoginLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Browser")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("browser");
+
+                    b.Property<string>("Ip")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("ip");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("location");
+
+                    b.Property<DateTime?>("LoginTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("login_time")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("message");
+
+                    b.Property<string>("Os")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("os");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1)
+                        .HasColumnName("status");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("user_name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ip");
+
+                    b.HasIndex("LoginTime");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserName");
+
+                    b.ToTable("sys_login_log", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.SysMenu", b =>
@@ -1725,71 +1901,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("sys_operation_log", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.SysLoginLog", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Browser")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("browser");
-
-                    b.Property<string>("Ip")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("ip");
-
-                    b.Property<DateTime?>("LoginTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("login_time")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<string>("Location")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("location");
-
-                    b.Property<string>("Message")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("message");
-
-                    b.Property<string>("Os")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("os");
-
-                    b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1)
-                        .HasColumnName("status");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("user_name");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Ip");
-
-                    b.HasIndex("LoginTime");
-
-                    b.HasIndex("Status");
-
-                    b.HasIndex("UserName");
-
-                    b.ToTable("sys_login_log", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Entities.SysOrg", b =>
                 {
                     b.Property<long>("Id")
@@ -2189,11 +2300,17 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CheckDate")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("check_date");
+
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("class_name");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -2201,11 +2318,59 @@ namespace Infrastructure.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<string>("DeviceSn")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("device_sn");
+
+                    b.Property<string>("Grade")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("grade");
+
                     b.Property<string>("LeftEye")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("left_eye");
+
+                    b.Property<DateTime>("RecordTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("record_time");
+
+                    b.Property<long>("RecorderId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("recorder_id");
+
+                    b.Property<string>("RecorderName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("recorder_name");
+
+                    b.Property<string>("Remark")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("remark");
+
+                    b.Property<string>("ReviewRemark")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("review_remark");
+
+                    b.Property<DateTime?>("ReviewTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("review_time");
+
+                    b.Property<long?>("ReviewerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("reviewer_id");
+
+                    b.Property<string>("ReviewerName")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("reviewer_name");
 
                     b.Property<string>("RightEye")
                         .IsRequired()
@@ -2213,9 +2378,37 @@ namespace Infrastructure.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("right_eye");
 
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("manual")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("pending")
+                        .HasColumnName("status");
+
                     b.Property<long>("StudentId")
                         .HasColumnType("bigint")
                         .HasColumnName("student_id");
+
+                    b.Property<string>("StudentName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("student_name");
+
+                    b.Property<string>("StudentNo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("student_no");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -2229,19 +2422,36 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RecordTime");
+
+                    b.HasIndex("Source");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("StudentNo");
+
                     b.HasIndex("StudentId", "CheckDate");
 
-                    b.ToTable("vision_record", (string)null);
+                    b.ToTable("student_vision_record", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1L,
                             CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Grade = "七年级",
                             LeftEye = "4.8",
+                            RecordTime = new DateTime(2026, 6, 28, 14, 30, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
                             RightEye = "4.9",
+                            Source = "manual",
+                            Status = "pending",
                             StudentId = 6L,
+                            StudentName = "招崧熙",
+                            StudentNo = "2022006",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VisionLevel = "轻度近视"
                         },
@@ -2249,10 +2459,22 @@ namespace Infrastructure.Migrations
                         {
                             Id = 2L,
                             CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Grade = "七年级",
                             LeftEye = "4.7",
+                            RecordTime = new DateTime(2026, 3, 15, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2026, 3, 16, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
                             RightEye = "4.8",
+                            Source = "manual",
+                            Status = "approved",
                             StudentId = 6L,
+                            StudentName = "招崧熙",
+                            StudentNo = "2022006",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VisionLevel = "轻度近视"
                         },
@@ -2260,10 +2482,23 @@ namespace Infrastructure.Migrations
                         {
                             Id = 3L,
                             CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DeviceSn = "VISION-A001",
+                            Grade = "七年级",
                             LeftEye = "4.9",
+                            RecordTime = new DateTime(2025, 12, 1, 11, 0, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2025, 12, 2, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
                             RightEye = "4.9",
+                            Source = "device",
+                            Status = "approved",
                             StudentId = 6L,
+                            StudentName = "招崧熙",
+                            StudentNo = "2022006",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VisionLevel = "正常"
                         },
@@ -2271,10 +2506,19 @@ namespace Infrastructure.Migrations
                         {
                             Id = 4L,
                             CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Grade = "七年级",
                             LeftEye = "4.5",
+                            RecordTime = new DateTime(2026, 6, 28, 14, 35, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
                             RightEye = "4.6",
+                            Source = "manual",
+                            Status = "abnormal",
                             StudentId = 1L,
+                            StudentName = "陈熙航",
+                            StudentNo = "2022001",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VisionLevel = "中度近视"
                         },
@@ -2282,10 +2526,22 @@ namespace Infrastructure.Migrations
                         {
                             Id = 5L,
                             CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Grade = "七年级",
                             LeftEye = "4.7",
+                            RecordTime = new DateTime(2026, 3, 15, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2026, 3, 16, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
                             RightEye = "4.7",
+                            Source = "manual",
+                            Status = "approved",
                             StudentId = 1L,
+                            StudentName = "陈熙航",
+                            StudentNo = "2022001",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VisionLevel = "轻度近视"
                         },
@@ -2293,10 +2549,23 @@ namespace Infrastructure.Migrations
                         {
                             Id = 6L,
                             CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DeviceSn = "VISION-A001",
+                            Grade = "七年级",
                             LeftEye = "4.8",
+                            RecordTime = new DateTime(2025, 12, 1, 11, 0, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2025, 12, 2, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
                             RightEye = "4.9",
+                            Source = "device",
+                            Status = "approved",
                             StudentId = 1L,
+                            StudentName = "陈熙航",
+                            StudentNo = "2022001",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VisionLevel = "正常"
                         },
@@ -2304,131 +2573,86 @@ namespace Infrastructure.Migrations
                         {
                             Id = 7L,
                             CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Grade = "七年级",
                             LeftEye = "5.0",
+                            RecordTime = new DateTime(2026, 6, 28, 14, 40, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2026, 6, 29, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
                             RightEye = "5.0",
+                            Source = "manual",
+                            Status = "approved",
                             StudentId = 2L,
+                            StudentName = "席振轩",
+                            StudentNo = "2022002",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VisionLevel = "正常"
                         },
                         new
                         {
                             Id = 8L,
-                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            Grade = "七年级",
                             LeftEye = "4.9",
-                            RightEye = "5.0",
-                            StudentId = 2L,
+                            RecordTime = new DateTime(2026, 6, 28, 14, 45, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            RightEye = "4.8",
+                            Source = "manual",
+                            Status = "pending",
+                            StudentId = 3L,
+                            StudentName = "丁书婉",
+                            StudentNo = "2022003",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VisionLevel = "正常"
+                            VisionLevel = "轻度近视"
                         },
                         new
                         {
                             Id = 9L,
-                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            LeftEye = "4.9",
-                            RightEye = "4.9",
-                            StudentId = 2L,
+                            Grade = "七年级",
+                            LeftEye = "4.6",
+                            RecordTime = new DateTime(2026, 6, 28, 14, 50, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            RightEye = "4.7",
+                            Source = "manual",
+                            Status = "spot",
+                            StudentId = 4L,
+                            StudentName = "周梓萌",
+                            StudentNo = "2022004",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VisionLevel = "正常"
+                            VisionLevel = "轻度近视"
                         },
                         new
                         {
                             Id = 10L,
                             CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            LeftEye = "4.9",
-                            RightEye = "4.8",
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VisionLevel = "轻度近视"
-                        },
-                        new
-                        {
-                            Id = 11L,
-                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            LeftEye = "4.9",
-                            RightEye = "4.9",
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VisionLevel = "正常"
-                        },
-                        new
-                        {
-                            Id = 12L,
-                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
+                            DeviceSn = "VISION-A001",
+                            Grade = "七年级",
                             LeftEye = "5.0",
-                            RightEye = "5.0",
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VisionLevel = "正常"
-                        },
-                        new
-                        {
-                            Id = 13L,
-                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            LeftEye = "4.6",
-                            RightEye = "4.7",
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VisionLevel = "轻度近视"
-                        },
-                        new
-                        {
-                            Id = 14L,
-                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            LeftEye = "4.8",
-                            RightEye = "4.8",
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VisionLevel = "轻度近视"
-                        },
-                        new
-                        {
-                            Id = 15L,
-                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            LeftEye = "4.9",
+                            RecordTime = new DateTime(2026, 6, 28, 14, 55, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 7L,
+                            RecorderName = "王老师",
+                            ReviewTime = new DateTime(2026, 6, 29, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
                             RightEye = "4.9",
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VisionLevel = "正常"
-                        },
-                        new
-                        {
-                            Id = 16L,
-                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            LeftEye = "5.0",
-                            RightEye = "4.9",
+                            Source = "device",
+                            Status = "approved",
                             StudentId = 5L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VisionLevel = "正常"
-                        },
-                        new
-                        {
-                            Id = 17L,
-                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            LeftEye = "4.9",
-                            RightEye = "4.8",
-                            StudentId = 5L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            VisionLevel = "正常"
-                        },
-                        new
-                        {
-                            Id = 18L,
-                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            LeftEye = "4.9",
-                            RightEye = "4.8",
-                            StudentId = 5L,
+                            StudentName = "朱宇土",
+                            StudentNo = "2022005",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
                             VisionLevel = "正常"
                         });
@@ -2441,7 +2665,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Bmi")
                         .IsRequired()
@@ -2459,11 +2683,28 @@ namespace Infrastructure.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("check_date");
 
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("class_name");
+
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("DeviceSn")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("device_sn");
+
+                    b.Property<string>("Grade")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("grade");
 
                     b.Property<string>("Height")
                         .IsRequired()
@@ -2477,9 +2718,74 @@ namespace Infrastructure.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("hip_circumference");
 
+                    b.Property<DateTime>("RecordTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("record_time");
+
+                    b.Property<long>("RecorderId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("recorder_id");
+
+                    b.Property<string>("RecorderName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("recorder_name");
+
+                    b.Property<string>("Remark")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("remark");
+
+                    b.Property<string>("ReviewRemark")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("review_remark");
+
+                    b.Property<DateTime?>("ReviewTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("review_time");
+
+                    b.Property<long?>("ReviewerId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("reviewer_id");
+
+                    b.Property<string>("ReviewerName")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("reviewer_name");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("manual")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("pending")
+                        .HasColumnName("status");
+
                     b.Property<long>("StudentId")
                         .HasColumnType("bigint")
                         .HasColumnName("student_id");
+
+                    b.Property<string>("StudentName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("student_name");
+
+                    b.Property<string>("StudentNo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("student_no");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone")
@@ -2505,6 +2811,14 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RecordTime");
+
+                    b.HasIndex("Source");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("StudentNo");
+
                     b.HasIndex("StudentId", "CheckDate");
 
                     b.ToTable("weight_record", (string)null);
@@ -2516,269 +2830,154 @@ namespace Infrastructure.Migrations
                             Bmi = "19.1",
                             BmiLevel = "正常",
                             CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "165cm",
-                            HipCircumference = "88cm",
+                            DeviceSn = "WEIGHT-C003",
+                            Grade = "七年级",
+                            Height = "165",
+                            HipCircumference = "88",
+                            RecordTime = new DateTime(2026, 6, 28, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 9L,
+                            RecorderName = "体育赵",
+                            ReviewTime = new DateTime(2026, 6, 29, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
+                            Source = "device",
+                            Status = "approved",
                             StudentId = 6L,
+                            StudentName = "招崧熙",
+                            StudentNo = "2022006",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "68cm",
-                            Weight = "52kg",
+                            WaistCircumference = "68",
+                            Weight = "52",
                             Whr = "0.77"
                         },
                         new
                         {
                             Id = 2L,
-                            Bmi = "18.8",
+                            Bmi = "21.0",
                             BmiLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "163cm",
-                            HipCircumference = "86cm",
-                            StudentId = 6L,
+                            Grade = "七年级",
+                            Height = "162",
+                            HipCircumference = "90",
+                            RecordTime = new DateTime(2026, 6, 28, 9, 5, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 9L,
+                            RecorderName = "体育赵",
+                            Source = "manual",
+                            Status = "pending",
+                            StudentId = 1L,
+                            StudentName = "陈熙航",
+                            StudentNo = "2022001",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "66cm",
-                            Weight = "50kg",
-                            Whr = "0.77"
+                            WaistCircumference = "72",
+                            Weight = "55",
+                            Whr = "0.80"
                         },
                         new
                         {
                             Id = 3L,
                             Bmi = "18.8",
                             BmiLevel = "正常",
-                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "160cm",
-                            HipCircumference = "84cm",
-                            StudentId = 6L,
+                            Grade = "七年级",
+                            Height = "160",
+                            HipCircumference = "85",
+                            RecordTime = new DateTime(2026, 6, 28, 9, 10, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 9L,
+                            RecorderName = "体育赵",
+                            ReviewTime = new DateTime(2026, 6, 29, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
+                            Source = "manual",
+                            Status = "approved",
+                            StudentId = 2L,
+                            StudentName = "席振轩",
+                            StudentNo = "2022002",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "64cm",
-                            Weight = "48kg",
+                            WaistCircumference = "65",
+                            Weight = "48",
                             Whr = "0.76"
                         },
                         new
                         {
                             Id = 4L,
-                            Bmi = "21.0",
+                            Bmi = "18.0",
                             BmiLevel = "正常",
                             CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "162cm",
-                            HipCircumference = "90cm",
-                            StudentId = 1L,
+                            Grade = "七年级",
+                            Height = "158",
+                            HipCircumference = "84",
+                            RecordTime = new DateTime(2026, 6, 28, 9, 15, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 9L,
+                            RecorderName = "体育赵",
+                            Source = "manual",
+                            Status = "pending",
+                            StudentId = 3L,
+                            StudentName = "丁书婉",
+                            StudentNo = "2022003",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "72cm",
-                            Weight = "55kg",
-                            Whr = "0.80"
+                            WaistCircumference = "62",
+                            Weight = "45",
+                            Whr = "0.74"
                         },
                         new
                         {
                             Id = 5L,
-                            Bmi = "20.7",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Bmi = "25.0",
+                            BmiLevel = "超重",
+                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "160cm",
-                            HipCircumference = "88cm",
-                            StudentId = 1L,
+                            Grade = "七年级",
+                            Height = "155",
+                            HipCircumference = "86",
+                            RecordTime = new DateTime(2026, 6, 28, 9, 20, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 9L,
+                            RecorderName = "体育赵",
+                            Source = "manual",
+                            Status = "abnormal",
+                            StudentId = 4L,
+                            StudentName = "周梓萌",
+                            StudentNo = "2022004",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "70cm",
-                            Weight = "53kg",
-                            Whr = "0.80"
+                            WaistCircumference = "78",
+                            Weight = "60",
+                            Whr = "0.91"
                         },
                         new
                         {
                             Id = 6L,
-                            Bmi = "20.0",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "158cm",
-                            HipCircumference = "86cm",
-                            StudentId = 1L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "68cm",
-                            Weight = "50kg",
-                            Whr = "0.79"
-                        },
-                        new
-                        {
-                            Id = 7L,
-                            Bmi = "18.8",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "160cm",
-                            HipCircumference = "85cm",
-                            StudentId = 2L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "65cm",
-                            Weight = "48kg",
-                            Whr = "0.76"
-                        },
-                        new
-                        {
-                            Id = 8L,
-                            Bmi = "18.8",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "158cm",
-                            HipCircumference = "84cm",
-                            StudentId = 2L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "64cm",
-                            Weight = "47kg",
-                            Whr = "0.76"
-                        },
-                        new
-                        {
-                            Id = 9L,
-                            Bmi = "18.5",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "156cm",
-                            HipCircumference = "83cm",
-                            StudentId = 2L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "63cm",
-                            Weight = "45kg",
-                            Whr = "0.76"
-                        },
-                        new
-                        {
-                            Id = 10L,
-                            Bmi = "18.0",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "158cm",
-                            HipCircumference = "84cm",
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "62cm",
-                            Weight = "45kg",
-                            Whr = "0.74"
-                        },
-                        new
-                        {
-                            Id = 11L,
-                            Bmi = "18.1",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "156cm",
-                            HipCircumference = "83cm",
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "61cm",
-                            Weight = "44kg",
-                            Whr = "0.73"
-                        },
-                        new
-                        {
-                            Id = 12L,
-                            Bmi = "17.7",
-                            BmiLevel = "偏瘦",
-                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "154cm",
-                            HipCircumference = "82cm",
-                            StudentId = 3L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "60cm",
-                            Weight = "42kg",
-                            Whr = "0.73"
-                        },
-                        new
-                        {
-                            Id = 13L,
-                            Bmi = "19.2",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "155cm",
-                            HipCircumference = "85cm",
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "63cm",
-                            Weight = "46kg",
-                            Whr = "0.74"
-                        },
-                        new
-                        {
-                            Id = 14L,
-                            Bmi = "19.2",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "153cm",
-                            HipCircumference = "84cm",
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "62cm",
-                            Weight = "45kg",
-                            Whr = "0.74"
-                        },
-                        new
-                        {
-                            Id = 15L,
-                            Bmi = "18.9",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "151cm",
-                            HipCircumference = "83cm",
-                            StudentId = 4L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "61cm",
-                            Weight = "43kg",
-                            Whr = "0.73"
-                        },
-                        new
-                        {
-                            Id = 16L,
                             Bmi = "20.3",
                             BmiLevel = "正常",
                             CheckDate = new DateTime(2026, 6, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ClassName = "七年级五班",
                             CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "163cm",
-                            HipCircumference = "89cm",
+                            DeviceSn = "WEIGHT-C003",
+                            Grade = "七年级",
+                            Height = "163",
+                            HipCircumference = "89",
+                            RecordTime = new DateTime(2026, 6, 28, 9, 25, 0, 0, DateTimeKind.Unspecified),
+                            RecorderId = 9L,
+                            RecorderName = "体育赵",
+                            ReviewTime = new DateTime(2026, 6, 29, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            ReviewerId = 6L,
+                            ReviewerName = "校医李",
+                            Source = "device",
+                            Status = "approved",
                             StudentId = 5L,
+                            StudentName = "朱宇土",
+                            StudentNo = "2022005",
                             UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "70cm",
-                            Weight = "54kg",
+                            WaistCircumference = "70",
+                            Weight = "54",
                             Whr = "0.79"
-                        },
-                        new
-                        {
-                            Id = 17L,
-                            Bmi = "20.1",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2026, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "161cm",
-                            HipCircumference = "88cm",
-                            StudentId = 5L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "68cm",
-                            Weight = "52kg",
-                            Whr = "0.77"
-                        },
-                        new
-                        {
-                            Id = 18L,
-                            Bmi = "19.8",
-                            BmiLevel = "正常",
-                            CheckDate = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            Height = "159cm",
-                            HipCircumference = "87cm",
-                            StudentId = 5L,
-                            UpdatedAt = new DateTime(2026, 8, 17, 21, 0, 0, 0, DateTimeKind.Local),
-                            WaistCircumference = "67cm",
-                            Weight = "50kg",
-                            Whr = "0.77"
                         });
                 });
 

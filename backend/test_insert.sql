@@ -1,0 +1,1 @@
+INSERT INTO student_vision_record (id, student_id, student_no, student_name, grade, class_name, check_date, left_eye, right_eye, vision_level, recorder_id, recorder_name, record_time, source, status) VALUES (DEFAULT, 1, 'TEST', 'tester', 'g7', 'c1', '2026-08-20', '4.6', '4.7', 'normal', 0, 'tester', '2026-08-20 11:00:00', 'manual', 'pending') RETURNING id;

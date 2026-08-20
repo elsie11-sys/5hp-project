@@ -388,84 +388,8 @@ public partial class AppDbContext : DbContext, IApplicationDbContext
             );
         });
 
-        // ===== vision_record =====
-        modelBuilder.Entity<VisionRecord>(entity =>
-        {
-            entity.Property(r => r.Id).HasColumnName("id");
-            entity.Property(r => r.StudentId).HasColumnName("student_id");
-            entity.Property(r => r.CheckDate).HasColumnName("check_date");
-            entity.Property(r => r.LeftEye).HasColumnName("left_eye").HasMaxLength(20);
-            entity.Property(r => r.RightEye).HasColumnName("right_eye").HasMaxLength(20);
-            entity.Property(r => r.VisionLevel).HasColumnName("vision_level").HasMaxLength(50);
-            entity.Property(r => r.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
-            entity.Property(r => r.UpdatedAt).HasColumnName("updated_at");
-            entity.ToTable("vision_record");
-            entity.HasIndex(r => new { r.StudentId, r.CheckDate });
-        });
-
-        // ===== oral_record =====
-        modelBuilder.Entity<OralRecord>(entity =>
-        {
-            entity.Property(r => r.Id).HasColumnName("id");
-            entity.Property(r => r.StudentId).HasColumnName("student_id");
-            entity.Property(r => r.CheckDate).HasColumnName("check_date");
-            entity.Property(r => r.ToothStatus).HasColumnName("tooth_status").HasMaxLength(50);
-            entity.Property(r => r.CavityCount).HasColumnName("cavity_count");
-            entity.Property(r => r.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
-            entity.Property(r => r.UpdatedAt).HasColumnName("updated_at");
-            entity.ToTable("oral_record");
-            entity.HasIndex(r => new { r.StudentId, r.CheckDate });
-        });
-
-        // ===== mental_record =====
-        modelBuilder.Entity<MentalRecord>(entity =>
-        {
-            entity.Property(r => r.Id).HasColumnName("id");
-            entity.Property(r => r.StudentId).HasColumnName("student_id");
-            entity.Property(r => r.CheckDate).HasColumnName("check_date");
-            entity.Property(r => r.StressLevel).HasColumnName("stress_level").HasMaxLength(50);
-            entity.Property(r => r.SleepQuality).HasColumnName("sleep_quality").HasMaxLength(50);
-            entity.Property(r => r.MoodStatus).HasColumnName("mood_status").HasMaxLength(50);
-            entity.Property(r => r.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
-            entity.Property(r => r.UpdatedAt).HasColumnName("updated_at");
-            entity.ToTable("mental_record");
-            entity.HasIndex(r => new { r.StudentId, r.CheckDate });
-        });
-
-        // ===== weight_record =====
-        modelBuilder.Entity<WeightRecord>(entity =>
-        {
-            entity.Property(r => r.Id).HasColumnName("id");
-            entity.Property(r => r.StudentId).HasColumnName("student_id");
-            entity.Property(r => r.CheckDate).HasColumnName("check_date");
-            entity.Property(r => r.Height).HasColumnName("height").HasMaxLength(20);
-            entity.Property(r => r.Weight).HasColumnName("weight").HasMaxLength(20);
-            entity.Property(r => r.Bmi).HasColumnName("bmi").HasMaxLength(20);
-            entity.Property(r => r.BmiLevel).HasColumnName("bmi_level").HasMaxLength(50);
-            entity.Property(r => r.WaistCircumference).HasColumnName("waist_circumference").HasMaxLength(20);
-            entity.Property(r => r.HipCircumference).HasColumnName("hip_circumference").HasMaxLength(20);
-            entity.Property(r => r.Whr).HasColumnName("whr").HasMaxLength(20);
-            entity.Property(r => r.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
-            entity.Property(r => r.UpdatedAt).HasColumnName("updated_at");
-            entity.ToTable("weight_record");
-            entity.HasIndex(r => new { r.StudentId, r.CheckDate });
-        });
-
-        // ===== bone_record =====
-        modelBuilder.Entity<BoneRecord>(entity =>
-        {
-            entity.Property(r => r.Id).HasColumnName("id");
-            entity.Property(r => r.StudentId).HasColumnName("student_id");
-            entity.Property(r => r.CheckDate).HasColumnName("check_date");
-            entity.Property(r => r.BoneDensity).HasColumnName("bone_density").HasMaxLength(50);
-            entity.Property(r => r.BoneAge).HasColumnName("bone_age").HasMaxLength(20);
-            entity.Property(r => r.VitaminD).HasColumnName("vitamin_d").HasMaxLength(50);
-            entity.Property(r => r.CalciumLevel).HasColumnName("calcium_level").HasMaxLength(50);
-            entity.Property(r => r.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
-            entity.Property(r => r.UpdatedAt).HasColumnName("updated_at");
-            entity.ToTable("bone_record");
-            entity.HasIndex(r => new { r.StudentId, r.CheckDate });
-        });
+        // ===== 5 张健康档案表（详细配置见 AppDbContext.Collect.cs）=====
+        ConfigureCollectTables(modelBuilder);
 
         // ============================================================
         // 健康档案种子数据：6 个学生 × 5 个维度 × 3 条历史 = 90 条
@@ -473,128 +397,59 @@ public partial class AppDbContext : DbContext, IApplicationDbContext
         // ============================================================
         var seedNow = new DateTime(2026, 8, 17, 21, 0, 0, DateTimeKind.Local);
 
-        // ---- vision_record (18 条) ----
+        // ---- student_vision_record (18 条) ----
+        // 招崧熙 (id=6) 与前端图片一致；其他学生用合理近似值
         modelBuilder.Entity<VisionRecord>().HasData(
-            // 招崧熙 - 与前端图片完全一致
-            new { Id = 1L, StudentId = 6L, CheckDate = new DateTime(2026, 6, 28), LeftEye = "4.8", RightEye = "4.9", VisionLevel = "轻度近视", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 2L, StudentId = 6L, CheckDate = new DateTime(2026, 3, 15), LeftEye = "4.7", RightEye = "4.8", VisionLevel = "轻度近视", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 3L, StudentId = 6L, CheckDate = new DateTime(2025, 12, 1), LeftEye = "4.9", RightEye = "4.9", VisionLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            // 陈熙航
-            new { Id = 4L, StudentId = 1L, CheckDate = new DateTime(2026, 6, 28), LeftEye = "4.5", RightEye = "4.6", VisionLevel = "中度近视", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 5L, StudentId = 1L, CheckDate = new DateTime(2026, 3, 15), LeftEye = "4.7", RightEye = "4.7", VisionLevel = "轻度近视", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 6L, StudentId = 1L, CheckDate = new DateTime(2025, 12, 1), LeftEye = "4.8", RightEye = "4.9", VisionLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            // 席振轩
-            new { Id = 7L, StudentId = 2L, CheckDate = new DateTime(2026, 6, 28), LeftEye = "5.0", RightEye = "5.0", VisionLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 8L, StudentId = 2L, CheckDate = new DateTime(2026, 3, 15), LeftEye = "4.9", RightEye = "5.0", VisionLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 9L, StudentId = 2L, CheckDate = new DateTime(2025, 12, 1), LeftEye = "4.9", RightEye = "4.9", VisionLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            // 丁书婉
-            new { Id = 10L, StudentId = 3L, CheckDate = new DateTime(2026, 6, 28), LeftEye = "4.9", RightEye = "4.8", VisionLevel = "轻度近视", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 11L, StudentId = 3L, CheckDate = new DateTime(2026, 3, 15), LeftEye = "4.9", RightEye = "4.9", VisionLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 12L, StudentId = 3L, CheckDate = new DateTime(2025, 12, 1), LeftEye = "5.0", RightEye = "5.0", VisionLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            // 周梓萌
-            new { Id = 13L, StudentId = 4L, CheckDate = new DateTime(2026, 6, 28), LeftEye = "4.6", RightEye = "4.7", VisionLevel = "轻度近视", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 14L, StudentId = 4L, CheckDate = new DateTime(2026, 3, 15), LeftEye = "4.8", RightEye = "4.8", VisionLevel = "轻度近视", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 15L, StudentId = 4L, CheckDate = new DateTime(2025, 12, 1), LeftEye = "4.9", RightEye = "4.9", VisionLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            // 朱宇土
-            new { Id = 16L, StudentId = 5L, CheckDate = new DateTime(2026, 6, 28), LeftEye = "5.0", RightEye = "4.9", VisionLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 17L, StudentId = 5L, CheckDate = new DateTime(2026, 3, 15), LeftEye = "4.9", RightEye = "4.8", VisionLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 18L, StudentId = 5L, CheckDate = new DateTime(2025, 12, 1), LeftEye = "4.9", RightEye = "4.8", VisionLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow }
+            new { Id = 1L, StudentId = 6L, StudentNo = "2022006", StudentName = "招崧熙", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), LeftEye = "4.8", RightEye = "4.9", VisionLevel = "轻度近视", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 28, 14, 30, 0), Source = "manual", Status = "pending", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 2L, StudentId = 6L, StudentNo = "2022006", StudentName = "招崧熙", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 3, 15), LeftEye = "4.7", RightEye = "4.8", VisionLevel = "轻度近视", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 3, 15, 10, 0, 0), Source = "manual", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2026, 3, 16, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 3L, StudentId = 6L, StudentNo = "2022006", StudentName = "招崧熙", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2025, 12, 1), LeftEye = "4.9", RightEye = "4.9", VisionLevel = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2025, 12, 1, 11, 0, 0), Source = "device", DeviceSn = "VISION-A001", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2025, 12, 2, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 4L, StudentId = 1L, StudentNo = "2022001", StudentName = "陈熙航", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), LeftEye = "4.5", RightEye = "4.6", VisionLevel = "中度近视", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 28, 14, 35, 0), Source = "manual", Status = "abnormal", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 5L, StudentId = 1L, StudentNo = "2022001", StudentName = "陈熙航", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 3, 15), LeftEye = "4.7", RightEye = "4.7", VisionLevel = "轻度近视", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 3, 15, 10, 0, 0), Source = "manual", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2026, 3, 16, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 6L, StudentId = 1L, StudentNo = "2022001", StudentName = "陈熙航", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2025, 12, 1), LeftEye = "4.8", RightEye = "4.9", VisionLevel = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2025, 12, 1, 11, 0, 0), Source = "device", DeviceSn = "VISION-A001", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2025, 12, 2, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 7L, StudentId = 2L, StudentNo = "2022002", StudentName = "席振轩", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), LeftEye = "5.0", RightEye = "5.0", VisionLevel = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 28, 14, 40, 0), Source = "manual", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2026, 6, 29, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 8L, StudentId = 3L, StudentNo = "2022003", StudentName = "丁书婉", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), LeftEye = "4.9", RightEye = "4.8", VisionLevel = "轻度近视", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 28, 14, 45, 0), Source = "manual", Status = "pending", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 9L, StudentId = 4L, StudentNo = "2022004", StudentName = "周梓萌", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), LeftEye = "4.6", RightEye = "4.7", VisionLevel = "轻度近视", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 28, 14, 50, 0), Source = "manual", Status = "spot", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 10L, StudentId = 5L, StudentNo = "2022005", StudentName = "朱宇土", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), LeftEye = "5.0", RightEye = "4.9", VisionLevel = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 28, 14, 55, 0), Source = "device", DeviceSn = "VISION-A001", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2026, 6, 29, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow }
         );
 
-        // ---- oral_record (18 条) ----
+        // ---- student_oral_record (10 条) ----
         modelBuilder.Entity<OralRecord>().HasData(
-            // 招崧熙 - 与前端图片一致
-            new { Id = 1L, StudentId = 6L, CheckDate = new DateTime(2026, 6, 20), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 2L, StudentId = 6L, CheckDate = new DateTime(2026, 3, 10), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 3L, StudentId = 6L, CheckDate = new DateTime(2025, 11, 15), ToothStatus = "轻微龋齿", CavityCount = 1, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            // 其他学生
-            new { Id = 4L, StudentId = 1L, CheckDate = new DateTime(2026, 6, 20), ToothStatus = "轻微龋齿", CavityCount = 2, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 5L, StudentId = 1L, CheckDate = new DateTime(2026, 3, 10), ToothStatus = "轻微龋齿", CavityCount = 1, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 6L, StudentId = 1L, CheckDate = new DateTime(2025, 11, 15), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 7L, StudentId = 2L, CheckDate = new DateTime(2026, 6, 20), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 8L, StudentId = 2L, CheckDate = new DateTime(2026, 3, 10), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 9L, StudentId = 2L, CheckDate = new DateTime(2025, 11, 15), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 10L, StudentId = 3L, CheckDate = new DateTime(2026, 6, 20), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 11L, StudentId = 3L, CheckDate = new DateTime(2026, 3, 10), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 12L, StudentId = 3L, CheckDate = new DateTime(2025, 11, 15), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 13L, StudentId = 4L, CheckDate = new DateTime(2026, 6, 20), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 14L, StudentId = 4L, CheckDate = new DateTime(2026, 3, 10), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 15L, StudentId = 4L, CheckDate = new DateTime(2025, 11, 15), ToothStatus = "轻微龋齿", CavityCount = 1, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 16L, StudentId = 5L, CheckDate = new DateTime(2026, 6, 20), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 17L, StudentId = 5L, CheckDate = new DateTime(2026, 3, 10), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 18L, StudentId = 5L, CheckDate = new DateTime(2025, 11, 15), ToothStatus = "良好", CavityCount = 0, CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow }
+            new { Id = 1L, StudentId = 6L, StudentNo = "2022006", StudentName = "招崧熙", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), DecayedBabyTeeth = 0, DecayedPermanentTeeth = 0, ToothStage = "替牙期", JawDevelopment = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 20, 10, 0, 0), Source = "manual", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 2L, StudentId = 1L, StudentNo = "2022001", StudentName = "陈熙航", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), DecayedBabyTeeth = 2, DecayedPermanentTeeth = 0, ToothStage = "替牙期", JawDevelopment = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 20, 10, 5, 0), Source = "manual", Status = "pending", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 3L, StudentId = 2L, StudentNo = "2022002", StudentName = "席振轩", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), DecayedBabyTeeth = 0, DecayedPermanentTeeth = 0, ToothStage = "替牙期", JawDevelopment = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 20, 10, 10, 0), Source = "manual", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 4L, StudentId = 3L, StudentNo = "2022003", StudentName = "丁书婉", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), DecayedBabyTeeth = 0, DecayedPermanentTeeth = 0, ToothStage = "替牙期", JawDevelopment = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 20, 10, 15, 0), Source = "manual", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 5L, StudentId = 4L, StudentNo = "2022004", StudentName = "周梓萌", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), DecayedBabyTeeth = 1, DecayedPermanentTeeth = 0, ToothStage = "替牙期", JawDevelopment = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 20, 10, 20, 0), Source = "manual", Status = "abnormal", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 6L, StudentId = 5L, StudentNo = "2022005", StudentName = "朱宇土", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), DecayedBabyTeeth = 0, DecayedPermanentTeeth = 0, ToothStage = "替牙期", JawDevelopment = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 20, 10, 25, 0), Source = "device", DeviceSn = "ORAL-B002", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow }
         );
 
-        // ---- mental_record (18 条) ----
+        // ---- student_mental_record (6 条) ----
         modelBuilder.Entity<MentalRecord>().HasData(
-            // 招崧熙 - 与前端图片一致
-            new { Id = 1L, StudentId = 6L, CheckDate = new DateTime(2026, 6, 25), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 2L, StudentId = 6L, CheckDate = new DateTime(2026, 4, 20), StressLevel = "中度", SleepQuality = "一般", MoodStatus = "波动", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 3L, StudentId = 6L, CheckDate = new DateTime(2026, 2, 10), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            // 其他学生
-            new { Id = 4L, StudentId = 1L, CheckDate = new DateTime(2026, 6, 25), StressLevel = "中度", SleepQuality = "一般", MoodStatus = "波动", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 5L, StudentId = 1L, CheckDate = new DateTime(2026, 4, 20), StressLevel = "中度", SleepQuality = "一般", MoodStatus = "波动", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 6L, StudentId = 1L, CheckDate = new DateTime(2026, 2, 10), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 7L, StudentId = 2L, CheckDate = new DateTime(2026, 6, 25), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 8L, StudentId = 2L, CheckDate = new DateTime(2026, 4, 20), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 9L, StudentId = 2L, CheckDate = new DateTime(2026, 2, 10), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 10L, StudentId = 3L, CheckDate = new DateTime(2026, 6, 25), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 11L, StudentId = 3L, CheckDate = new DateTime(2026, 4, 20), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 12L, StudentId = 3L, CheckDate = new DateTime(2026, 2, 10), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 13L, StudentId = 4L, CheckDate = new DateTime(2026, 6, 25), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 14L, StudentId = 4L, CheckDate = new DateTime(2026, 4, 20), StressLevel = "中度", SleepQuality = "一般", MoodStatus = "波动", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 15L, StudentId = 4L, CheckDate = new DateTime(2026, 2, 10), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 16L, StudentId = 5L, CheckDate = new DateTime(2026, 6, 25), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 17L, StudentId = 5L, CheckDate = new DateTime(2026, 4, 20), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 18L, StudentId = 5L, CheckDate = new DateTime(2026, 2, 10), StressLevel = "轻度", SleepQuality = "良好", MoodStatus = "稳定", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow }
+            new { Id = 1L, StudentId = 6L, StudentNo = "2022006", StudentName = "招崧熙", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 25), AnxietyScore = 8, DepressionScore = 6, LearningAnxiety = "轻度", InterpersonalSensitivity = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 25, 14, 0, 0), Source = "manual", Status = "approved", ReviewerId = 8L, ReviewerName = "心理张", ReviewTime = new DateTime(2026, 6, 26, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 2L, StudentId = 1L, StudentNo = "2022001", StudentName = "陈熙航", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 25), AnxietyScore = 14, DepressionScore = 10, LearningAnxiety = "中度", InterpersonalSensitivity = "中度", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 25, 14, 5, 0), Source = "manual", Status = "pending", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 3L, StudentId = 2L, StudentNo = "2022002", StudentName = "席振轩", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 25), AnxietyScore = 6, DepressionScore = 5, LearningAnxiety = "轻度", InterpersonalSensitivity = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 25, 14, 10, 0), Source = "manual", Status = "approved", ReviewerId = 8L, ReviewerName = "心理张", ReviewTime = new DateTime(2026, 6, 26, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 4L, StudentId = 3L, StudentNo = "2022003", StudentName = "丁书婉", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 25), AnxietyScore = 10, DepressionScore = 8, LearningAnxiety = "轻度", InterpersonalSensitivity = "轻度", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 25, 14, 15, 0), Source = "manual", Status = "pending", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 5L, StudentId = 4L, StudentNo = "2022004", StudentName = "周梓萌", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 25), AnxietyScore = 12, DepressionScore = 9, LearningAnxiety = "中度", InterpersonalSensitivity = "轻度", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 25, 14, 20, 0), Source = "manual", Status = "abnormal", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 6L, StudentId = 5L, StudentNo = "2022005", StudentName = "朱宇土", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 25), AnxietyScore = 7, DepressionScore = 5, LearningAnxiety = "轻度", InterpersonalSensitivity = "正常", RecorderId = 7L, RecorderName = "王老师", RecordTime = new DateTime(2026, 6, 25, 14, 25, 0), Source = "manual", Status = "approved", ReviewerId = 8L, ReviewerName = "心理张", ReviewTime = new DateTime(2026, 6, 26, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow }
         );
 
-        // ---- weight_record (18 条) ----
+        // ---- weight_record (6 条) ----
         modelBuilder.Entity<WeightRecord>().HasData(
-            // 招崧熙 - 与前端图片一致
-            new { Id = 1L, StudentId = 6L, CheckDate = new DateTime(2026, 6, 28), Height = "165cm", Weight = "52kg", Bmi = "19.1", BmiLevel = "正常", WaistCircumference = "68cm", HipCircumference = "88cm", Whr = "0.77", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 2L, StudentId = 6L, CheckDate = new DateTime(2026, 3, 15), Height = "163cm", Weight = "50kg", Bmi = "18.8", BmiLevel = "正常", WaistCircumference = "66cm", HipCircumference = "86cm", Whr = "0.77", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 3L, StudentId = 6L, CheckDate = new DateTime(2025, 12, 1), Height = "160cm", Weight = "48kg", Bmi = "18.8", BmiLevel = "正常", WaistCircumference = "64cm", HipCircumference = "84cm", Whr = "0.76", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            // 其他学生
-            new { Id = 4L, StudentId = 1L, CheckDate = new DateTime(2026, 6, 28), Height = "162cm", Weight = "55kg", Bmi = "21.0", BmiLevel = "正常", WaistCircumference = "72cm", HipCircumference = "90cm", Whr = "0.80", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 5L, StudentId = 1L, CheckDate = new DateTime(2026, 3, 15), Height = "160cm", Weight = "53kg", Bmi = "20.7", BmiLevel = "正常", WaistCircumference = "70cm", HipCircumference = "88cm", Whr = "0.80", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 6L, StudentId = 1L, CheckDate = new DateTime(2025, 12, 1), Height = "158cm", Weight = "50kg", Bmi = "20.0", BmiLevel = "正常", WaistCircumference = "68cm", HipCircumference = "86cm", Whr = "0.79", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 7L, StudentId = 2L, CheckDate = new DateTime(2026, 6, 28), Height = "160cm", Weight = "48kg", Bmi = "18.8", BmiLevel = "正常", WaistCircumference = "65cm", HipCircumference = "85cm", Whr = "0.76", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 8L, StudentId = 2L, CheckDate = new DateTime(2026, 3, 15), Height = "158cm", Weight = "47kg", Bmi = "18.8", BmiLevel = "正常", WaistCircumference = "64cm", HipCircumference = "84cm", Whr = "0.76", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 9L, StudentId = 2L, CheckDate = new DateTime(2025, 12, 1), Height = "156cm", Weight = "45kg", Bmi = "18.5", BmiLevel = "正常", WaistCircumference = "63cm", HipCircumference = "83cm", Whr = "0.76", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 10L, StudentId = 3L, CheckDate = new DateTime(2026, 6, 28), Height = "158cm", Weight = "45kg", Bmi = "18.0", BmiLevel = "正常", WaistCircumference = "62cm", HipCircumference = "84cm", Whr = "0.74", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 11L, StudentId = 3L, CheckDate = new DateTime(2026, 3, 15), Height = "156cm", Weight = "44kg", Bmi = "18.1", BmiLevel = "正常", WaistCircumference = "61cm", HipCircumference = "83cm", Whr = "0.73", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 12L, StudentId = 3L, CheckDate = new DateTime(2025, 12, 1), Height = "154cm", Weight = "42kg", Bmi = "17.7", BmiLevel = "偏瘦", WaistCircumference = "60cm", HipCircumference = "82cm", Whr = "0.73", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 13L, StudentId = 4L, CheckDate = new DateTime(2026, 6, 28), Height = "155cm", Weight = "46kg", Bmi = "19.2", BmiLevel = "正常", WaistCircumference = "63cm", HipCircumference = "85cm", Whr = "0.74", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 14L, StudentId = 4L, CheckDate = new DateTime(2026, 3, 15), Height = "153cm", Weight = "45kg", Bmi = "19.2", BmiLevel = "正常", WaistCircumference = "62cm", HipCircumference = "84cm", Whr = "0.74", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 15L, StudentId = 4L, CheckDate = new DateTime(2025, 12, 1), Height = "151cm", Weight = "43kg", Bmi = "18.9", BmiLevel = "正常", WaistCircumference = "61cm", HipCircumference = "83cm", Whr = "0.73", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 16L, StudentId = 5L, CheckDate = new DateTime(2026, 6, 28), Height = "163cm", Weight = "54kg", Bmi = "20.3", BmiLevel = "正常", WaistCircumference = "70cm", HipCircumference = "89cm", Whr = "0.79", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 17L, StudentId = 5L, CheckDate = new DateTime(2026, 3, 15), Height = "161cm", Weight = "52kg", Bmi = "20.1", BmiLevel = "正常", WaistCircumference = "68cm", HipCircumference = "88cm", Whr = "0.77", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 18L, StudentId = 5L, CheckDate = new DateTime(2025, 12, 1), Height = "159cm", Weight = "50kg", Bmi = "19.8", BmiLevel = "正常", WaistCircumference = "67cm", HipCircumference = "87cm", Whr = "0.77", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow }
+            new { Id = 1L, StudentId = 6L, StudentNo = "2022006", StudentName = "招崧熙", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), Height = "165", Weight = "52", Bmi = "19.1", BmiLevel = "正常", WaistCircumference = "68", HipCircumference = "88", Whr = "0.77", RecorderId = 9L, RecorderName = "体育赵", RecordTime = new DateTime(2026, 6, 28, 9, 0, 0), Source = "device", DeviceSn = "WEIGHT-C003", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2026, 6, 29, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 2L, StudentId = 1L, StudentNo = "2022001", StudentName = "陈熙航", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), Height = "162", Weight = "55", Bmi = "21.0", BmiLevel = "正常", WaistCircumference = "72", HipCircumference = "90", Whr = "0.80", RecorderId = 9L, RecorderName = "体育赵", RecordTime = new DateTime(2026, 6, 28, 9, 5, 0), Source = "manual", Status = "pending", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 3L, StudentId = 2L, StudentNo = "2022002", StudentName = "席振轩", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), Height = "160", Weight = "48", Bmi = "18.8", BmiLevel = "正常", WaistCircumference = "65", HipCircumference = "85", Whr = "0.76", RecorderId = 9L, RecorderName = "体育赵", RecordTime = new DateTime(2026, 6, 28, 9, 10, 0), Source = "manual", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2026, 6, 29, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 4L, StudentId = 3L, StudentNo = "2022003", StudentName = "丁书婉", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), Height = "158", Weight = "45", Bmi = "18.0", BmiLevel = "正常", WaistCircumference = "62", HipCircumference = "84", Whr = "0.74", RecorderId = 9L, RecorderName = "体育赵", RecordTime = new DateTime(2026, 6, 28, 9, 15, 0), Source = "manual", Status = "pending", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 5L, StudentId = 4L, StudentNo = "2022004", StudentName = "周梓萌", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), Height = "155", Weight = "60", Bmi = "25.0", BmiLevel = "超重", WaistCircumference = "78", HipCircumference = "86", Whr = "0.91", RecorderId = 9L, RecorderName = "体育赵", RecordTime = new DateTime(2026, 6, 28, 9, 20, 0), Source = "manual", Status = "abnormal", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 6L, StudentId = 5L, StudentNo = "2022005", StudentName = "朱宇土", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 28), Height = "163", Weight = "54", Bmi = "20.3", BmiLevel = "正常", WaistCircumference = "70", HipCircumference = "89", Whr = "0.79", RecorderId = 9L, RecorderName = "体育赵", RecordTime = new DateTime(2026, 6, 28, 9, 25, 0), Source = "device", DeviceSn = "WEIGHT-C003", Status = "approved", ReviewerId = 6L, ReviewerName = "校医李", ReviewTime = new DateTime(2026, 6, 29, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow }
         );
 
-        // ---- bone_record (18 条) ----
+        // ---- student_bone_record (6 条) ----
         modelBuilder.Entity<BoneRecord>().HasData(
-            // 招崧熙 - 与前端图片一致
-            new { Id = 1L, StudentId = 6L, CheckDate = new DateTime(2026, 6, 20), BoneDensity = "正常", BoneAge = "12岁", VitaminD = "充足", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 2L, StudentId = 6L, CheckDate = new DateTime(2026, 3, 10), BoneDensity = "正常", BoneAge = "11.5岁", VitaminD = "充足", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 3L, StudentId = 6L, CheckDate = new DateTime(2025, 11, 15), BoneDensity = "正常", BoneAge = "11岁", VitaminD = "良好", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            // 其他学生
-            new { Id = 4L, StudentId = 1L, CheckDate = new DateTime(2026, 6, 20), BoneDensity = "正常", BoneAge = "12.5岁", VitaminD = "充足", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 5L, StudentId = 1L, CheckDate = new DateTime(2026, 3, 10), BoneDensity = "正常", BoneAge = "12岁", VitaminD = "充足", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 6L, StudentId = 1L, CheckDate = new DateTime(2025, 11, 15), BoneDensity = "正常", BoneAge = "11.5岁", VitaminD = "良好", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 7L, StudentId = 2L, CheckDate = new DateTime(2026, 6, 20), BoneDensity = "正常", BoneAge = "12岁", VitaminD = "充足", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 8L, StudentId = 2L, CheckDate = new DateTime(2026, 3, 10), BoneDensity = "正常", BoneAge = "11.5岁", VitaminD = "充足", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 9L, StudentId = 2L, CheckDate = new DateTime(2025, 11, 15), BoneDensity = "正常", BoneAge = "11岁", VitaminD = "良好", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 10L, StudentId = 3L, CheckDate = new DateTime(2026, 6, 20), BoneDensity = "正常", BoneAge = "11.5岁", VitaminD = "充足", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 11L, StudentId = 3L, CheckDate = new DateTime(2026, 3, 10), BoneDensity = "正常", BoneAge = "11岁", VitaminD = "充足", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 12L, StudentId = 3L, CheckDate = new DateTime(2025, 11, 15), BoneDensity = "正常", BoneAge = "10.5岁", VitaminD = "良好", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 13L, StudentId = 4L, CheckDate = new DateTime(2026, 6, 20), BoneDensity = "正常", BoneAge = "11岁", VitaminD = "充足", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 14L, StudentId = 4L, CheckDate = new DateTime(2026, 3, 10), BoneDensity = "正常", BoneAge = "10.5岁", VitaminD = "良好", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 15L, StudentId = 4L, CheckDate = new DateTime(2025, 11, 15), BoneDensity = "正常", BoneAge = "10岁", VitaminD = "良好", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 16L, StudentId = 5L, CheckDate = new DateTime(2026, 6, 20), BoneDensity = "正常", BoneAge = "12.5岁", VitaminD = "充足", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 17L, StudentId = 5L, CheckDate = new DateTime(2026, 3, 10), BoneDensity = "正常", BoneAge = "12岁", VitaminD = "充足", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
-            new { Id = 18L, StudentId = 5L, CheckDate = new DateTime(2025, 11, 15), BoneDensity = "正常", BoneAge = "11.5岁", VitaminD = "良好", CalciumLevel = "正常", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow }
+            new { Id = 1L, StudentId = 6L, StudentNo = "2022006", StudentName = "招崧熙", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), BoneDensity = "0.85", BoneLevel = "正常", BoneAge = "12岁", VitaminD = "充足", CalciumLevel = "正常", RecorderId = 6L, RecorderName = "校医李", RecordTime = new DateTime(2026, 6, 20, 14, 0, 0), Source = "device", DeviceSn = "BONE-D004", Status = "pending", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 2L, StudentId = 1L, StudentNo = "2022001", StudentName = "陈熙航", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), BoneDensity = "0.82", BoneLevel = "正常", BoneAge = "12.5岁", VitaminD = "充足", CalciumLevel = "正常", RecorderId = 6L, RecorderName = "校医李", RecordTime = new DateTime(2026, 6, 20, 14, 5, 0), Source = "device", DeviceSn = "BONE-D004", Status = "pending", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 3L, StudentId = 2L, StudentNo = "2022002", StudentName = "席振轩", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), BoneDensity = "0.88", BoneLevel = "正常", BoneAge = "12岁", VitaminD = "充足", CalciumLevel = "正常", RecorderId = 6L, RecorderName = "校医李", RecordTime = new DateTime(2026, 6, 20, 14, 10, 0), Source = "device", DeviceSn = "BONE-D004", Status = "approved", ReviewerId = 10L, ReviewerName = "专家王", ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 4L, StudentId = 3L, StudentNo = "2022003", StudentName = "丁书婉", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), BoneDensity = "0.65", BoneLevel = "偏低", BoneAge = "11.5岁", VitaminD = "不足", CalciumLevel = "偏低", RecorderId = 6L, RecorderName = "校医李", RecordTime = new DateTime(2026, 6, 20, 14, 15, 0), Source = "device", DeviceSn = "BONE-D004", Status = "abnormal", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 5L, StudentId = 4L, StudentNo = "2022004", StudentName = "周梓萌", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), BoneDensity = "0.78", BoneLevel = "正常", BoneAge = "11岁", VitaminD = "充足", CalciumLevel = "正常", RecorderId = 6L, RecorderName = "校医李", RecordTime = new DateTime(2026, 6, 20, 14, 20, 0), Source = "manual", Status = "pending", CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow },
+            new { Id = 6L, StudentId = 5L, StudentNo = "2022005", StudentName = "朱宇土", Grade = "七年级", ClassName = "七年级五班", CheckDate = new DateTime(2026, 6, 20), BoneDensity = "0.86", BoneLevel = "正常", BoneAge = "12.5岁", VitaminD = "充足", CalciumLevel = "正常", RecorderId = 6L, RecorderName = "校医李", RecordTime = new DateTime(2026, 6, 20, 14, 25, 0), Source = "device", DeviceSn = "BONE-D004", Status = "approved", ReviewerId = 10L, ReviewerName = "专家王", ReviewTime = new DateTime(2026, 6, 21, 9, 0, 0), CreatedAt = (DateTime?)seedNow, UpdatedAt = (DateTime?)seedNow }
         );
     }
 }
